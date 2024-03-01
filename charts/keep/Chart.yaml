@@ -14,11 +14,8 @@ keywords:
   - monitoring-tool
 home: https://platform.keephq.dev/
 sources:
-  - https://github.com/keephq/keep
+  - https://github.com/keephq/helm-charts
 maintainers:
-  - name: Denis Tu
-    email: dmarshaltu@gmail.com
-    url: https://github.com/DmarshalTU
   - name: Shahar Glazner
     email: shahar@keephq.dev
     url: https://github.com/shahargl
