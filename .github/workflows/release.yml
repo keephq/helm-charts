@@ -6,6 +6,8 @@ on:
       - main
   workflow_dispatch:
 
+permissions: write-all
+
 jobs:
   release:
     runs-on: ubuntu-latest
