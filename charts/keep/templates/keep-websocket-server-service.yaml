@@ -1,3 +1,4 @@
+{{- if .Values.websocket.enabled -}}
 apiVersion: v1
 kind: Service
 metadata:
@@ -15,3 +16,4 @@ spec:
   selector:
     {{- include "keep.selectorLabels" . | nindent 4 }}
     keep-component: websocket
+{{- end}}
