@@ -1,3 +1,4 @@
+{{- if .Values.database.enabled -}}
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -11,3 +12,4 @@ spec:
   storageClassName: {{ .Values.database.storageClasss }}
   hostPath:
     path: "/var/lib/mysql"
+{{- end }}
