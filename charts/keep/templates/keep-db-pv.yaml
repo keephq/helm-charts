@@ -9,7 +9,7 @@ spec:
   accessModes:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: {{ .Values.database.storageClasss }}
+  storageClassName: {{ .Values.database.storageClass }}
   hostPath:
     path: "/var/lib/mysql"
 {{- end }}
