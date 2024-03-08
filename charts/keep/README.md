@@ -1,6 +1,6 @@
 # keep
 
-![Version: 0.0.1](https://img.shields.io/badge/Version-0.0.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.2.1](https://img.shields.io/badge/AppVersion-0.2.1-informational?style=flat-square)
+![Version: 0.0.2](https://img.shields.io/badge/Version-0.0.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.2.1](https://img.shields.io/badge/AppVersion-0.2.1-informational?style=flat-square)
 
 Keep Helm Chart
 
@@ -10,13 +10,12 @@ Keep Helm Chart
 
 | Name | Email | Url |
 | ---- | ------ | --- |
-| Denis Tu | <dmarshaltu@gmail.com> | <https://github.com/DmarshalTU> |
 | Shahar Glazner | <shahar@keephq.dev> | <https://github.com/shahargl> |
 | Tal Borenstein | <tal@keephq.dev> | <https://github.com/talboren> |
 
 ## Source Code
 
-* <https://github.com/keephq/keep>
+* <https://github.com/keephq/helm-charts>
 
 ## Values
 
@@ -95,7 +94,7 @@ Keep Helm Chart
 | database.service.port | int | `3306` |  |
 | database.service.type | string | `"ClusterIP"` |  |
 | database.size | string | `"5Gi"` |  |
-| database.storageClasss | string | `""` |  |
+| database.storageClass | string | `""` |  |
 | database.tolerations | list | `[]` |  |
 | frontend.affinity | object | `{}` |  |
 | frontend.autoscaling.enabled | bool | `false` |  |

@@ -188,7 +188,7 @@ database:
   enabled: true
   replicaCount: 1
   size: 5Gi
-  storageClasss: ""
+  storageClass: ""
   image:
     repository: mysql
     pullPolicy: IfNotPresent
