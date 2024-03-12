@@ -8,6 +8,9 @@ fullnameOverride: ""
 
 backend:
   enabled: true
+  # if true, wait for the database to be ready before starting the API
+  # if you use external database, you can set this to false
+  waitForDatabase: true
   env:
     - name: SECRET_MANAGER_TYPE
       value: k8s
