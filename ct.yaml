@@ -3,7 +3,8 @@ target-branch: main
 debug: true
 check-version-increment: false
 helm-extra-args: --timeout 15m
+validate-maintainers: false
 charts:
   - charts/keep
 chart-repos:
-  - keep=https://keephq.github.io/helm-charts # TODO: replace with custom domain
+  - keep=https://keephq.github.io/helm-charts
