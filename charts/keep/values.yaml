@@ -93,7 +93,7 @@ frontend:
     - name: HOSTNAME
       value: 0.0.0.0
     - name: PUSHER_HOST
-      value: localhost
+      value: keep-websocket.default.svc.cluster.local
     - name: PUSHER_PORT
       value: 6001
     - name: PUSHER_APP_KEY
@@ -167,16 +167,6 @@ websocket:
   service:
     type: ClusterIP
     port: 6001
-  ingress:
-    enabled: false
-    className: ""
-    annotations: {}
-    hosts:
-      - host: chart-example.local
-        paths:
-          - path: /
-            pathType: ImplementationSpecific
-    tls: []
   resources: {}
   autoscaling:
     enabled: false
