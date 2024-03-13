@@ -1,6 +1,6 @@
 # keep
 
-![Version: 0.0.2](https://img.shields.io/badge/Version-0.0.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.2.1](https://img.shields.io/badge/AppVersion-0.2.1-informational?style=flat-square)
+![Version: 0.0.3](https://img.shields.io/badge/Version-0.0.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.2.1](https://img.shields.io/badge/AppVersion-0.2.1-informational?style=flat-square)
 
 Keep Helm Chart
 
@@ -72,6 +72,7 @@ Keep Helm Chart
 | backend.service.port | int | `8080` |  |
 | backend.service.type | string | `"ClusterIP"` |  |
 | backend.tolerations | list | `[]` |  |
+| backend.waitForDatabase | bool | `true` |  |
 | database.affinity | object | `{}` |  |
 | database.autoscaling.enabled | bool | `false` |  |
 | database.enabled | bool | `true` |  |
@@ -125,7 +126,7 @@ Keep Helm Chart
 | frontend.env[8].name | string | `"HOSTNAME"` |  |
 | frontend.env[8].value | string | `"0.0.0.0"` |  |
 | frontend.env[9].name | string | `"PUSHER_HOST"` |  |
-| frontend.env[9].value | string | `"localhost"` |  |
+| frontend.env[9].value | string | `"keep-websocket.default.svc.cluster.local"` |  |
 | frontend.image.pullPolicy | string | `"Always"` |  |
 | frontend.image.repository | string | `"us-central1-docker.pkg.dev/keephq/keep/keep-ui"` |  |
 | frontend.image.tag | string | `"latest"` |  |
@@ -178,13 +179,6 @@ Keep Helm Chart
 | websocket.image.repository | string | `"quay.io/soketi/soketi:1.4-16-debian"` |  |
 | websocket.image.tag | string | `"latest"` |  |
 | websocket.imagePullSecrets | list | `[]` |  |
-| websocket.ingress.annotations | object | `{}` |  |
-| websocket.ingress.className | string | `""` |  |
-| websocket.ingress.enabled | bool | `false` |  |
-| websocket.ingress.hosts[0].host | string | `"chart-example.local"` |  |
-| websocket.ingress.hosts[0].paths[0].path | string | `"/"` |  |
-| websocket.ingress.hosts[0].paths[0].pathType | string | `"ImplementationSpecific"` |  |
-| websocket.ingress.tls | list | `[]` |  |
 | websocket.nodeSelector | object | `{}` |  |
 | websocket.podAnnotations | object | `{}` |  |
 | websocket.podSecurityContext | object | `{}` |  |
