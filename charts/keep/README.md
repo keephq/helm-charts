@@ -1,6 +1,6 @@
 # keep
 
-![Version: 0.0.3](https://img.shields.io/badge/Version-0.0.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.2.1](https://img.shields.io/badge/AppVersion-0.2.1-informational?style=flat-square)
+![Version: 0.0.4](https://img.shields.io/badge/Version-0.0.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.2.1](https://img.shields.io/badge/AppVersion-0.2.1-informational?style=flat-square)
 
 Keep Helm Chart
 
@@ -26,25 +26,34 @@ Keep Helm Chart
 | backend.autoscaling.maxReplicas | int | `3` |  |
 | backend.autoscaling.minReplicas | int | `1` |  |
 | backend.autoscaling.targetCPUUtilizationPercentage | int | `80` |  |
+| backend.databasePasswordFromSecret.enabled | bool | `false` |  |
+| backend.databasePasswordFromSecret.secretKey | string | `""` |  |
+| backend.databasePasswordFromSecret.secretName | string | `""` |  |
 | backend.enabled | bool | `true` |  |
 | backend.env[0].name | string | `"SECRET_MANAGER_TYPE"` |  |
 | backend.env[0].value | string | `"k8s"` |  |
+| backend.env[10].name | string | `"PUSHER_HOST"` |  |
+| backend.env[10].value | string | `"keep-websocket"` |  |
+| backend.env[11].name | string | `"PUSHER_PORT"` |  |
+| backend.env[11].value | int | `6001` |  |
 | backend.env[1].name | string | `"PORT"` |  |
 | backend.env[1].value | string | `"8080"` |  |
 | backend.env[2].name | string | `"SECRET_MANAGER_DIRECTORY"` |  |
 | backend.env[2].value | string | `"/state"` |  |
-| backend.env[3].name | string | `"DATABASE_CONNECTION_STRING"` |  |
-| backend.env[3].value | string | `"mysql+pymysql://root@keep-database:3306/keep"` |  |
-| backend.env[4].name | string | `"PUSHER_APP_ID"` |  |
-| backend.env[4].value | int | `1` |  |
-| backend.env[5].name | string | `"PUSHER_APP_KEY"` |  |
-| backend.env[5].value | string | `"keepappkey"` |  |
-| backend.env[6].name | string | `"PUSHER_APP_SECRET"` |  |
-| backend.env[6].value | string | `"keepappsecret"` |  |
-| backend.env[7].name | string | `"PUSHER_HOST"` |  |
-| backend.env[7].value | string | `"keep-websocket"` |  |
-| backend.env[8].name | string | `"PUSHER_PORT"` |  |
-| backend.env[8].value | int | `6001` |  |
+| backend.env[3].name | string | `"DATABASE_HOST"` |  |
+| backend.env[3].value | string | `"keep-database"` |  |
+| backend.env[4].name | string | `"DATABASE_PORT"` |  |
+| backend.env[4].value | string | `"3306"` |  |
+| backend.env[5].name | string | `"DATABASE_NAME"` |  |
+| backend.env[5].value | string | `"keep"` |  |
+| backend.env[6].name | string | `"DATABASE_USER"` |  |
+| backend.env[6].value | string | `"root"` |  |
+| backend.env[7].name | string | `"PUSHER_APP_ID"` |  |
+| backend.env[7].value | int | `1` |  |
+| backend.env[8].name | string | `"PUSHER_APP_KEY"` |  |
+| backend.env[8].value | string | `"keepappkey"` |  |
+| backend.env[9].name | string | `"PUSHER_APP_SECRET"` |  |
+| backend.env[9].value | string | `"keepappsecret"` |  |
 | backend.image.pullPolicy | string | `"Always"` |  |
 | backend.image.repository | string | `"us-central1-docker.pkg.dev/keephq/keep/keep-api"` |  |
 | backend.image.tag | string | `"latest"` |  |
