@@ -31,7 +31,7 @@ Keep Helm Chart
 | backend.databaseConnectionStringFromSecret.secretName | string | `""` |  |
 | backend.enabled | bool | `true` |  |
 | backend.env[0].name | string | `"DATABASE_CONNECTION_STRING"` |  |
-| backend.env[0].value | string | `"mysql+pymysql://root@keep-database.default.svc.cluster.local:3306/keep"` |  |
+| backend.env[0].value | string | `"mysql+pymysql://root@keep-database:3306/keep"` |  |
 | backend.env[1].name | string | `"SECRET_MANAGER_TYPE"` |  |
 | backend.env[1].value | string | `"k8s"` |  |
 | backend.env[2].name | string | `"PORT"` |  |

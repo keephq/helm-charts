@@ -19,7 +19,7 @@ backend:
     secretKey: ""
   env:
     - name: DATABASE_CONNECTION_STRING
-      value: mysql+pymysql://root@keep-database.default.svc.cluster.local:3306/keep
+      value: mysql+pymysql://root@keep-database:3306/keep
     - name: SECRET_MANAGER_TYPE
       value: k8s
     - name: PORT
