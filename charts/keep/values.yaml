@@ -11,15 +11,21 @@ backend:
   # if true, wait for the database to be ready before starting the API
   # if you use external database, you can set this to false
   waitForDatabase: true
+  # if true, the database connection string will be read from a secret
+  # if it is false, the DATABASE_CONNECTION_STRING value can be set directly
+  databaseConnectionStringFromSecret:
+    enabled: false
+    secretName: ""
+    secretKey: ""
   env:
+    - name: DATABASE_CONNECTION_STRING
+      value: mysql+pymysql://root@keep-database:3306/keep
     - name: SECRET_MANAGER_TYPE
       value: k8s
     - name: PORT
       value: "8080"
     - name: SECRET_MANAGER_DIRECTORY
       value: /state
-    - name: DATABASE_CONNECTION_STRING
-      value: mysql+pymysql://root@keep-database:3306/keep
     - name: PUSHER_APP_ID
       value: 1
     - name: PUSHER_APP_KEY

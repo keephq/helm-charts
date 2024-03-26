@@ -1,10 +1,8 @@
 remote: origin
 target-branch: main
 debug: true
-check-version-increment: false
+check-version-increment: true
 helm-extra-args: --timeout 15m
 validate-maintainers: false
 charts:
   - charts/keep
-chart-repos:
-  - keep=https://keephq.github.io/helm-charts

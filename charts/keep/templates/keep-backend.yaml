@@ -53,6 +53,13 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
+            {{- if .Values.backend.databaseConnectionStringFromSecret.enabled }}
+            - name: DATABASE_CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backend.databaseConnectionStringFromSecret.secretName }}
+                  key: {{ .Values.backend.databaseConnectionStringFromSecret.secretKey }}
+            {{- end }}
           volumeMounts:
             - name: state-volume
               mountPath: /state

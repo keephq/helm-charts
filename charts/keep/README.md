@@ -1,6 +1,6 @@
 # keep
 
-![Version: 0.0.3](https://img.shields.io/badge/Version-0.0.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.2.1](https://img.shields.io/badge/AppVersion-0.2.1-informational?style=flat-square)
+![Version: 0.0.4](https://img.shields.io/badge/Version-0.0.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.2.1](https://img.shields.io/badge/AppVersion-0.2.1-informational?style=flat-square)
 
 Keep Helm Chart
 
@@ -26,15 +26,18 @@ Keep Helm Chart
 | backend.autoscaling.maxReplicas | int | `3` |  |
 | backend.autoscaling.minReplicas | int | `1` |  |
 | backend.autoscaling.targetCPUUtilizationPercentage | int | `80` |  |
+| backend.databaseConnectionStringFromSecret.enabled | bool | `false` |  |
+| backend.databaseConnectionStringFromSecret.secretKey | string | `""` |  |
+| backend.databaseConnectionStringFromSecret.secretName | string | `""` |  |
 | backend.enabled | bool | `true` |  |
-| backend.env[0].name | string | `"SECRET_MANAGER_TYPE"` |  |
-| backend.env[0].value | string | `"k8s"` |  |
-| backend.env[1].name | string | `"PORT"` |  |
-| backend.env[1].value | string | `"8080"` |  |
-| backend.env[2].name | string | `"SECRET_MANAGER_DIRECTORY"` |  |
-| backend.env[2].value | string | `"/state"` |  |
-| backend.env[3].name | string | `"DATABASE_CONNECTION_STRING"` |  |
-| backend.env[3].value | string | `"mysql+pymysql://root@keep-database:3306/keep"` |  |
+| backend.env[0].name | string | `"DATABASE_CONNECTION_STRING"` |  |
+| backend.env[0].value | string | `"mysql+pymysql://root@keep-database:3306/keep"` |  |
+| backend.env[1].name | string | `"SECRET_MANAGER_TYPE"` |  |
+| backend.env[1].value | string | `"k8s"` |  |
+| backend.env[2].name | string | `"PORT"` |  |
+| backend.env[2].value | string | `"8080"` |  |
+| backend.env[3].name | string | `"SECRET_MANAGER_DIRECTORY"` |  |
+| backend.env[3].value | string | `"/state"` |  |
 | backend.env[4].name | string | `"PUSHER_APP_ID"` |  |
 | backend.env[4].value | int | `1` |  |
 | backend.env[5].name | string | `"PUSHER_APP_KEY"` |  |
