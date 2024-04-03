@@ -1,15 +1,15 @@
-{{- if .Values.database.enabled -}}
+{{- if and .Values.database.enabled .Values.database.pv.enabled  -}}
 apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: {{ include "keep.fullname" . }}-pv
 spec:
   capacity:
-    storage: {{ .Values.database.size }}
+    storage: {{ .Values.database.pv.size }}
   accessModes:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: {{ .Values.database.storageClass }}
+  storageClassName: {{ .Values.database.pv.storageClass }}
   hostPath:
     path: "/var/lib/mysql"
 {{- end }}

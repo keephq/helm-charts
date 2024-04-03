@@ -13,6 +13,9 @@ spec:
       targetPort: http
       protocol: TCP
       name: http
+      {{ if eq .Values.frontend.service.type "NodePort" }}
+      nodePort: {{ .Values.frontend.service.nodePort }}
+      {{- end }}
   selector:
     {{- include "keep.selectorLabels" . | nindent 4 }}
     keep-component: frontend

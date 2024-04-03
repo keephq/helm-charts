@@ -49,14 +49,9 @@ spec:
             - name: state-volume
               mountPath: /state
               readOnly: false
-          # livenessProbe:
-          #   httpGet:
-          #     path: /
-          #     port: http
-          # readinessProbe:
-          #   httpGet:
-          #     path: /
-          #     port: http
+          {{- if .Values.websocket.healthCheck.enabled }}
+          {{- toYaml .Values.websocket.healthCheck.probes | nindent 10 }}
+          {{- end }}
           resources:
             {{- toYaml .Values.websocket.resources | nindent 12 }}
       {{- with .Values.websocket.nodeSelector }}

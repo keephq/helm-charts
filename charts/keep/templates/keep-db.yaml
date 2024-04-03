@@ -49,6 +49,12 @@ spec:
           - mountPath: /var/lib/mysql
             name: {{ include "keep.fullname" . }}-pv
             readOnly: false
+          {{- with .Values.database.extraVolumeMounts }}
+            {{- toYaml . | nindent 10 }}
+          {{- end }}
+          {{- if .Values.database.healthCheck.enabled }}
+          {{- toYaml .Values.database.healthCheck.probes | nindent 10 }}
+          {{- end }}
           resources:
             {{- toYaml .Values.database.resources | nindent 12 }}
       {{- with .Values.database.nodeSelector }}
@@ -67,4 +73,7 @@ spec:
         - name: {{ include "keep.fullname" . }}-pv
           persistentVolumeClaim:
             claimName: {{ include "keep.fullname" . }}-pvc
+        {{- with .Values.database.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
 {{- end }}
