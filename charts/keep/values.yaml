@@ -222,7 +222,7 @@ database:
   enabled: true
   replicaCount: 1
   pv:
-    enabled: false
+    enabled: true
     size: 5Gi
     storageClass: ""
   pvc:
