@@ -64,14 +64,13 @@ spec:
             - name: state-volume
               mountPath: /state
               readOnly: false
-          # livenessProbe:
-          #   httpGet:
-          #     path: /
-          #     port: http
-          # readinessProbe:
-          #   httpGet:
-          #     path: /
-          #     port: http
+            {{- with .Values.backend.extraVolumeMounts }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
+
+          {{- if .Values.backend.healthCheck.enabled }}
+          {{- toYaml .Values.backend.healthCheck.probes | nindent 10 }}
+          {{- end }}
           resources:
             {{- toYaml .Values.backend.resources | nindent 12 }}
       initContainers:
@@ -96,4 +95,7 @@ spec:
       volumes:
         - name: state-volume
           emptyDir: {}
+        {{- with .Values.backend.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
 {{- end }}

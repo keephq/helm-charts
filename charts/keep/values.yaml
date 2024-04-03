@@ -76,6 +76,19 @@ backend:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  healthCheck:
+    enabled: false
+    probes:
+      readinessProbe:
+        tcpSocket:
+          port: 8080
+        initialDelaySeconds: 30
+        periodSeconds: 10
+      livenessProbe:
+        tcpSocket:
+          port: 8080
+  extraVolumeMounts: []
+  extraVolumes: []
 
 frontend:
   enabled: true
@@ -145,6 +158,17 @@ frontend:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  healthCheck:
+    enabled: false
+    probes:
+      livenessProbe:
+        httpGet:
+          path: /
+          port: http
+      readinessProbe:
+        httpGet:
+          path: /
+          port: http
 
 websocket:
   enabled: true
@@ -182,12 +206,29 @@ websocket:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  healthCheck:
+    enabled: false
+    probes:
+      livenessProbe:
+        httpGet:
+          path: /
+          port: http
+      readinessProbe:
+        httpGet:
+          path: /
+          port: http
 
 database:
   enabled: true
   replicaCount: 1
-  size: 5Gi
-  storageClass: ""
+  pv:
+    enabled: true
+    size: 5Gi
+    storageClass: ""
+  pvc:
+    enabled: true
+    size: 5Gi
+    storageClass: ""
   image:
     repository: mysql
     pullPolicy: IfNotPresent
@@ -212,3 +253,16 @@ database:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  healthCheck:
+    enabled: false
+    probes:
+      readinessProbe:
+        tcpSocket:
+          port: 3306
+        initialDelaySeconds: 30
+        periodSeconds: 10
+      livenessProbe:
+        tcpSocket:
+          port: 3306
+  extraVolumeMounts: []
+  extraVolumes: []

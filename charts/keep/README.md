@@ -1,6 +1,6 @@
 # keep
 
-![Version: 0.0.4](https://img.shields.io/badge/Version-0.0.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.2.1](https://img.shields.io/badge/AppVersion-0.2.1-informational?style=flat-square)
+![Version: 0.0.5](https://img.shields.io/badge/Version-0.0.5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.2.1](https://img.shields.io/badge/AppVersion-0.2.1-informational?style=flat-square)
 
 Keep Helm Chart
 
@@ -48,6 +48,13 @@ Keep Helm Chart
 | backend.env[7].value | string | `"keep-websocket"` |  |
 | backend.env[8].name | string | `"PUSHER_PORT"` |  |
 | backend.env[8].value | int | `6001` |  |
+| backend.extraVolumeMounts | list | `[]` |  |
+| backend.extraVolumes | list | `[]` |  |
+| backend.healthCheck.enabled | bool | `false` |  |
+| backend.healthCheck.probes.livenessProbe.tcpSocket.port | int | `8080` |  |
+| backend.healthCheck.probes.readinessProbe.initialDelaySeconds | int | `30` |  |
+| backend.healthCheck.probes.readinessProbe.periodSeconds | int | `10` |  |
+| backend.healthCheck.probes.readinessProbe.tcpSocket.port | int | `8080` |  |
 | backend.image.pullPolicy | string | `"Always"` |  |
 | backend.image.repository | string | `"us-central1-docker.pkg.dev/keephq/keep/keep-api"` |  |
 | backend.image.tag | string | `"latest"` |  |
@@ -85,6 +92,13 @@ Keep Helm Chart
 | database.env[1].value | string | `"keep"` |  |
 | database.env[2].name | string | `"MYSQL_PASSWORD"` |  |
 | database.env[2].value | string | `nil` |  |
+| database.extraVolumeMounts | list | `[]` |  |
+| database.extraVolumes | list | `[]` |  |
+| database.healthCheck.enabled | bool | `false` |  |
+| database.healthCheck.probes.livenessProbe.tcpSocket.port | int | `3306` |  |
+| database.healthCheck.probes.readinessProbe.initialDelaySeconds | int | `30` |  |
+| database.healthCheck.probes.readinessProbe.periodSeconds | int | `10` |  |
+| database.healthCheck.probes.readinessProbe.tcpSocket.port | int | `3306` |  |
 | database.image.pullPolicy | string | `"IfNotPresent"` |  |
 | database.image.repository | string | `"mysql"` |  |
 | database.image.tag | string | `"latest"` |  |
@@ -92,13 +106,17 @@ Keep Helm Chart
 | database.nodeSelector | object | `{}` |  |
 | database.podAnnotations | object | `{}` |  |
 | database.podSecurityContext | object | `{}` |  |
+| database.pv.enabled | bool | `true` |  |
+| database.pv.size | string | `"5Gi"` |  |
+| database.pv.storageClass | string | `""` |  |
+| database.pvc.enabled | bool | `true` |  |
+| database.pvc.size | string | `"5Gi"` |  |
+| database.pvc.storageClass | string | `""` |  |
 | database.replicaCount | int | `1` |  |
 | database.resources | object | `{}` |  |
 | database.securityContext | object | `{}` |  |
 | database.service.port | int | `3306` |  |
 | database.service.type | string | `"ClusterIP"` |  |
-| database.size | string | `"5Gi"` |  |
-| database.storageClass | string | `""` |  |
 | database.tolerations | list | `[]` |  |
 | frontend.affinity | object | `{}` |  |
 | frontend.autoscaling.enabled | bool | `false` |  |
@@ -130,6 +148,11 @@ Keep Helm Chart
 | frontend.env[8].value | string | `"0.0.0.0"` |  |
 | frontend.env[9].name | string | `"PUSHER_HOST"` |  |
 | frontend.env[9].value | string | `"keep-websocket.default.svc.cluster.local"` |  |
+| frontend.healthCheck.enabled | bool | `false` |  |
+| frontend.healthCheck.probes.livenessProbe.httpGet.path | string | `"/"` |  |
+| frontend.healthCheck.probes.livenessProbe.httpGet.port | string | `"http"` |  |
+| frontend.healthCheck.probes.readinessProbe.httpGet.path | string | `"/"` |  |
+| frontend.healthCheck.probes.readinessProbe.httpGet.port | string | `"http"` |  |
 | frontend.image.pullPolicy | string | `"Always"` |  |
 | frontend.image.repository | string | `"us-central1-docker.pkg.dev/keephq/keep/keep-ui"` |  |
 | frontend.image.tag | string | `"latest"` |  |
@@ -178,6 +201,11 @@ Keep Helm Chart
 | websocket.env[2].value | string | `"keepappkey"` |  |
 | websocket.env[3].name | string | `"SOKETI_DEFAULT_APP_SECRET"` |  |
 | websocket.env[3].value | string | `"keepappsecret"` |  |
+| websocket.healthCheck.enabled | bool | `false` |  |
+| websocket.healthCheck.probes.livenessProbe.httpGet.path | string | `"/"` |  |
+| websocket.healthCheck.probes.livenessProbe.httpGet.port | string | `"http"` |  |
+| websocket.healthCheck.probes.readinessProbe.httpGet.path | string | `"/"` |  |
+| websocket.healthCheck.probes.readinessProbe.httpGet.port | string | `"http"` |  |
 | websocket.image.pullPolicy | string | `"Always"` |  |
 | websocket.image.repository | string | `"quay.io/soketi/soketi:1.4-16-debian"` |  |
 | websocket.image.tag | string | `"latest"` |  |
