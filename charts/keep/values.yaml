@@ -209,14 +209,14 @@ websocket:
   healthCheck:
     enabled: false
     probes:
-     livenessProbe:
-       httpGet:
-         path: /
-         port: http
-     readinessProbe:
-       httpGet:
-         path: /
-         port: http
+      livenessProbe:
+        httpGet:
+          path: /
+          port: http
+      readinessProbe:
+        httpGet:
+          path: /
+          port: http
 
 database:
   enabled: true
