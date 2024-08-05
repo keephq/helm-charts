@@ -13,6 +13,7 @@ spec:
   selector:
     matchLabels:
       {{- include "keep.selectorLabels" . | nindent 6 }}
+      keep-component: websocket
   template:
     metadata:
       {{- with .Values.websocket.podAnnotations }}
