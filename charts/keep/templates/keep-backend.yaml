@@ -47,8 +47,8 @@ spec:
               {{- if .secretKeyRef }}
               valueFrom:
                 secretKeyRef:
-                  name: {{ .secretName }}
-                  key: {{ .secretKey }}
+                  name: {{ .secretKeyRef.secretName }}
+                  key: {{ .secretKeyRef.secretKey }}
               {{- else if .configMapKeyRef }}
               valueFrom:
                 configMapKeyRef:
