@@ -44,6 +44,7 @@ backend:
     repository: us-central1-docker.pkg.dev/keephq/keep/keep-api
     pullPolicy: Always
     tag: "latest"
+  extraInitContainers: []
   imagePullSecrets: []
   podAnnotations: {}
   podSecurityContext: {}
