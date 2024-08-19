@@ -80,6 +80,25 @@ spec:
           image: busybox
           command: ['sh', '-c', 'until nc -z keep-database 3306; do sleep 1; done;']
         {{- end }}
+        {{- range .Values.backend.extraInitContainers }}
+        - name: {{ .name }}
+          image: {{ .image }}
+          {{- with .imagePullPolicy }}
+          imagePullPolicy: {{ . }}
+          {{- end }}
+          {{- with .command }}
+          command: {{ toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .args }}
+          args: {{ toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .env }}
+          env: {{ toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .volumeMounts }}
+          volumeMounts: {{ toYaml . | nindent 12 }}
+          {{- end }}
+        {{- end }}
 
       {{- with .Values.backend.nodeSelector }}
       nodeSelector:
