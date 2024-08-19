@@ -254,20 +254,4 @@ database:
   nodeSelector: {}
   tolerations: []
   affinity: {}
-<<<<<<< Updated upstream
-  healthCheck:
-    enabled: false
-    probes:
-      readinessProbe:
-        tcpSocket:
-          port: 3306
-        initialDelaySeconds: 30
-        periodSeconds: 10
-      livenessProbe:
-        tcpSocket:
-          port: 3306
-  extraVolumeMounts: []
-  extraVolumes: []
-=======
   
->>>>>>> Stashed changes
