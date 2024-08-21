@@ -98,15 +98,15 @@ spec:
         {{- end }}
         {{- range .Values.backend.extraInitContainers }}
         - name: {{ .name }}
-          image: {{ .image }}
+          image: {{ tpl .image $ }}
           {{- with .imagePullPolicy }}
           imagePullPolicy: {{ . }}
           {{- end }}
           {{- with .command }}
-          command: {{ toYaml . | nindent 12 }}
+          command: {{ tpl (toYaml .) $ | nindent 12 }}
           {{- end }}
           {{- with .args }}
-          args: {{ toYaml . | nindent 12 }}
+          args: {{ tpl (toYaml .) $ | nindent 12 }}
           {{- end }}
           {{- with .env }}
           env: {{ toYaml . | nindent 12 }}
