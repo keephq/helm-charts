@@ -59,7 +59,7 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
               {{- else }}
-              value: {{ .value | quote }}
+              value: {{ tpl (.value | toString) $ | quote }}
               {{- end }}
             {{- end }}
             {{- if .Values.backend.openAiApi.enabled }}
