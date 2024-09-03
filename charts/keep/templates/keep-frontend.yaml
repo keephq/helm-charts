@@ -55,6 +55,9 @@ spec:
           {{- end }}
           resources:
             {{- toYaml .Values.frontend.resources | nindent 12 }}
+      {{- if .Values.frontend.extraContainers -}}
+      {{ toYaml .Values.frontend.extraContainers | nindent 8 }}
+      {{- end }}
       {{- with .Values.frontend.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

@@ -16,6 +16,9 @@ spec:
       {{ if eq .Values.frontend.service.type "NodePort" }}
       nodePort: {{ .Values.frontend.service.nodePort }}
       {{- end }}
+    {{- if .Values.frontend.extraPorts }}
+    {{- toYaml .Values.frontend.extraPorts | nindent 4 }}
+    {{- end }}
   selector:
     {{- include "keep.selectorLabels" . | nindent 4 }}
     keep-component: frontend
