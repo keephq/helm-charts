@@ -47,13 +47,13 @@ spec:
               {{- if .secretKeyRef }}
               valueFrom:
                 secretKeyRef:
-                  name: {{ .secretKeyRef.secretName }}
-                  key: {{ .secretKeyRef.secretKey }}
+                  name: {{ tpl (.secretKeyRef.secretName | toString) $ }}
+                  key: {{ tpl (.secretKeyRef.secretKey | toString) $ }}
               {{- else if .configMapKeyRef }}
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .configMapName }}
-                  key: {{ .configMapKey }}
+                  name: {{ tpl (.configMapName | toString) $ }}
+                  key: {{ tpl (.configMapKey | toString) $ }}
               {{- else if .fieldRef }}
               valueFrom:
                 fieldRef:
