@@ -27,6 +27,7 @@ spec:
         {{- end }}
         {{- end }}
         {{- end }}
+      {{- end }}
       labels:
         {{- include "keep.selectorLabels" . | nindent 8 }}
         keep-component: backend
@@ -59,8 +60,8 @@ spec:
               {{- else if .configMapKeyRef }}
               valueFrom:
                 configMapKeyRef:
-                  name: {{ tpl (.configMapName | toString) $ }}
-                  key: {{ tpl (.configMapKey | toString) $ }}
+                  name: {{ tpl (.configMapKeyRef.name | toString) $ }}
+                  key: {{ tpl (.configMapKeyRef.key | toString) $ }}
               {{- else if .fieldRef }}
               valueFrom:
                 fieldRef:
