@@ -4,6 +4,33 @@ entries:
   - annotations:
       app: keep
     apiVersion: v2
+    appVersion: 0.24.0
+    created: "2024-09-08T14:39:18.602743614Z"
+    description: Keep Helm Chart
+    digest: 0e05ad65cdd2840601368e217a4656dec0ea33eddd8ba5a0825e54041ed83315
+    home: https://platform.keephq.dev/
+    icon: https://platform.keephq.dev/_next/image?url=%2Fkeep.png&w=48&q=75
+    keywords:
+    - alerting
+    - monitoring
+    - monitoring-tool
+    maintainers:
+    - email: shahar@keephq.dev
+      name: Shahar Glazner
+      url: https://github.com/shahargl
+    - email: tal@keephq.dev
+      name: Tal Borenstein
+      url: https://github.com/talboren
+    name: keep
+    sources:
+    - https://github.com/keephq/helm-charts
+    type: application
+    urls:
+    - https://github.com/keephq/helm-charts/releases/download/keep-0.1.9/keep-0.1.9.tgz
+    version: 0.1.9
+  - annotations:
+      app: keep
+    apiVersion: v2
     appVersion: 0.23.0
     created: "2024-09-03T10:39:26.887438872Z"
     description: Keep Helm Chart
@@ -433,4 +460,4 @@ entries:
     urls:
     - https://github.com/keephq/helm-charts/releases/download/keep-0.0.1/keep-0.0.1.tgz
     version: 0.0.1
-generated: "2024-09-03T10:39:26.887601243Z"
+generated: "2024-09-08T14:39:18.602868067Z"
