@@ -18,8 +18,15 @@ spec:
     metadata:
       {{- with .Values.backend.podAnnotations }}
       annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- if .Values.backend.podAnnotations }}
+        {{- range $key, $value := .Values.backend.podAnnotations }}
+        {{- if kindIs "string" $value }}
+        {{ $key }}: {{ tpl $value $ | quote }}
+        {{- else }}
+        {{ $key }}: {{ $value | toYaml | nindent 8 }}
+        {{- end }}
+        {{- end }}
+        {{- end }}
       labels:
         {{- include "keep.selectorLabels" . | nindent 8 }}
         keep-component: backend
