@@ -37,6 +37,14 @@ backend:
       value: keep-websocket
     - name: PUSHER_PORT
       value: 6001
+    - name: REDIS
+      value: true
+    - name: REDIS_HOST
+      value: keep-redis
+    - name: REDIS_PORT
+      value: 6379
+    - name: KEEP_ARQ_TASK_POOL
+      value: basic_processing
   openAiApi:
     enabled: false
     openAiApiKey: ""
@@ -266,5 +274,47 @@ database:
       livenessProbe:
         tcpSocket:
           port: 3306
+  extraVolumeMounts: []
+  extraVolumes: []
+
+redis:
+  enabled: true
+  replicaCount: 1
+  pv:
+    enabled: true
+    size: 1Gi
+    storageClass: ""
+  pvc:
+    enabled: true
+    size: 1Gi
+    storageClass: ""
+  image:
+    repository: redis
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  imagePullSecrets: []
+  podAnnotations: {}
+  podSecurityContext: {}
+  securityContext: {}
+  service:
+    type: ClusterIP
+    port: 6379
+  resources: {}
+  autoscaling:
+    enabled: false
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  healthCheck:
+    enabled: false
+    probes:
+      readinessProbe:
+        tcpSocket:
+          port: 6379
+        initialDelaySeconds: 30
+        periodSeconds: 10
+      livenessProbe:
+        tcpSocket:
+          port: 6379
   extraVolumeMounts: []
   extraVolumes: []

@@ -1,0 +1,19 @@
+{{- if .Values.redis.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "keep.name" . }}-redis
+  labels:
+    {{- include "keep.labels" . | nindent 4 }}
+    keep-component: redis-service
+spec:
+  type: {{ .Values.redis.service.type }}
+  ports:
+    - port: {{ .Values.redis.service.port }}
+      targetPort: 6379
+      protocol: TCP
+      name: redis
+  selector:
+    {{- include "keep.selectorLabels" . | nindent 4 }}
+    keep-component: redis
+{{- end }}
