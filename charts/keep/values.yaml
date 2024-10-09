@@ -187,9 +187,9 @@ websocket:
       value: keepappsecret
   replicaCount: 1
   image:
-    repository: quay.io/soketi/soketi:1.4-16-debian
+    repository: quay.io/soketi/soketi
     pullPolicy: Always
-    tag: "latest"
+    tag: "1.4-16-debian"
   imagePullSecrets: []
   serviceAccount:
     create: true

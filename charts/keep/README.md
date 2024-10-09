@@ -211,8 +211,8 @@ Keep Helm Chart
 | websocket.healthCheck.probes.readinessProbe.httpGet.path | string | `"/"` |  |
 | websocket.healthCheck.probes.readinessProbe.httpGet.port | string | `"http"` |  |
 | websocket.image.pullPolicy | string | `"Always"` |  |
-| websocket.image.repository | string | `"quay.io/soketi/soketi:1.4-16-debian"` |  |
-| websocket.image.tag | string | `"latest"` |  |
+| websocket.image.repository | string | `"quay.io/soketi/soketi"` |  |
+| websocket.image.tag | string | `"1.4-16-debian"` |  |
 | websocket.imagePullSecrets | list | `[]` |  |
 | websocket.nodeSelector | object | `{}` |  |
 | websocket.podAnnotations | object | `{}` |  |
