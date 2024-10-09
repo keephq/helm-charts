@@ -1,6 +1,6 @@
 # keep
 
-![Version: 0.1.17](https://img.shields.io/badge/Version-0.1.17-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.25.2](https://img.shields.io/badge/AppVersion-0.25.2-informational?style=flat-square)
+![Version: 0.1.18](https://img.shields.io/badge/Version-0.1.18-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.25.3](https://img.shields.io/badge/AppVersion-0.25.3-informational?style=flat-square)
 
 Keep Helm Chart
 
@@ -59,7 +59,7 @@ Keep Helm Chart
 | backend.healthCheck.probes.readinessProbe.tcpSocket.port | int | `8080` |  |
 | backend.image.pullPolicy | string | `"Always"` |  |
 | backend.image.repository | string | `"us-central1-docker.pkg.dev/keephq/keep/keep-api"` |  |
-| backend.image.tag | string | `"latest"` |  |
+| backend.image.tag | string | `"{{ .Chart.AppVersion }}"` |  |
 | backend.imagePullSecrets | list | `[]` |  |
 | backend.ingress.annotations | object | `{}` |  |
 | backend.ingress.className | string | `""` |  |
@@ -158,7 +158,7 @@ Keep Helm Chart
 | frontend.healthCheck.probes.readinessProbe.httpGet.port | string | `"http"` |  |
 | frontend.image.pullPolicy | string | `"Always"` |  |
 | frontend.image.repository | string | `"us-central1-docker.pkg.dev/keephq/keep/keep-ui"` |  |
-| frontend.image.tag | string | `"latest"` |  |
+| frontend.image.tag | string | `"{{ .Chart.AppVersion }}"` |  |
 | frontend.imagePullSecrets | list | `[]` |  |
 | frontend.ingress.annotations | object | `{}` |  |
 | frontend.ingress.className | string | `""` |  |
