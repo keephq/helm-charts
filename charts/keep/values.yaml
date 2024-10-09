@@ -176,17 +176,13 @@ websocket:
   enabled: true
   env:
     - name: SOKETI_USER_AUTHENTICATION_TIMEOUT
-      value: "3000"
+      value: 3000
     - name: SOKETI_DEFAULT_APP_ID
-      value: "1"
+      value: 1
     - name: SOKETI_DEFAULT_APP_KEY
       value: keepappkey
     - name: SOKETI_DEFAULT_APP_SECRET
       value: keepappsecret
-    - name: HOSTNAME
-      value: "0.0.0.0"
-    - name: PORT
-      value: "6001"
   replicaCount: 1
   image:
     repository: quay.io/soketi/soketi
