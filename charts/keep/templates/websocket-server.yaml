@@ -7,7 +7,7 @@ metadata:
     {{- include "keep.labels" . | nindent 4 }}
     keep-component: websocket
 spec:
-  {{- if not .Values.frontend.autoscaling.enabled }}
+  {{- if not .Values.websocket.autoscaling.enabled }}
   replicas: {{ .Values.websocket.replicaCount }}
   {{- end }}
   selector:
@@ -35,7 +35,7 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.websocket.securityContext | nindent 12 }}
-          image: "{{ .Values.websocket.image.repository }}" # :{{ .Values.frontend.image.tag | default .Chart.AppVersion }}
+          image: "{{ .Values.websocket.image.repository }}:{{ .Values.websocket.image.tag }}"
           imagePullPolicy: {{ .Values.websocket.image.pullPolicy }}
           ports:
             - name: http

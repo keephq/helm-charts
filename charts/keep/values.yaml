@@ -74,6 +74,7 @@ backend:
     minReplicas: 1
     maxReplicas: 3
     targetCPUUtilizationPercentage: 80
+    targetMemoryUtilizationPercentage: 80
   nodeSelector: {}
   tolerations: []
   affinity: {}
@@ -155,6 +156,7 @@ frontend:
     minReplicas: 1
     maxReplicas: 3
     targetCPUUtilizationPercentage: 80
+    targetMemoryUtilizationPercentage: 80
   nodeSelector: {}
   tolerations: []
   affinity: {}
@@ -183,9 +185,9 @@ websocket:
       value: keepappsecret
   replicaCount: 1
   image:
-    repository: quay.io/soketi/soketi:1.4-16-debian
+    repository: quay.io/soketi/soketi
     pullPolicy: Always
-    tag: "latest"
+    tag: "1.4-16-debian"
   imagePullSecrets: []
   serviceAccount:
     create: true
@@ -203,6 +205,7 @@ websocket:
     minReplicas: 1
     maxReplicas: 3
     targetCPUUtilizationPercentage: 80
+    targetMemoryUtilizationPercentage: 80
   nodeSelector: {}
   tolerations: []
   affinity: {}

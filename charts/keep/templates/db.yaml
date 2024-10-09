@@ -35,7 +35,7 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.database.securityContext | nindent 12 }}
-          image: "{{ .Values.database.image.repository }}:{{ .Values.database.image.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.database.image.repository }}:{{ .Values.database.image.tag }}"
           imagePullPolicy: {{ .Values.database.image.pullPolicy }}
           ports:
             - name: mysql
