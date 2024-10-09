@@ -176,13 +176,17 @@ websocket:
   enabled: true
   env:
     - name: SOKETI_USER_AUTHENTICATION_TIMEOUT
-      value: 3000
+      value: "3000"
     - name: SOKETI_DEFAULT_APP_ID
-      value: 1
+      value: "1"
     - name: SOKETI_DEFAULT_APP_KEY
       value: keepappkey
     - name: SOKETI_DEFAULT_APP_SECRET
       value: keepappsecret
+    - name: HOSTNAME
+      value: "0.0.0.0"
+    - name: PORT
+      value: "6001"
   replicaCount: 1
   image:
     repository: quay.io/soketi/soketi
@@ -199,6 +203,26 @@ websocket:
   service:
     type: ClusterIP
     port: 6001
+  ingress:
+    enabled: true
+    className: ""
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/enable-websocket: "true"
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+      nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    hosts:
+      - host: websocket.example.local
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+    tls: []
+  route:
+    enabled: false
+    host: websocket.example.local
+    path: /
+    tls: []
+    wildcardPolicy: None
   resources: {}
   autoscaling:
     enabled: false
@@ -213,59 +237,12 @@ websocket:
     enabled: false
     probes:
       livenessProbe:
-        httpGet:
-          path: /
-          port: http
-      readinessProbe:
-        httpGet:
-          path: /
-          port: http
-
-database:
-  enabled: true
-  replicaCount: 1
-  pv:
-    enabled: true
-    size: 5Gi
-    storageClass: ""
-  pvc:
-    enabled: true
-    size: 5Gi
-    storageClass: ""
-  image:
-    repository: mysql
-    pullPolicy: IfNotPresent
-    tag: "latest"
-  env:
-    - name: MYSQL_ALLOW_EMPTY_PASSWORD
-      value: yes
-    - name: MYSQL_DATABASE
-      value: keep
-    - name: MYSQL_PASSWORD
-      value: null
-  imagePullSecrets: []
-  podAnnotations: {}
-  podSecurityContext: {}
-  securityContext: {}
-  service:
-    type: ClusterIP
-    port: 3306
-  resources: {}
-  autoscaling:
-    enabled: false
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
-  healthCheck:
-    enabled: false
-    probes:
-      readinessProbe:
         tcpSocket:
-          port: 3306
+          port: 6001
         initialDelaySeconds: 30
         periodSeconds: 10
-      livenessProbe:
+      readinessProbe:
         tcpSocket:
-          port: 3306
-  extraVolumeMounts: []
-  extraVolumes: []
+          port: 6001
+        initialDelaySeconds: 30
+        periodSeconds: 10
