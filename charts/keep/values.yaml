@@ -44,7 +44,7 @@ backend:
   image:
     repository: us-central1-docker.pkg.dev/keephq/keep/keep-api
     pullPolicy: Always
-    tag: "latest"
+    tag: "{{ .Chart.AppVersion }}"
   extraInitContainers: []
   imagePullSecrets: []
   podAnnotations: {}
@@ -124,7 +124,7 @@ frontend:
   image:
     repository: us-central1-docker.pkg.dev/keephq/keep/keep-ui
     pullPolicy: Always
-    tag: "latest"
+    tag: "{{ .Chart.AppVersion }}"
   imagePullSecrets: []
   serviceAccount:
     create: true
