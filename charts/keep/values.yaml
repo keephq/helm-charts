@@ -242,3 +242,52 @@ websocket:
           port: 6001
         initialDelaySeconds: 30
         periodSeconds: 10
+
+database:
+  enabled: true
+  replicaCount: 1
+  pv:
+    enabled: true
+    size: 5Gi
+    storageClass: ""
+  pvc:
+    enabled: true
+    size: 5Gi
+    storageClass: ""
+  image:
+    repository: mysql
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  env:
+    - name: MYSQL_ALLOW_EMPTY_PASSWORD
+      value: yes
+    - name: MYSQL_DATABASE
+      value: keep
+    - name: MYSQL_PASSWORD
+      value: null
+  imagePullSecrets: []
+  podAnnotations: {}
+  podSecurityContext: {}
+  securityContext: {}
+  service:
+    type: ClusterIP
+    port: 3306
+  resources: {}
+  autoscaling:
+    enabled: false
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  healthCheck:
+    enabled: false
+    probes:
+      readinessProbe:
+        tcpSocket:
+          port: 3306
+        initialDelaySeconds: 30
+        periodSeconds: 10
+      livenessProbe:
+        tcpSocket:
+          port: 3306
+  extraVolumeMounts: []
+  extraVolumes: []
