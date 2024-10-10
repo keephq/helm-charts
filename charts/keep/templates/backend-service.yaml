@@ -6,6 +6,10 @@ metadata:
   labels:
     {{- include "keep.labels" . | nindent 4 }}
     keep-component: backend-service
+  annotations:
+    {{- if .Values.isGKE }}
+    cloud.google.com/backend-config: '{"default": "{{ include "keep.fullname" . }}-backend-backendconfig"}'
+    {{- end }}
 spec:
   type: {{ .Values.backend.service.type }}
   ports:

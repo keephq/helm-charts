@@ -5,6 +5,7 @@ serviceAccount:
   name: ""
 nameOverride: ""
 fullnameOverride: ""
+isGKE: false
 
 backend:
   # if true, the backend will be enabled
@@ -68,6 +69,17 @@ backend:
     path: /
     tls: []
     wildcardPolicy: None
+  # GKE healthcheck config (backend)
+  backendConfig:
+    enabled: false
+    healthCheck:
+      checkIntervalSec: 30
+      timeoutSec: 10
+      healthyThreshold: 1
+      unhealthyThreshold: 3
+      path: "/"
+      port: 8080
+      type: HTTP
   resources: {}
   autoscaling:
     enabled: false
@@ -99,10 +111,12 @@ frontend:
       value: secret
     - name: NEXTAUTH_URL
       value: http://localhost:3000
+    # Shahar: took me whole day to figure out that I need to set this to 1
+    # https://github.com/nextauthjs/next-auth/issues/600
+    - name: VERCEL
+      value: 1
     - name: API_URL
       value: http://keep-backend:8080
-    - name: NEXT_PUBLIC_API_URL
-      value: ""
     - name: NEXT_PUBLIC_POSTHOG_KEY
       value: "phc_muk9qE3TfZsX3SZ9XxX52kCGJBclrjhkP9JxAQcm1PZ"
     - name: NEXT_PUBLIC_POSTHOG_HOST
@@ -139,10 +153,9 @@ frontend:
     className: ""
     annotations: {}
     hosts:
-      - host: chart-example.local
-        paths:
+      - paths:
           - path: /
-            pathType: ImplementationSpecific
+            pathType: Prefix
     tls: []
   route:
     enabled: false
@@ -150,6 +163,17 @@ frontend:
     path: /
     tls: []
     wildcardPolicy: None
+  # GKE healthcheck config
+  backendConfig:
+    enabled: false
+    healthCheck:
+      checkIntervalSec: 30
+      timeoutSec: 10
+      healthyThreshold: 1
+      unhealthyThreshold: 3
+      path: "/signin"
+      port: 3000
+      type: HTTP
   resources: {}
   autoscaling:
     enabled: false
@@ -199,26 +223,6 @@ websocket:
   service:
     type: ClusterIP
     port: 6001
-  ingress:
-    enabled: true
-    className: ""
-    annotations:
-      kubernetes.io/ingress.class: nginx
-      nginx.ingress.kubernetes.io/enable-websocket: "true"
-      nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
-      nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
-    hosts:
-      - host: websocket.example.local
-        paths:
-          - path: /
-            pathType: ImplementationSpecific
-    tls: []
-  route:
-    enabled: false
-    host: websocket.example.local
-    path: /
-    tls: []
-    wildcardPolicy: None
   resources: {}
   autoscaling:
     enabled: false
@@ -233,15 +237,28 @@ websocket:
     enabled: false
     probes:
       livenessProbe:
-        tcpSocket:
-          port: 6001
-        initialDelaySeconds: 30
-        periodSeconds: 10
+        httpGet:
+          path: /
+          port: http
       readinessProbe:
-        tcpSocket:
-          port: 6001
-        initialDelaySeconds: 30
-        periodSeconds: 10
+        httpGet:
+          path: /
+          port: http
+  ingress:
+    enabled: false
+    className: "nginx"
+    hosts:
+      - host: chart-example-websocket.local
+        paths:
+          - path: /
+            pathType: Prefix
+    tls: []
+    annotations: {}
+  route:
+    enabled: false  
+    host: chart-example.local
+    wildcardPolicy: None
+    tls: [] 
 
 database:
   enabled: true
@@ -253,7 +270,7 @@ database:
   pvc:
     enabled: true
     size: 5Gi
-    storageClass: ""
+    storageClass: "standard-rwo"
   image:
     repository: mysql
     pullPolicy: IfNotPresent
