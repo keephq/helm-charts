@@ -266,7 +266,7 @@ database:
   pvc:
     enabled: true
     size: 5Gi
-    storageClass: "standard-rwo"
+    storageClass: ""
   image:
     repository: mysql
     pullPolicy: IfNotPresent
