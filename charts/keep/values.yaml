@@ -56,9 +56,9 @@ backend:
     className: ""
     annotations: {}
     hosts:
-      paths:
-        - path: /
-          pathType: Prefix
+      - paths:
+          - path: /
+            pathType: Prefix
     tls: []
   route:
     enabled: false
@@ -149,9 +149,9 @@ frontend:
     className: ""
     annotations: {}
     hosts:
-      paths:
-        - path: /
-          pathType: Prefix
+      - paths:
+          - path: /
+            pathType: Prefix
     tls: []
   route:
     enabled: false
