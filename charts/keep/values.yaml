@@ -251,10 +251,10 @@ websocket:
     tls: []
     annotations: {}
   route:
-    enabled: false  
+    enabled: false
     host: chart-example.local
     wildcardPolicy: None
-    tls: [] 
+    tls: []
 
 database:
   enabled: true
