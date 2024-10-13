@@ -74,7 +74,7 @@ backend:
       timeoutSec: 10
       healthyThreshold: 1
       unhealthyThreshold: 3
-      path: "/"
+      path: "/docs"
       port: 8080
       type: HTTP
   resources: {}
