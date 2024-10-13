@@ -26,8 +26,6 @@ backend:
       value: k8s
     - name: PORT
       value: "8080"
-    - name: SECRET_MANAGER_DIRECTORY
-      value: /state
     - name: PUSHER_APP_ID
       value: 1
     - name: PUSHER_APP_KEY
@@ -69,9 +67,8 @@ backend:
     path: /
     tls: []
     wildcardPolicy: None
-  # GKE healthcheck config (backend)
+  # GKE healthcheck config
   backendConfig:
-    enabled: false
     healthCheck:
       checkIntervalSec: 30
       timeoutSec: 10
@@ -165,7 +162,6 @@ frontend:
     wildcardPolicy: None
   # GKE healthcheck config
   backendConfig:
-    enabled: false
     healthCheck:
       checkIntervalSec: 30
       timeoutSec: 10
