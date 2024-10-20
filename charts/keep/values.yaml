@@ -6,6 +6,13 @@ serviceAccount:
 nameOverride: ""
 fullnameOverride: ""
 isGKE: false
+
+global:
+  ingress:
+    websocketPrefix: "/websocket"
+    backendPrefix: "/api"
+    frontendPrefix: "/"
+
 ingress-nginx:
   enabled: true
   controller:
@@ -18,6 +25,14 @@ ingress-nginx:
       ports:
         http: 80
         https: 443
+    admissionWebhooks:
+      failurePolicy: Ignore
+      patch:
+        enabled: true
+        image:
+          pullPolicy: IfNotPresent
+      certManager:
+        enabled: false
 
 
 backend:
@@ -124,20 +139,12 @@ frontend:
     # https://github.com/nextauthjs/next-auth/issues/600
     - name: VERCEL
       value: 1
-    - name: API_URL
-      value: http://keep-backend:8080
-    - name: NEXT_PUBLIC_POSTHOG_KEY
-      value: "phc_muk9qE3TfZsX3SZ9XxX52kCGJBclrjhkP9JxAQcm1PZ"
-    - name: NEXT_PUBLIC_POSTHOG_HOST
-      value: https://app.posthog.com
     - name: ENV
       value: development
     - name: NODE_ENV
       value: development
     - name: HOSTNAME
       value: 0.0.0.0
-    - name: PUSHER_INGRESS
-      value: true
     - name: PUSHER_APP_KEY
       value: "keepappkey"
   replicaCount: 1

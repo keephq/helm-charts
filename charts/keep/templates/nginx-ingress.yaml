@@ -1,6 +1,7 @@
-{{- if and .Values.frontend.enabled .Values.frontend.ingress.enabled }}
+{{- if and (or .Values.frontend.enabled .Values.backend.enabled) .Values.frontend.ingress.enabled }}
 {{- $fullName := include "keep.fullname" . }}
 {{- $frontendPort := .Values.frontend.service.port }}
+{{- $backendPort := .Values.backend.service.port }}
 {{- $websocketPort := .Values.websocket.service.port }}
 
 apiVersion: networking.k8s.io/v1
@@ -19,8 +20,8 @@ metadata:
     nginx.ingress.kubernetes.io/use-http2: "false"
     nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
     nginx.ingress.kubernetes.io/server-snippets: |
-      location /app/ {
-        proxy_pass http://{{ $fullName }}-websocket:6001;
+      location {{ include "keep.websocketPrefix" . }}/ {
+        proxy_pass http://{{ $fullName }}-websocket:{{ .Values.websocket.service.port }};
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "Upgrade";
         proxy_set_header X-Forwarded-For $remote_addr;
@@ -43,13 +44,13 @@ spec:
     {{- end }}
   {{- end }}
   rules:
-    {{- if .Values.frontend.ingress.hosts }}
-    {{- range .Values.frontend.ingress.hosts }}
-    - host: {{ .host | quote }}
+    {{- if or .Values.frontend.ingress.hosts .Values.backend.ingress.hosts }}
+    {{- range $host := (concat .Values.frontend.ingress.hosts .Values.backend.ingress.hosts) }}
+    - host: {{ $host | quote }}
       http:
         paths:
         {{- if and $.Values.websocket.enabled $websocketPort }}
-        - path: /app
+        - path: {{ include "keep.websocketPrefix" $ }}
           pathType: Prefix
           backend:
             service:
@@ -57,19 +58,28 @@ spec:
               port:
                 number: {{ $websocketPort }}
         {{- end }}
-        - path: /
+        - path: {{ include "keep.frontendPrefix" $ }}
           pathType: Prefix
           backend:
             service:
               name: {{ $fullName }}-frontend
               port:
                 number: {{ $frontendPort }}
+        {{- if and $.Values.backend $.Values.backend.enabled }}
+        - path: {{ include "keep.backendPrefix" $ }}
+          pathType: Prefix
+          backend:
+            service:
+              name: {{ $fullName }}-backend
+              port:
+                number: {{ $backendPort }}
+        {{- end }}
     {{- end }}
     {{- else }}
     - http:
         paths:
         {{- if and $.Values.websocket.enabled $websocketPort }}
-        - path: /app
+        - path: {{ include "keep.websocketPrefix" . }}
           pathType: Prefix
           backend:
             service:
@@ -77,12 +87,21 @@ spec:
               port:
                 number: {{ $websocketPort }}
         {{- end }}
-        - path: /
+        - path: {{ include "keep.frontendPrefix" . }}
           pathType: Prefix
           backend:
             service:
               name: {{ $fullName }}-frontend
               port:
                 number: {{ $frontendPort }}
+        {{- if and $.Values.backend $.Values.backend.enabled }}
+        - path: {{ include "keep.backendPrefix" . }}
+          pathType: Prefix
+          backend:
+            service:
+              name: {{ $fullName }}-backend
+              port:
+                number: {{ $backendPort }}
+        {{- end }}
     {{- end }}
 {{- end }}

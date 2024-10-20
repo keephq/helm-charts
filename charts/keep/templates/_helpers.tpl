@@ -60,3 +60,63 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Helper function to find an environment variable in the list
+*/}}
+{{- define "keep.findEnvVar" -}}
+{{- $name := index . 0 -}}
+{{- $values := index . 1 -}}
+{{- if and $values.frontend $values.frontend.env -}}
+  {{- range $values.frontend.env -}}
+    {{- if eq .name $name -}}
+      {{- .value -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Helper function for websocket host (relative)
+*/}}
+{{- define "keep.websocketPrefix" -}}
+{{- coalesce .Values.websocket.ingress.prefix .Values.global.ingress.websocketPrefix "/websocket" -}}
+{{- end -}}
+
+{{/*
+Helper function for backend host (relative)
+*/}}
+{{- define "keep.backendPrefix" -}}
+{{- coalesce .Values.backend.ingress.prefix .Values.global.ingress.backendPrefix "/api" -}}
+{{- end -}}
+
+{{/*
+Helper function for frontend host (relative)
+*/}}
+{{- define "keep.frontendPrefix" -}}
+{{- coalesce .Values.frontend.ingress.prefix .Values.global.ingress.frontendPrefix "/" -}}
+{{- end -}}
+
+{{/*
+Helper function for PUSHER_HOST
+*/}}
+{{- define "keep.pusherHost" -}}
+{{- $pusherHost := include "keep.findEnvVar" (list "PUSHER_HOST" .) -}}
+{{- if $pusherHost -}}
+  {{- $pusherHost -}}
+{{- else -}}
+  {{- include "keep.websocketPrefix" . -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Helper function for API_URL for the frontend
+*/}}
+{{- define "keep.apiUrl" -}}
+{{- $apiUrl := include "keep.findEnvVar" (list "API_URL" .) -}}
+{{- if $apiUrl -}}
+  {{- $apiUrl -}}
+{{- else -}}
+  {{- include "keep.backendPrefix" . -}}
+{{- end -}}
+{{- end -}}
