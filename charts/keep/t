@@ -1,0 +1,1308 @@
+---
+# Source: keep/charts/ingress-nginx/templates/controller-serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    helm.sh/chart: ingress-nginx-4.11.3
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/instance: keep
+    app.kubernetes.io/version: "1.11.3"
+    app.kubernetes.io/part-of: ingress-nginx
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: controller
+  name: keep-ingress-nginx
+  namespace: keep
+automountServiceAccountToken: true
+---
+# Source: keep/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: keep
+  labels:
+    helm.sh/chart: keep-0.1.25
+    app.kubernetes.io/name: keep
+    app.kubernetes.io/instance: keep
+    app.kubernetes.io/version: "0.26.1"
+    app.kubernetes.io/managed-by: Helm
+---
+# Source: keep/charts/ingress-nginx/templates/controller-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    helm.sh/chart: ingress-nginx-4.11.3
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/instance: keep
+    app.kubernetes.io/version: "1.11.3"
+    app.kubernetes.io/part-of: ingress-nginx
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: controller
+  name: keep-ingress-nginx-controller
+  namespace: keep
+data:
+  allow-snippet-annotations: "false"
+---
+# Source: keep/templates/db-pv.yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: keep-pv
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: 
+  hostPath:
+    path: "/var/lib/mysql"
+---
+# Source: keep/templates/db-pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: keep-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  # Define new PVC spec
+  resources:
+    requests:
+      storage: 5Gi
+---
+# Source: keep/charts/ingress-nginx/templates/clusterrole.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    helm.sh/chart: ingress-nginx-4.11.3
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/instance: keep
+    app.kubernetes.io/version: "1.11.3"
+    app.kubernetes.io/part-of: ingress-nginx
+    app.kubernetes.io/managed-by: Helm
+  name: keep-ingress-nginx
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+      - endpoints
+      - nodes
+      - pods
+      - secrets
+      - namespaces
+    verbs:
+      - list
+      - watch
+  - apiGroups:
+      - coordination.k8s.io
+    resources:
+      - leases
+    verbs:
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - nodes
+    verbs:
+      - get
+  - apiGroups:
+      - ""
+    resources:
+      - services
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - networking.k8s.io
+    resources:
+      - ingresses
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
+      - patch
+  - apiGroups:
+      - networking.k8s.io
+    resources:
+      - ingresses/status
+    verbs:
+      - update
+  - apiGroups:
+      - networking.k8s.io
+    resources:
+      - ingressclasses
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - discovery.k8s.io
+    resources:
+      - endpointslices
+    verbs:
+      - list
+      - watch
+      - get
+---
+# Source: keep/charts/ingress-nginx/templates/clusterrolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    helm.sh/chart: ingress-nginx-4.11.3
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/instance: keep
+    app.kubernetes.io/version: "1.11.3"
+    app.kubernetes.io/part-of: ingress-nginx
+    app.kubernetes.io/managed-by: Helm
+  name: keep-ingress-nginx
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: keep-ingress-nginx
+subjects:
+  - kind: ServiceAccount
+    name: keep-ingress-nginx
+    namespace: keep
+---
+# Source: keep/charts/ingress-nginx/templates/controller-role.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    helm.sh/chart: ingress-nginx-4.11.3
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/instance: keep
+    app.kubernetes.io/version: "1.11.3"
+    app.kubernetes.io/part-of: ingress-nginx
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: controller
+  name: keep-ingress-nginx
+  namespace: keep
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces
+    verbs:
+      - get
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+      - pods
+      - secrets
+      - endpoints
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - services
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - networking.k8s.io
+    resources:
+      - ingresses
+    verbs:
+      - get
+      - list
+      - watch
+  # Omit Ingress status permissions if `--update-status` is disabled.
+  - apiGroups:
+      - networking.k8s.io
+    resources:
+      - ingresses/status
+    verbs:
+      - update
+  - apiGroups:
+      - networking.k8s.io
+    resources:
+      - ingressclasses
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - coordination.k8s.io
+    resources:
+      - leases
+    resourceNames:
+      - keep-ingress-nginx-leader
+    verbs:
+      - get
+      - update
+  - apiGroups:
+      - coordination.k8s.io
+    resources:
+      - leases
+    verbs:
+      - create
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
+      - patch
+  - apiGroups:
+      - discovery.k8s.io
+    resources:
+      - endpointslices
+    verbs:
+      - list
+      - watch
+      - get
+---
+# Source: keep/templates/role-secret-manager.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: secret-manager-role
+  namespace: default
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["create", "delete", "get", "list", "patch"]
+---
+# Source: keep/charts/ingress-nginx/templates/controller-rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    helm.sh/chart: ingress-nginx-4.11.3
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/instance: keep
+    app.kubernetes.io/version: "1.11.3"
+    app.kubernetes.io/part-of: ingress-nginx
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: controller
+  name: keep-ingress-nginx
+  namespace: keep
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: keep-ingress-nginx
+subjects:
+  - kind: ServiceAccount
+    name: keep-ingress-nginx
+    namespace: keep
+---
+# Source: keep/templates/role-binding-secret-manager.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: secret-manager-rolebinding
+  namespace: default
+subjects:
+  - kind: ServiceAccount
+    name: keep
+    namespace: default
+roleRef:
+  kind: Role
+  name: secret-manager-role
+  apiGroup: rbac.authorization.k8s.io
+---
+# Source: keep/charts/ingress-nginx/templates/controller-service-webhook.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    helm.sh/chart: ingress-nginx-4.11.3
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/instance: keep
+    app.kubernetes.io/version: "1.11.3"
+    app.kubernetes.io/part-of: ingress-nginx
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: controller
+  name: keep-ingress-nginx-controller-admission
+  namespace: keep
+spec:
+  type: ClusterIP
+  ports:
+    - name: https-webhook
+      port: 443
+      targetPort: webhook
+      appProtocol: https
+  selector:
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/instance: keep
+    app.kubernetes.io/component: controller
+---
+# Source: keep/charts/ingress-nginx/templates/controller-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+  labels:
+    helm.sh/chart: ingress-nginx-4.11.3
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/instance: keep
+    app.kubernetes.io/version: "1.11.3"
+    app.kubernetes.io/part-of: ingress-nginx
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: controller
+  name: keep-ingress-nginx-controller
+  namespace: keep
+spec:
+  type: LoadBalancer
+  ipFamilyPolicy: SingleStack
+  ipFamilies: 
+    - IPv4
+  ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: http
+      appProtocol: http
+    - name: https
+      port: 443
+      protocol: TCP
+      targetPort: https
+      appProtocol: https
+  selector:
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/instance: keep
+    app.kubernetes.io/component: controller
+---
+# Source: keep/templates/backend-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: keep-backend
+  labels:
+    helm.sh/chart: keep-0.1.25
+    app.kubernetes.io/name: keep
+    app.kubernetes.io/instance: keep
+    app.kubernetes.io/version: "0.26.1"
+    app.kubernetes.io/managed-by: Helm
+    keep-component: backend-service
+  annotations:
+    cloud.google.com/backend-config: '{"default": "keep-backend-backendconfig"}'
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: keep
+    app.kubernetes.io/instance: keep
+    keep-component: backend
+---
+# Source: keep/templates/db-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: keep-database
+  labels:
+    helm.sh/chart: keep-0.1.25
+    app.kubernetes.io/name: keep
+    app.kubernetes.io/instance: keep
+    app.kubernetes.io/version: "0.26.1"
+    app.kubernetes.io/managed-by: Helm
+    keep-component: database-service
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3306
+      targetPort: 3306
+      protocol: TCP
+      name: mysql
+  selector:
+    app.kubernetes.io/name: keep
+    app.kubernetes.io/instance: keep
+    keep-component: database
+---
+# Source: keep/templates/frontend-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: keep-frontend
+  labels:
+    helm.sh/chart: keep-0.1.25
+    app.kubernetes.io/name: keep
+    app.kubernetes.io/instance: keep
+    app.kubernetes.io/version: "0.26.1"
+    app.kubernetes.io/managed-by: Helm
+    keep-component: frontend-service
+  annotations:
+    cloud.google.com/backend-config: '{"default": "keep-frontend-backendconfig"}'
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3000
+      targetPort: http
+      protocol: TCP
+      name: http
+      
+  selector:
+    app.kubernetes.io/name: keep
+    app.kubernetes.io/instance: keep
+    keep-component: frontend
+---
+# Source: keep/templates/websocket-server-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: keep-websocket
+  labels:
+    helm.sh/chart: keep-0.1.25
+    app.kubernetes.io/name: keep
+    app.kubernetes.io/instance: keep
+    app.kubernetes.io/version: "0.26.1"
+    app.kubernetes.io/managed-by: Helm
+    keep-component: websocket-service
+spec:
+  type: ClusterIP
+  ports:
+    - port: 6001
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: keep
+    app.kubernetes.io/instance: keep
+    keep-component: websocket
+---
+# Source: keep/charts/ingress-nginx/templates/controller-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    helm.sh/chart: ingress-nginx-4.11.3
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/instance: keep
+    app.kubernetes.io/version: "1.11.3"
+    app.kubernetes.io/part-of: ingress-nginx
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: controller
+  name: keep-ingress-nginx-controller
+  namespace: keep
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ingress-nginx
+      app.kubernetes.io/instance: keep
+      app.kubernetes.io/component: controller
+  replicas: 1
+  revisionHistoryLimit: 10
+  minReadySeconds: 0
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: ingress-nginx-4.11.3
+        app.kubernetes.io/name: ingress-nginx
+        app.kubernetes.io/instance: keep
+        app.kubernetes.io/version: "1.11.3"
+        app.kubernetes.io/part-of: ingress-nginx
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/component: controller
+    spec:
+      dnsPolicy: ClusterFirst
+      containers:
+        - name: controller
+          image: registry.k8s.io/ingress-nginx/controller:v1.11.3@sha256:d56f135b6462cfc476447cfe564b83a45e8bb7da2774963b00d12161112270b7
+          imagePullPolicy: IfNotPresent
+          lifecycle: 
+            preStop:
+              exec:
+                command:
+                - /wait-shutdown
+          args: 
+            - /nginx-ingress-controller
+            - --publish-service=$(POD_NAMESPACE)/keep-ingress-nginx-controller
+            - --election-id=keep-ingress-nginx-leader
+            - --controller-class=k8s.io/ingress-nginx
+            - --ingress-class=nginx
+            - --configmap=$(POD_NAMESPACE)/keep-ingress-nginx-controller
+            - --validating-webhook=:8443
+            - --validating-webhook-certificate=/usr/local/certificates/cert
+            - --validating-webhook-key=/usr/local/certificates/key
+            - --enable-metrics=false
+          securityContext: 
+            runAsNonRoot: true
+            runAsUser: 101
+            allowPrivilegeEscalation: false
+            seccompProfile: 
+              type: RuntimeDefault
+            capabilities:
+              drop:
+              - ALL
+              add:
+              - NET_BIND_SERVICE
+            readOnlyRootFilesystem: false
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: LD_PRELOAD
+              value: /usr/local/lib/libmimalloc.so
+          livenessProbe: 
+            failureThreshold: 5
+            httpGet:
+              path: /healthz
+              port: 10254
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          readinessProbe: 
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 10254
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+            - name: https
+              containerPort: 443
+              protocol: TCP
+            - name: webhook
+              containerPort: 8443
+              protocol: TCP
+          volumeMounts:
+            - name: webhook-cert
+              mountPath: /usr/local/certificates/
+              readOnly: true
+          resources: 
+            requests:
+              cpu: 100m
+              memory: 90Mi
+      nodeSelector: 
+        kubernetes.io/os: linux
+      serviceAccountName: keep-ingress-nginx
+      terminationGracePeriodSeconds: 300
+      volumes:
+        - name: webhook-cert
+          secret:
+            secretName: keep-ingress-nginx-admission
+---
+# Source: keep/templates/backend.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keep-backend
+  labels:
+    helm.sh/chart: keep-0.1.25
+    app.kubernetes.io/name: keep
+    app.kubernetes.io/instance: keep
+    app.kubernetes.io/version: "0.26.1"
+    app.kubernetes.io/managed-by: Helm
+    keep-component: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: keep
+      app.kubernetes.io/instance: keep
+      keep-component: backend
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: keep
+        app.kubernetes.io/instance: keep
+        keep-component: backend
+    spec:
+      serviceAccountName: keep
+      securityContext:
+        {}
+      containers:
+        - name: keep
+          securityContext:
+            {}
+          image: "us-central1-docker.pkg.dev/keephq/keep/keep-api:0.26.1"
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: DATABASE_CONNECTION_STRING
+              value: "mysql+pymysql://root@keep-database:3306/keep"
+            - name: SECRET_MANAGER_TYPE
+              value: "k8s"
+            - name: PORT
+              value: "8080"
+            - name: PUSHER_APP_ID
+              value: "1"
+            - name: PUSHER_APP_KEY
+              value: "keepappkey"
+            - name: PUSHER_APP_SECRET
+              value: "keepappsecret"
+            - name: PUSHER_HOST
+              value: "keep-websocket"
+            - name: PUSHER_PORT
+              value: "6001"
+            - name: K8S_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          volumeMounts:
+            - name: state-volume
+              mountPath: /state
+              readOnly: false
+          resources:
+            {}
+      initContainers:
+        - name: wait-for-database
+          image: busybox
+          command: ['sh', '-c', 'until nc -z keep-database 3306; do sleep 1; done;']
+      volumes:
+        - name: state-volume
+          emptyDir: {}
+---
+# Source: keep/templates/db.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keep-database
+  labels:
+    helm.sh/chart: keep-0.1.25
+    app.kubernetes.io/name: keep
+    app.kubernetes.io/instance: keep
+    app.kubernetes.io/version: "0.26.1"
+    app.kubernetes.io/managed-by: Helm
+    keep-component: database
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: keep
+      app.kubernetes.io/instance: keep
+      keep-component: database
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: keep
+        app.kubernetes.io/instance: keep
+        keep-component: database
+    spec:
+      serviceAccountName: keep
+      securityContext:
+        {}
+      containers:
+        - name: keep
+          securityContext:
+            {}
+          image: "mysql:latest"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: mysql
+              containerPort: 3306
+              protocol: TCP
+          env:
+            - name: MYSQL_ALLOW_EMPTY_PASSWORD
+              value: "true"
+            - name: MYSQL_DATABASE
+              value: "keep"
+            - name: MYSQL_PASSWORD
+              value: 
+          volumeMounts:
+          - mountPath: /var/lib/mysql
+            name: keep-pv
+            readOnly: false
+          resources:
+            {}
+      volumes:
+        - name: keep-pv
+          persistentVolumeClaim:
+            claimName: keep-pvc
+---
+# Source: keep/templates/frontend.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keep-frontend
+  labels:
+    helm.sh/chart: keep-0.1.25
+    app.kubernetes.io/name: keep
+    app.kubernetes.io/instance: keep
+    app.kubernetes.io/version: "0.26.1"
+    app.kubernetes.io/managed-by: Helm
+    keep-component: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: keep
+      app.kubernetes.io/instance: keep
+      keep-component: frontend
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: keep
+        app.kubernetes.io/instance: keep
+        keep-component: frontend
+    spec:
+      serviceAccountName: keep
+      securityContext:
+        {}
+      containers:
+        - name: keep
+          securityContext:
+            {}
+          image: "us-central1-docker.pkg.dev/keephq/keep/keep-ui:feature_websocket-improve"
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          env:
+            - name: NEXTAUTH_SECRET
+              value: "secret"
+            - name: NEXTAUTH_URL
+              value: "http://localhost:3000"
+            - name: VERCEL
+              value: "1"
+            - name: API_URL
+              value: "http://keep-backend:8080"
+            - name: NEXT_PUBLIC_POSTHOG_KEY
+              value: "phc_muk9qE3TfZsX3SZ9XxX52kCGJBclrjhkP9JxAQcm1PZ"
+            - name: NEXT_PUBLIC_POSTHOG_HOST
+              value: "https://app.posthog.com"
+            - name: ENV
+              value: "development"
+            - name: NODE_ENV
+              value: "development"
+            - name: HOSTNAME
+              value: "0.0.0.0"
+            - name: PUSHER_INGRESS
+              value: "true"
+            - name: PUSHER_APP_KEY
+              value: "keepappkey"
+          volumeMounts:
+            - name: state-volume
+              mountPath: /state
+              readOnly: false
+          resources:
+            {}
+      volumes:
+        - name: state-volume
+          emptyDir: {}
+---
+# Source: keep/templates/websocket-server.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keep-websocket
+  labels:
+    helm.sh/chart: keep-0.1.25
+    app.kubernetes.io/name: keep
+    app.kubernetes.io/instance: keep
+    app.kubernetes.io/version: "0.26.1"
+    app.kubernetes.io/managed-by: Helm
+    keep-component: websocket
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: keep
+      app.kubernetes.io/instance: keep
+      keep-component: websocket
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: keep
+        app.kubernetes.io/instance: keep
+        keep-component: websocket
+    spec:
+      serviceAccountName: keep
+      securityContext:
+        {}
+      containers:
+        - name: keep
+          securityContext:
+            {}
+          image: "quay.io/soketi/soketi:1.4-16-debian"
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 6001
+              protocol: TCP
+          env:
+            - name: SOKETI_HOST
+              value: "0.0.0.0"
+            - name: SOKETI_DEBUG
+              value: "1"
+            - name: SOKETI_USER_AUTHENTICATION_TIMEOUT
+              value: "3000"
+            - name: SOKETI_DEFAULT_APP_ID
+              value: "1"
+            - name: SOKETI_DEFAULT_APP_KEY
+              value: "keepappkey"
+            - name: SOKETI_DEFAULT_APP_SECRET
+              value: "keepappsecret"
+          volumeMounts:
+            - name: state-volume
+              mountPath: /state
+              readOnly: false
+          resources:
+            {}
+      volumes:
+        - name: state-volume
+          emptyDir: {}
+---
+# Source: keep/charts/ingress-nginx/templates/controller-ingressclass.yaml
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  labels:
+    helm.sh/chart: ingress-nginx-4.11.3
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/instance: keep
+    app.kubernetes.io/version: "1.11.3"
+    app.kubernetes.io/part-of: ingress-nginx
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: controller
+  name: nginx
+spec:
+  controller: k8s.io/ingress-nginx
+---
+# Source: keep/templates/backend-ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: keep-backend
+  labels:
+    helm.sh/chart: keep-0.1.25
+    app.kubernetes.io/name: keep
+    app.kubernetes.io/instance: keep
+    app.kubernetes.io/version: "0.26.1"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  rules:
+    - host: 
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: keep-backend
+                port:
+                  number: 8080
+---
+# Source: keep/templates/nginx-ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: keep-ingress
+  labels:
+    helm.sh/chart: keep-0.1.25
+    app.kubernetes.io/name: keep
+    app.kubernetes.io/instance: keep
+    app.kubernetes.io/version: "0.26.1"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
+    nginx.ingress.kubernetes.io/use-http2: "false"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    nginx.ingress.kubernetes.io/server-snippets: |
+      location /app/ {
+        proxy_pass http://keep-websocket:6001;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+      }
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: 
+      http:
+        paths:
+        - path: /app
+          pathType: Prefix
+          backend:
+            service:
+              name: keep-websocket
+              port:
+                number: 6001
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: keep-frontend
+              port:
+                number: 3000
+---
+# Source: keep/charts/ingress-nginx/templates/controller-poddisruptionbudget.yaml
+# PDB is not supported for DaemonSets.
+# https://github.com/kubernetes/kubernetes/issues/108124
+---
+# Source: keep/templates/gke/backend-gke-healthcheck-config.yaml
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: keep-backend-backendconfig
+  namespace: keep
+spec:
+  healthCheck:
+    checkIntervalSec: 30
+    timeoutSec: 10
+    healthyThreshold: 1
+    unhealthyThreshold: 3
+    requestPath: /docs
+    port: 8080
+    type: HTTP
+---
+# Source: keep/templates/gke/frontend-gke-healthcheck-config.yaml
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: keep-frontend-backendconfig
+  namespace: keep
+spec:
+  healthCheck:
+    checkIntervalSec: 30
+    timeoutSec: 10
+    healthyThreshold: 1
+    unhealthyThreshold: 3
+    requestPath: /signin
+    port: 3000
+    type: HTTP
+---
+# Source: keep/charts/ingress-nginx/templates/admission-webhooks/validating-webhook.yaml
+# before changing this value, check the required kubernetes version
+# https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/#prerequisites
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  annotations:
+  labels:
+    helm.sh/chart: ingress-nginx-4.11.3
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/instance: keep
+    app.kubernetes.io/version: "1.11.3"
+    app.kubernetes.io/part-of: ingress-nginx
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: admission-webhook
+  name: keep-ingress-nginx-admission
+webhooks:
+  - name: validate.nginx.ingress.kubernetes.io
+    matchPolicy: Equivalent
+    rules:
+      - apiGroups:
+          - networking.k8s.io
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - ingresses
+    failurePolicy: Fail
+    sideEffects: None
+    admissionReviewVersions:
+      - v1
+    clientConfig:
+      service:
+        name: keep-ingress-nginx-controller-admission
+        namespace: keep
+        port: 443
+        path: /networking/v1/ingresses
+---
+# Source: keep/charts/ingress-nginx/templates/admission-webhooks/job-patch/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: keep-ingress-nginx-admission
+  namespace: keep
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade,post-install,post-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+  labels:
+    helm.sh/chart: ingress-nginx-4.11.3
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/instance: keep
+    app.kubernetes.io/version: "1.11.3"
+    app.kubernetes.io/part-of: ingress-nginx
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: admission-webhook
+automountServiceAccountToken: true
+---
+# Source: keep/charts/ingress-nginx/templates/admission-webhooks/job-patch/clusterrole.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: keep-ingress-nginx-admission
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade,post-install,post-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+  labels:
+    helm.sh/chart: ingress-nginx-4.11.3
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/instance: keep
+    app.kubernetes.io/version: "1.11.3"
+    app.kubernetes.io/part-of: ingress-nginx
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: admission-webhook
+rules:
+  - apiGroups:
+      - admissionregistration.k8s.io
+    resources:
+      - validatingwebhookconfigurations
+    verbs:
+      - get
+      - update
+---
+# Source: keep/charts/ingress-nginx/templates/admission-webhooks/job-patch/clusterrolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: keep-ingress-nginx-admission
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade,post-install,post-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+  labels:
+    helm.sh/chart: ingress-nginx-4.11.3
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/instance: keep
+    app.kubernetes.io/version: "1.11.3"
+    app.kubernetes.io/part-of: ingress-nginx
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: admission-webhook
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: keep-ingress-nginx-admission
+subjects:
+  - kind: ServiceAccount
+    name: keep-ingress-nginx-admission
+    namespace: keep
+---
+# Source: keep/charts/ingress-nginx/templates/admission-webhooks/job-patch/role.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: keep-ingress-nginx-admission
+  namespace: keep
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade,post-install,post-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+  labels:
+    helm.sh/chart: ingress-nginx-4.11.3
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/instance: keep
+    app.kubernetes.io/version: "1.11.3"
+    app.kubernetes.io/part-of: ingress-nginx
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: admission-webhook
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - get
+      - create
+---
+# Source: keep/charts/ingress-nginx/templates/admission-webhooks/job-patch/rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: keep-ingress-nginx-admission
+  namespace: keep
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade,post-install,post-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+  labels:
+    helm.sh/chart: ingress-nginx-4.11.3
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/instance: keep
+    app.kubernetes.io/version: "1.11.3"
+    app.kubernetes.io/part-of: ingress-nginx
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: admission-webhook
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: keep-ingress-nginx-admission
+subjects:
+  - kind: ServiceAccount
+    name: keep-ingress-nginx-admission
+    namespace: keep
+---
+# Source: keep/charts/ingress-nginx/templates/admission-webhooks/job-patch/job-createSecret.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: keep-ingress-nginx-admission-create
+  namespace: keep
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+  labels:
+    helm.sh/chart: ingress-nginx-4.11.3
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/instance: keep
+    app.kubernetes.io/version: "1.11.3"
+    app.kubernetes.io/part-of: ingress-nginx
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: admission-webhook
+spec:
+  template:
+    metadata:
+      name: keep-ingress-nginx-admission-create
+      labels:
+        helm.sh/chart: ingress-nginx-4.11.3
+        app.kubernetes.io/name: ingress-nginx
+        app.kubernetes.io/instance: keep
+        app.kubernetes.io/version: "1.11.3"
+        app.kubernetes.io/part-of: ingress-nginx
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/component: admission-webhook
+    spec:
+      containers:
+        - name: create
+          image: registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.4.4@sha256:a9f03b34a3cbfbb26d103a14046ab2c5130a80c3d69d526ff8063d2b37b9fd3f
+          imagePullPolicy: IfNotPresent
+          args:
+            - create
+            - --host=keep-ingress-nginx-controller-admission,keep-ingress-nginx-controller-admission.$(POD_NAMESPACE).svc
+            - --namespace=$(POD_NAMESPACE)
+            - --secret-name=keep-ingress-nginx-admission
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          securityContext: 
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 65532
+            seccompProfile:
+              type: RuntimeDefault
+      restartPolicy: OnFailure
+      serviceAccountName: keep-ingress-nginx-admission
+      nodeSelector: 
+        kubernetes.io/os: linux
+---
+# Source: keep/charts/ingress-nginx/templates/admission-webhooks/job-patch/job-patchWebhook.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: keep-ingress-nginx-admission-patch
+  namespace: keep
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+  labels:
+    helm.sh/chart: ingress-nginx-4.11.3
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/instance: keep
+    app.kubernetes.io/version: "1.11.3"
+    app.kubernetes.io/part-of: ingress-nginx
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: admission-webhook
+spec:
+  template:
+    metadata:
+      name: keep-ingress-nginx-admission-patch
+      labels:
+        helm.sh/chart: ingress-nginx-4.11.3
+        app.kubernetes.io/name: ingress-nginx
+        app.kubernetes.io/instance: keep
+        app.kubernetes.io/version: "1.11.3"
+        app.kubernetes.io/part-of: ingress-nginx
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/component: admission-webhook
+    spec:
+      containers:
+        - name: patch
+          image: registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.4.4@sha256:a9f03b34a3cbfbb26d103a14046ab2c5130a80c3d69d526ff8063d2b37b9fd3f
+          imagePullPolicy: IfNotPresent
+          args:
+            - patch
+            - --webhook-name=keep-ingress-nginx-admission
+            - --namespace=$(POD_NAMESPACE)
+            - --patch-mutating=false
+            - --secret-name=keep-ingress-nginx-admission
+            - --patch-failure-policy=Fail
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          securityContext: 
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 65532
+            seccompProfile:
+              type: RuntimeDefault
+      restartPolicy: OnFailure
+      serviceAccountName: keep-ingress-nginx-admission
+      nodeSelector: 
+        kubernetes.io/os: linux
+---
+# Source: keep/templates/delete-secret-job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: delete-keep-secrets
+  annotations:
+    "helm.sh/hook": pre-delete
+    "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
+spec:
+  template:
+    spec:
+      serviceAccountName: keep
+      containers:
+      - name: delete-secrets-container
+        image: bitnami/kubectl
+        command:
+          - /bin/sh
+          - -c
+          - >
+            secrets=$(kubectl get secrets -n  -o name | grep '^secret/keep-');
+            if [ -n "$secrets" ]; then
+              echo "$secrets" | xargs kubectl delete -n ;
+            else
+              echo "No matching secrets found to delete.";
+            fi
+      restartPolicy: Never

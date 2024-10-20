@@ -1,13 +1,24 @@
-{{- if and .Values.database.enabled .Values.database.pvc.enabled  -}}
+{{- if and .Values.database.enabled .Values.database.pvc.enabled -}}
+{{- $fullName := include "keep.fullname" . -}}
+{{- $pvcName := printf "%s-pvc" $fullName -}}
+{{- $existingPvc := lookup "v1" "PersistentVolumeClaim" .Release.Namespace $pvcName -}}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ include "keep.fullname" . }}-pvc
+  name: {{ $pvcName }}
 spec:
   accessModes:
     - ReadWriteOnce
+  {{- if $existingPvc }}
+  # Use existing PVC spec
+  {{- toYaml $existingPvc.spec | nindent 2 }}
+  {{- else }}
+  # Define new PVC spec
+  {{- if .Values.database.pvc.storageClass }}
   storageClassName: {{ .Values.database.pvc.storageClass }}
+  {{- end }}
   resources:
     requests:
       storage: {{ .Values.database.pvc.size }}
+  {{- end }}
 {{- end }}

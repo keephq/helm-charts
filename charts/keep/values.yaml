@@ -6,6 +6,19 @@ serviceAccount:
 nameOverride: ""
 fullnameOverride: ""
 isGKE: false
+ingress-nginx:
+  enabled: true
+  controller:
+    nameOverride: keep-ingress-nginx
+    fullnameOverride: keep-ingress-nginx
+    service:
+      enabled: true
+      type: LoadBalancer
+      annotations: {}
+      ports:
+        http: 80
+        https: 443
+
 
 backend:
   # if true, the backend will be enabled
@@ -123,16 +136,15 @@ frontend:
       value: development
     - name: HOSTNAME
       value: 0.0.0.0
-    - name: PUSHER_HOST
-      value: keep-websocket.default.svc.cluster.local
-    - name: PUSHER_PORT
-      value: 6001
+    - name: PUSHER_INGRESS
+      value: true
     - name: PUSHER_APP_KEY
       value: "keepappkey"
   replicaCount: 1
   image:
     repository: us-central1-docker.pkg.dev/keephq/keep/keep-ui
     pullPolicy: Always
+    tag: "feature_websocket-improve"
   imagePullSecrets: []
   serviceAccount:
     create: true
@@ -146,7 +158,7 @@ frontend:
     port: 3000
   ingress:
     enabled: true
-    className: ""
+    className: "nginx"
     annotations: {}
     hosts:
       - paths:
@@ -194,6 +206,10 @@ frontend:
 websocket:
   enabled: true
   env:
+    - name: SOKETI_HOST
+      value: "0.0.0.0"
+    - name: SOKETI_DEBUG
+      value: "1"
     - name: SOKETI_USER_AUTHENTICATION_TIMEOUT
       value: 3000
     - name: SOKETI_DEFAULT_APP_ID
