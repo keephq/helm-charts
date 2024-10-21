@@ -42,9 +42,19 @@ spec:
               containerPort: {{ .Values.frontend.service.port }}
               protocol: TCP
           env:
+            {{- $pusherHost := include "keep.pusherHost" . -}}
+            {{- $apiUrl := include "keep.apiUrl" . -}}
             {{- range .Values.frontend.env }}
             - name: {{ .name }}
               value: {{ .value | quote }}
+            {{- end }}
+            {{- if and $pusherHost (not (include "keep.findEnvVar" (list "PUSHER_HOST" .))) }}
+            - name: PUSHER_HOST
+              value: {{ $pusherHost | quote }}
+            {{- end }}
+            {{- if and $apiUrl (not (include "keep.findEnvVar" (list "API_URL" .))) }}
+            - name: API_URL
+              value: {{ $apiUrl | quote }}
             {{- end }}
           volumeMounts:
             - name: state-volume
