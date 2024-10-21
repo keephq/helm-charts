@@ -9,15 +9,20 @@ isGKE: false
 
 global:
   ingress:
+    enabled: true
+    className: "nginx"
+    annotations: {}
     websocketPrefix: "/websocket"
-    backendPrefix: "/api"
+    # can't use /api since its "catched" by the nextjs frontend e.g. /api/auth/signin or /api/config
+    backendPrefix: "/apinew"
     frontendPrefix: "/"
+    hosts: []
+    tls: []
 
 ingress-nginx:
+  # install the ingress-nginx controller dependency repo
   enabled: true
   controller:
-    nameOverride: keep-ingress-nginx
-    fullnameOverride: keep-ingress-nginx
     service:
       enabled: true
       type: LoadBalancer
@@ -33,6 +38,7 @@ ingress-nginx:
           pullPolicy: IfNotPresent
       certManager:
         enabled: false
+    allowSnippetAnnotations: true
 
 
 backend:
@@ -79,15 +85,7 @@ backend:
   service:
     type: ClusterIP
     port: 8080
-  ingress:
-    enabled: true
-    className: ""
-    annotations: {}
-    hosts:
-      - paths:
-          - path: /
-            pathType: Prefix
-    tls: []
+  # for openshit
   route:
     enabled: false
     host: chart-example-backend.local
@@ -163,15 +161,7 @@ frontend:
   service:
     type: ClusterIP
     port: 3000
-  ingress:
-    enabled: true
-    className: "nginx"
-    annotations: {}
-    hosts:
-      - paths:
-          - path: /
-            pathType: Prefix
-    tls: []
+  # for openshit
   route:
     enabled: false
     host: chart-example.local
@@ -262,15 +252,7 @@ websocket:
         httpGet:
           path: /
           port: http
-  ingress:
-    enabled: false
-    className: "nginx"
-    hosts:
-      paths:
-        - path: /
-          pathType: Prefix
-    tls: []
-    annotations: {}
+  # for openshit
   route:
     enabled: false
     host: chart-example.local

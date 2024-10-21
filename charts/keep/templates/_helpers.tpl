@@ -80,21 +80,21 @@ Helper function to find an environment variable in the list
 Helper function for websocket host (relative)
 */}}
 {{- define "keep.websocketPrefix" -}}
-{{- coalesce .Values.websocket.ingress.prefix .Values.global.ingress.websocketPrefix "/websocket" -}}
+{{- coalesce .Values.global.ingress.websocketPrefix "/websocket" -}}
 {{- end -}}
 
 {{/*
 Helper function for backend host (relative)
 */}}
 {{- define "keep.backendPrefix" -}}
-{{- coalesce .Values.backend.ingress.prefix .Values.global.ingress.backendPrefix "/api" -}}
+{{- coalesce .Values.global.ingress.backendPrefix "/api" -}}
 {{- end -}}
 
 {{/*
 Helper function for frontend host (relative)
 */}}
 {{- define "keep.frontendPrefix" -}}
-{{- coalesce .Values.frontend.ingress.prefix .Values.global.ingress.frontendPrefix "/" -}}
+{{- coalesce .Values.global.ingress.frontendPrefix "/" -}}
 {{- end -}}
 
 {{/*
@@ -118,5 +118,35 @@ Helper function for API_URL for the frontend
   {{- $apiUrl -}}
 {{- else -}}
   {{- include "keep.backendPrefix" . -}}
+{{- end -}}
+{{- end -}}
+
+
+{{/*
+Determine if ingress-nginx should be installed
+*/}}
+{{- define "keep.shouldInstallIngressNginx" -}}
+{{- if .Release.IsInstall -}}
+  {{- if .Values.preInstallJob.enabled -}}
+    {{- $jobName := printf "%s-nginx-ingress-check" .Release.Name -}}
+    {{- $job := (lookup "batch/v1" "Job" .Release.Namespace $jobName) -}}
+    {{- if $job -}}
+      {{- if $job.status -}}
+        {{- if eq (int $job.status.succeeded) 0 -}}
+          {{- printf "false" -}}
+        {{- else -}}
+          {{- printf "true" -}}
+        {{- end -}}
+      {{- else -}}
+        {{- printf "true" -}}
+      {{- end -}}
+    {{- else -}}
+      {{- printf "true" -}}
+    {{- end -}}
+  {{- else -}}
+    {{- printf "true" -}}
+  {{- end -}}
+{{- else -}}
+  {{- printf "false" -}}
 {{- end -}}
 {{- end -}}
