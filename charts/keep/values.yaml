@@ -9,7 +9,7 @@ isGKE: false
 
 global:
   # this section controls the ingress resource and not the ingress-nginx controller
-  # see the ingress-nginx section below for the controller configuration  
+  # see the ingress-nginx section below for the controller configuration
   ingress:
     enabled: true
     className: "nginx"
