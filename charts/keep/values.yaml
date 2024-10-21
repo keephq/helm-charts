@@ -8,6 +8,8 @@ fullnameOverride: ""
 isGKE: false
 
 global:
+  # this section controls the ingress resource and not the ingress-nginx controller
+  # see the ingress-nginx section below for the controller configuration  
   ingress:
     enabled: true
     className: "nginx"
@@ -19,6 +21,8 @@ global:
     hosts: []
     tls: []
 
+# this section controls the ingress-nginx **controller**
+# and not the ingress resource itself
 ingress-nginx:
   # install the ingress-nginx controller dependency repo
   enabled: true
