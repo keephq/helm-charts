@@ -8,14 +8,17 @@ fullnameOverride: ""
 isGKE: false
 
 global:
-  # this section controls the ingress resource and not the ingress-nginx controller
-  # see the ingress-nginx section below for the controller configuration
+  # this section controls the ingress resource and
+  #   not the ingress-nginx controller
+  # see the ingress-nginx section below for the
+  #   controller configuration
   ingress:
     enabled: true
     className: "nginx"
     annotations: {}
     websocketPrefix: "/websocket"
-    # can't use /api since its "catched" by the nextjs frontend e.g. /api/auth/signin or /api/config
+    # can't use /api since its "catched" by the nextjs frontend e.g
+    #   . /api/auth/signin or /api/config
     backendPrefix: "/apinew"
     frontendPrefix: "/"
     hosts: []
