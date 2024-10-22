@@ -1,6 +1,0 @@
-dependencies:
-- name: ingress-nginx
-  repository: file://./charts/ingress-nginx
-  version: 4.11.3
-digest: sha256:ff7ed0c079230e383ec15a0250323236ecaaf321816ccbb8af1fc6b230a161ee
-generated: "2024-10-21T15:50:15.923046+03:00"
