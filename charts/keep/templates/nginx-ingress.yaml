@@ -23,7 +23,7 @@ metadata:
       {{- if $.Values.websocket.enabled }}
       location ^~ {{ .Values.global.ingress.websocketPrefix }} {
         rewrite ^{{ .Values.global.ingress.websocketPrefix }}(/|$)(.*) /$2 break;
-        proxy_pass http://{{ $fullName }}-websocket:{{ $.Values.websocket.service.port }};
+        proxy_pass http://{{ $fullName }}-websocket.{{ .Release.Namespace }}.svc.cluster.local:{{ $.Values.websocket.service.port }};
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
