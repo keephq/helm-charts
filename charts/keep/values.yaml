@@ -1,4 +1,4 @@
-namespace: default
+namespace: keep
 serviceAccount:
   create: true
   annotations: {}
@@ -138,8 +138,8 @@ frontend:
   env:
     - name: NEXTAUTH_SECRET
       value: secret
-    - name: NEXTAUTH_URL
-      value: http://localhost:3000
+    - name: API_URL_CLIENT
+      value: http://keep-backend:8080
     # Shahar: took me whole day to figure out that I need to set this to 1
     # https://github.com/nextauthjs/next-auth/issues/600
     - name: VERCEL
@@ -156,7 +156,7 @@ frontend:
   image:
     repository: us-central1-docker.pkg.dev/keephq/keep/keep-ui
     pullPolicy: Always
-    tag: "feature_websocket-improve"
+    tag: feat_debug-k8s
   imagePullSecrets: []
   serviceAccount:
     create: true

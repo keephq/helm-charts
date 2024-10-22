@@ -66,9 +66,9 @@ Helper function to find an environment variable in the list
 */}}
 {{- define "keep.findEnvVar" -}}
 {{- $name := index . 0 -}}
-{{- $values := index . 1 -}}
-{{- if and $values.frontend $values.frontend.env -}}
-  {{- range $values.frontend.env -}}
+{{- $root := index . 1 -}}
+{{- if and $root.Values.frontend $root.Values.frontend.env -}}
+  {{- range $root.Values.frontend.env -}}
     {{- if eq .name $name -}}
       {{- .value -}}
     {{- end -}}
@@ -112,41 +112,52 @@ Helper function for PUSHER_HOST
 {{/*
 Helper function for API_URL for the frontend
 */}}
-{{- define "keep.apiUrl" -}}
-{{- $apiUrl := include "keep.findEnvVar" (list "API_URL" .) -}}
-{{- if $apiUrl -}}
-  {{- $apiUrl -}}
+{{- define "keep.apiUrlClient" -}}
+{{- $apiUrlClient := include "keep.findEnvVar" (list "API_URL_CLIENT" .) -}}
+{{- if $apiUrlClient -}}
+  {{- $apiUrlClient -}}
 {{- else -}}
   {{- include "keep.backendPrefix" . -}}
 {{- end -}}
 {{- end -}}
 
+{{/*
+Expand the namespace of the release.
+*/}}
+{{- define "keep.namespace" -}}
+{{- default .Release.Namespace .Values.namespaceOverride | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
 
 {{/*
-Determine if ingress-nginx should be installed
+Helper function for getting the full URL (with protocol and host)
 */}}
-{{- define "keep.shouldInstallIngressNginx" -}}
-{{- if .Release.IsInstall -}}
-  {{- if .Values.preInstallJob.enabled -}}
-    {{- $jobName := printf "%s-nginx-ingress-check" .Release.Name -}}
-    {{- $job := (lookup "batch/v1" "Job" .Release.Namespace $jobName) -}}
-    {{- if $job -}}
-      {{- if $job.status -}}
-        {{- if eq (int $job.status.succeeded) 0 -}}
-          {{- printf "false" -}}
-        {{- else -}}
-          {{- printf "true" -}}
-        {{- end -}}
-      {{- else -}}
-        {{- printf "true" -}}
-      {{- end -}}
-    {{- else -}}
-      {{- printf "true" -}}
-    {{- end -}}
+{{- define "keep.fullUrl" -}}
+{{- if and .Values.global.ingress.enabled .Values.global.ingress.hosts -}}
+  {{- if .Values.global.ingress.tls -}}
+    {{- $host := index .Values.global.ingress.hosts 0 -}}
+    {{- printf "https://%s" $host.host -}}
   {{- else -}}
-    {{- printf "true" -}}
+    {{- $host := index .Values.global.ingress.hosts 0 -}}
+    {{- printf "http://%s" $host.host -}}
   {{- end -}}
 {{- else -}}
-  {{- printf "false" -}}
+  {{- print "http://localhost:3000" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Helper function for NEXTAUTH_URL
+*/}}
+{{- define "keep.nextAuthUrl" -}}
+{{- $nextAuthUrl := include "keep.findEnvVar" (list "NEXTAUTH_URL" .) -}}
+{{- if $nextAuthUrl -}}
+    {{- $nextAuthUrl -}}
+{{- else -}}
+    {{- if .Values.global.ingress.enabled -}}
+        {{- include "keep.fullUrl" . -}}
+    {{- else -}}
+        {{- print "http://localhost:3000" -}}
+    {{- end -}}
 {{- end -}}
 {{- end -}}
