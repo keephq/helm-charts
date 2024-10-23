@@ -1,6 +1,9 @@
 # Keep Helm Chart
 The Keep Helm Chart provides a convenient way to deploy and manage Keep on Kubernetes using Helm, a package manager for Kubernetes applications.
 
+# Documentation
+Full documentation can be found at [Keep Docs](https://docs.keephq.dev/deployment/kubernetes/installation).
+
 # Prerequisites
 
 ## Ingress Controller (Recommended)
