@@ -60,3 +60,118 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Helper function to find an environment variable in the list
+*/}}
+{{- define "keep.findEnvVar" -}}
+{{- $name := index . 0 -}}
+{{- $root := index . 1 -}}
+{{- if and $root.Values.frontend $root.Values.frontend.env -}}
+  {{- range $root.Values.frontend.env -}}
+    {{- if eq .name $name -}}
+      {{- .value -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Helper function for websocket host (relative)
+*/}}
+{{- define "keep.websocketPrefix" -}}
+{{- coalesce .Values.global.ingress.websocketPrefix "/websocket" -}}
+{{- end -}}
+
+{{/*
+Helper function for backend host (relative)
+*/}}
+{{- define "keep.backendPrefix" -}}
+{{- coalesce .Values.global.ingress.backendPrefix "/api" -}}
+{{- end -}}
+
+{{/*
+Helper function for frontend host (relative)
+*/}}
+{{- define "keep.frontendPrefix" -}}
+{{- coalesce .Values.global.ingress.frontendPrefix "/" -}}
+{{- end -}}
+
+{{/*
+Helper function for PUSHER_HOST
+*/}}
+{{- define "keep.pusherHost" -}}
+{{- $pusherHost := include "keep.findEnvVar" (list "PUSHER_HOST" .) -}}
+{{- if $pusherHost -}}
+  {{- $pusherHost -}}
+{{- else -}}
+  {{- include "keep.websocketPrefix" . -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Helper function for API_URL for the frontend
+*/}}
+{{- define "keep.apiUrlClient" -}}
+{{- $apiUrlClient := include "keep.findEnvVar" (list "API_URL_CLIENT" .) -}}
+{{- if $apiUrlClient -}}
+  {{- $apiUrlClient -}}
+{{- else -}}
+  {{- include "keep.backendPrefix" . -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Expand the namespace of the release.
+*/}}
+{{- define "keep.namespace" -}}
+{{- default .Release.Namespace .Values.namespaceOverride | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+
+{{/*
+Helper function for getting the full URL (with protocol and host)
+*/}}
+{{- define "keep.fullUrl" -}}
+{{- if and .Values.global.ingress.enabled .Values.global.ingress.hosts -}}
+  {{- if .Values.global.ingress.tls -}}
+    {{- $host := index .Values.global.ingress.hosts 0 -}}
+    {{- printf "https://%s" $host.host -}}
+  {{- else -}}
+    {{- $host := index .Values.global.ingress.hosts 0 -}}
+    {{- printf "http://%s" $host.host -}}
+  {{- end -}}
+{{- else -}}
+  {{- print "http://localhost:3000" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Helper function for NEXTAUTH_URL
+*/}}
+{{- define "keep.nextAuthUrl" -}}
+{{- $nextAuthUrl := include "keep.findEnvVar" (list "NEXTAUTH_URL" .) -}}
+{{- if $nextAuthUrl -}}
+    {{- $nextAuthUrl -}}
+{{- else -}}
+    {{- if .Values.global.ingress.enabled -}}
+        {{- include "keep.fullUrl" . -}}
+    {{- else -}}
+        {{- print "http://localhost:3000" -}}
+    {{- end -}}
+{{- end -}}
+{{- end -}}
+
+
+{{/*
+Helper function for KEEP_API_URL that handles both relative and absolute URLs
+*/}}
+{{- define "keep.apiUrl" -}}
+{{- $apiUrlClient := include "keep.apiUrlClient" . -}}
+{{- /* Check if the URL starts with http:// or https:// */ -}}
+{{- if or (hasPrefix "http://" $apiUrlClient) (hasPrefix "https://" $apiUrlClient) -}}
+    {{- $apiUrlClient -}}
+{{- else -}}
+    {{- include "keep.fullUrl" . -}}{{- $apiUrlClient -}}
+{{- end -}}
+{{- end -}}

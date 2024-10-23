@@ -42,9 +42,20 @@ spec:
               containerPort: {{ .Values.frontend.service.port }}
               protocol: TCP
           env:
+            - name: PUSHER_HOST
+              value: {{ include "keep.pusherHost" . | quote }}
+            - name: API_URL_CLIENT
+              value: {{ include "keep.apiUrlClient" . | quote }}
+            - name: NEXTAUTH_URL
+              value: {{ include "keep.nextAuthUrl" . | quote }}
             {{- range .Values.frontend.env }}
+            {{- if and 
+                  (ne .name "PUSHER_HOST") 
+                  (ne .name "API_URL_CLIENT") 
+                  (ne .name "NEXTAUTH_URL") }}
             - name: {{ .name }}
               value: {{ .value | quote }}
+            {{- end }}
             {{- end }}
           volumeMounts:
             - name: state-volume
