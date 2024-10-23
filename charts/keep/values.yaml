@@ -162,7 +162,6 @@ frontend:
   image:
     repository: us-central1-docker.pkg.dev/keephq/keep/keep-ui
     pullPolicy: Always
-    tag: feat_debug-k8s
   imagePullSecrets: []
   serviceAccount:
     create: true
