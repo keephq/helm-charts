@@ -22,7 +22,15 @@ global:
     backendPrefix: "/apinew"
     frontendPrefix: "/"
     hosts: []
+    # uncomment when you want to use a custom domain
+    # hosts:
+    #  - host: keep.example.com
     tls: []
+    # uncomment when you want to use a custom domain with TLS
+    # tls:
+    #   - hosts:
+    #       - keep.example.com
+    #    secretName: keep-tls
 
 # this section controls the ingress-nginx **controller**
 # and not the ingress resource itself
@@ -138,8 +146,6 @@ frontend:
   env:
     - name: NEXTAUTH_SECRET
       value: secret
-    - name: API_URL_CLIENT
-      value: http://keep-backend:8080
     # Shahar: took me whole day to figure out that I need to set this to 1
     # https://github.com/nextauthjs/next-auth/issues/600
     - name: VERCEL

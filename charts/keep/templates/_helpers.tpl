@@ -161,3 +161,17 @@ Helper function for NEXTAUTH_URL
     {{- end -}}
 {{- end -}}
 {{- end -}}
+
+
+{{/*
+Helper function for KEEP_API_URL that handles both relative and absolute URLs
+*/}}
+{{- define "keep.apiUrl" -}}
+{{- $apiUrlClient := include "keep.apiUrlClient" . -}}
+{{- /* Check if the URL starts with http:// or https:// */ -}}
+{{- if or (hasPrefix "http://" $apiUrlClient) (hasPrefix "https://" $apiUrlClient) -}}
+    {{- $apiUrlClient -}}
+{{- else -}}
+    {{- include "keep.fullUrl" . -}}{{- $apiUrlClient -}}
+{{- end -}}
+{{- end -}}

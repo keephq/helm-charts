@@ -48,6 +48,8 @@ spec:
               containerPort: {{ .Values.backend.service.port }}
               protocol: TCP
           env:
+            - name: KEEP_API_URL
+              value: {{ include "keep.apiUrl" . | quote }}
             {{- range .Values.backend.env }}
             - name: {{ .name }}
               {{- if .secretKeyRef }}
