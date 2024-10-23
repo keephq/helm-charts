@@ -19,7 +19,7 @@ global:
     websocketPrefix: "/websocket"
     # can't use /api since its "catched" by the nextjs frontend e.g
     #   . /api/auth/signin or /api/config
-    backendPrefix: "/apinew"
+    backendPrefix: "/v2"
     frontendPrefix: "/"
     hosts: []
     # uncomment when you want to use a custom domain
