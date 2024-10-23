@@ -1,6 +1,6 @@
 # keep
 
-![Version: 0.1.25](https://img.shields.io/badge/Version-0.1.25-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.26.1](https://img.shields.io/badge/AppVersion-0.26.1-informational?style=flat-square)
+![Version: 0.1.25](https://img.shields.io/badge/Version-0.1.25-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.27.0](https://img.shields.io/badge/AppVersion-0.27.0-informational?style=flat-square)
 
 Keep Helm Chart
 
@@ -133,18 +133,16 @@ Keep Helm Chart
 | frontend.enabled | bool | `true` |  |
 | frontend.env[0].name | string | `"NEXTAUTH_SECRET"` |  |
 | frontend.env[0].value | string | `"secret"` |  |
-| frontend.env[1].name | string | `"NEXTAUTH_URL"` |  |
-| frontend.env[1].value | string | `"http://localhost:3000"` |  |
-| frontend.env[2].name | string | `"VERCEL"` |  |
-| frontend.env[2].value | int | `1` |  |
-| frontend.env[3].name | string | `"ENV"` |  |
+| frontend.env[1].name | string | `"VERCEL"` |  |
+| frontend.env[1].value | int | `1` |  |
+| frontend.env[2].name | string | `"ENV"` |  |
+| frontend.env[2].value | string | `"development"` |  |
+| frontend.env[3].name | string | `"NODE_ENV"` |  |
 | frontend.env[3].value | string | `"development"` |  |
-| frontend.env[4].name | string | `"NODE_ENV"` |  |
-| frontend.env[4].value | string | `"development"` |  |
-| frontend.env[5].name | string | `"HOSTNAME"` |  |
-| frontend.env[5].value | string | `"0.0.0.0"` |  |
-| frontend.env[6].name | string | `"PUSHER_APP_KEY"` |  |
-| frontend.env[6].value | string | `"keepappkey"` |  |
+| frontend.env[4].name | string | `"HOSTNAME"` |  |
+| frontend.env[4].value | string | `"0.0.0.0"` |  |
+| frontend.env[5].name | string | `"PUSHER_APP_KEY"` |  |
+| frontend.env[5].value | string | `"keepappkey"` |  |
 | frontend.healthCheck.enabled | bool | `false` |  |
 | frontend.healthCheck.probes.livenessProbe.httpGet.path | string | `"/"` |  |
 | frontend.healthCheck.probes.livenessProbe.httpGet.port | string | `"http"` |  |
@@ -152,7 +150,6 @@ Keep Helm Chart
 | frontend.healthCheck.probes.readinessProbe.httpGet.port | string | `"http"` |  |
 | frontend.image.pullPolicy | string | `"Always"` |  |
 | frontend.image.repository | string | `"us-central1-docker.pkg.dev/keephq/keep/keep-ui"` |  |
-| frontend.image.tag | string | `"feature_websocket-improve"` |  |
 | frontend.imagePullSecrets | list | `[]` |  |
 | frontend.nodeSelector | object | `{}` |  |
 | frontend.podAnnotations | object | `{}` |  |
@@ -173,7 +170,7 @@ Keep Helm Chart
 | frontend.tolerations | list | `[]` |  |
 | fullnameOverride | string | `""` |  |
 | global.ingress.annotations | object | `{}` |  |
-| global.ingress.backendPrefix | string | `"/apinew"` |  |
+| global.ingress.backendPrefix | string | `"/v2"` |  |
 | global.ingress.className | string | `"nginx"` |  |
 | global.ingress.enabled | bool | `true` |  |
 | global.ingress.frontendPrefix | string | `"/"` |  |
@@ -193,7 +190,7 @@ Keep Helm Chart
 | ingress-nginx.enabled | bool | `true` |  |
 | isGKE | bool | `false` |  |
 | nameOverride | string | `""` |  |
-| namespace | string | `"default"` |  |
+| namespace | string | `"keep"` |  |
 | serviceAccount.annotations | object | `{}` |  |
 | serviceAccount.create | bool | `true` |  |
 | serviceAccount.name | string | `""` |  |
