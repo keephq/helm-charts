@@ -7,6 +7,7 @@ metadata:
   labels:
     {{- include "keep.labels" . | nindent 4 }}
   annotations:
+    {{- if eq .Values.global.ingress.className "nginx" }}
     kubernetes.io/ingress.class: "nginx"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
@@ -37,6 +38,7 @@ metadata:
       {{- end }}
     nginx.ingress.kubernetes.io/rewrite-target: /$1
     nginx.ingress.kubernetes.io/use-regex: "true"
+    {{- end }}
     {{- with .Values.global.ingress.annotations }}
     {{- toYaml . | nindent 4 }}
     {{- end }}

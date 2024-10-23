@@ -32,30 +32,6 @@ global:
     #       - keep.example.com
     #    secretName: keep-tls
 
-# this section controls the ingress-nginx **controller**
-# and not the ingress resource itself
-ingress-nginx:
-  # install the ingress-nginx controller dependency repo
-  enabled: true
-  controller:
-    service:
-      enabled: true
-      type: LoadBalancer
-      annotations: {}
-      ports:
-        http: 80
-        https: 443
-    admissionWebhooks:
-      failurePolicy: Ignore
-      patch:
-        enabled: true
-        image:
-          pullPolicy: IfNotPresent
-      certManager:
-        enabled: false
-    allowSnippetAnnotations: true
-
-
 backend:
   # if true, the backend will be enabled
   enabled: true
