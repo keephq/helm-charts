@@ -110,7 +110,7 @@ Helper function for PUSHER_HOST
 {{- end -}}
 
 {{/*
-Helper function for API_URL for the frontend
+Helper function for API_URL_CLIENT for the frontend
 */}}
 {{- define "keep.apiUrlClient" -}}
 {{- $apiUrlClient := include "keep.findEnvVar" (list "API_URL_CLIENT" .) -}}
@@ -118,6 +118,18 @@ Helper function for API_URL for the frontend
   {{- $apiUrlClient -}}
 {{- else -}}
   {{- include "keep.backendPrefix" . -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Helper function for API_URL
+*/}}
+{{- define "keep.apiUrl" -}}
+{{- $apiUrl := include "keep.findEnvVar" (list "API_URL" .) -}}
+{{- if $apiUrl -}}
+  {{- $apiUrl -}}
+{{- else -}}
+  {{- printf "http://%s-backend:%v" (include "keep.fullname" .) (.Values.backend.service.port) -}}
 {{- end -}}
 {{- end -}}
 
@@ -166,7 +178,7 @@ Helper function for NEXTAUTH_URL
 {{/*
 Helper function for KEEP_API_URL that handles both relative and absolute URLs
 */}}
-{{- define "keep.apiUrl" -}}
+{{- define "keep.keepApiUrl" -}}
 {{- $apiUrlClient := include "keep.apiUrlClient" . -}}
 {{- /* Check if the URL starts with http:// or https:// */ -}}
 {{- if or (hasPrefix "http://" $apiUrlClient) (hasPrefix "https://" $apiUrlClient) -}}
