@@ -49,7 +49,7 @@ spec:
               protocol: TCP
           env:
             - name: KEEP_API_URL
-              value: {{ include "keep.apiUrl" . | quote }}
+              value: {{ include "keep.keepApiUrl" . | quote }}
             {{- range .Values.backend.env }}
             - name: {{ .name }}
               {{- if .secretKeyRef }}
