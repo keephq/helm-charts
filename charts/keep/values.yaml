@@ -8,23 +8,27 @@ fullnameOverride: ""
 isGKE: false
 
 global:
-  # this section controls the ingress resource and
-  #   not the ingress-nginx controller
-  # see the ingress-nginx section below for the
-  #   controller configuration
+  # this section controls the ingress resource at nginx-ingress.yaml
   ingress:
     enabled: true
     className: "nginx"
     annotations: {}
+    # this is the prefix for the websocket route
+    # so the full url will be <ingress-host>/websocket
     websocketPrefix: "/websocket"
     # can't use /api since its "catched" by the nextjs frontend e.g
     #   . /api/auth/signin or /api/config
     backendPrefix: "/v2"
+    # this is the prefix for the frontend route
+    # so the full url will be <ingress-host>/
     frontendPrefix: "/"
+    # to set the ingress host
     hosts: []
     # uncomment when you want to use a custom domain
     # hosts:
     #  - host: keep.example.com
+
+    # this is the list of TLS certificates to use
     tls: []
     # uncomment when you want to use a custom domain with TLS
     # tls:
