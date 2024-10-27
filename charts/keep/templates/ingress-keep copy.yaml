@@ -1,0 +1,81 @@
+{{- if .Values.global.ingress.enabled }}
+{{- $fullName := include "keep.fullname" . }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $fullName }}-ingress
+  labels:
+    {{- include "keep.labels" . | nindent 4 }}
+  annotations:
+    {{- if eq .Values.global.ingress.className "haproxy" }}
+    haproxy.org/timeout-tunnel: "3600s"
+    haproxy.org/timeout-client: "3600s"
+    haproxy.org/timeout-server: "3600s"
+    haproxy.org/websocket-support: "true"
+    haproxy.org/buffering: "false"
+    haproxy.org/ssl-redirect: "false"
+    haproxy.org/backend-server-slot-increment: "1"
+    haproxy.org/load-balance: "roundrobin"
+    
+    # Simplify the path patterns
+    haproxy.org/path-rewrite: |
+      /websocket /
+      /v2 /
+      
+    haproxy.org/path-precedence: |
+      /v2
+      /websocket
+      /
+      
+    haproxy.org/config: |
+      http-request replace-uri /websocket/(.*) /\1 if { path_beg /websocket }
+      http-request replace-uri /v2/(.*) /\1 if { path_beg /v2 }
+
+      use_backend keep_keep-websocket_http if { path_beg /websocket }
+      use_backend keep_keep-backend_http if { path_beg /v2 }
+      default_backend keep_keep-frontend_http
+      
+    haproxy.org/backend-config-websocket: |
+      option httpchk
+      option http-server-close
+      option forwardfor
+      http-request set-header X-Forwarded-Port %[dst_port]
+      http-request add-header X-Forwarded-Proto https if { ssl_fc }
+      http-request set-header X-Real-IP %[src]
+      http-request set-header Host %[req.hdr(host)]
+      
+    haproxy.org/backend-config: |
+      balance roundrobin
+      option forwardfor
+      option http-server-close
+      option httplog
+      http-request set-header X-Forwarded-Proto https if { ssl_fc }
+      http-request set-header Host %[req.hdr(host)]
+    {{- end }}
+spec:
+  ingressClassName: {{ .Values.global.ingress.className }}
+  rules:
+    - http:
+        paths:
+        - path: /v2
+          pathType: Prefix
+          backend:
+            service:
+              name: {{ $fullName }}-backend
+              port:
+                number: {{ $.Values.backend.service.port }}
+        - path: /websocket
+          pathType: Prefix
+          backend:
+            service:
+              name: {{ $fullName }}-websocket
+              port:
+                number: {{ $.Values.websocket.service.port }}
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: {{ $fullName }}-frontend
+              port:
+                number: {{ $.Values.frontend.service.port }}
+{{- end }}

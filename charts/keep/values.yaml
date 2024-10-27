@@ -9,9 +9,9 @@ isGKE: false
 
 global:
   # this section controls the ingress resource at nginx-ingress.yaml
-  ingress:
+  ingress:  
     enabled: true
-    className: "nginx"
+    className: "haproxy"
     annotations: {}
     # this is the prefix for the websocket route
     # so the full url will be <ingress-host>/websocket
@@ -23,7 +23,8 @@ global:
     # so the full url will be <ingress-host>/
     frontendPrefix: "/"
     # to set the ingress host
-    hosts: []
+    hosts: 
+    - host: ""
     # uncomment when you want to use a custom domain
     # hosts:
     #  - host: keep.example.com

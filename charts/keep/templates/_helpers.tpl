@@ -146,12 +146,26 @@ Helper function for getting the full URL (with protocol and host)
 */}}
 {{- define "keep.fullUrl" -}}
 {{- if and .Values.global.ingress.enabled .Values.global.ingress.hosts -}}
-  {{- if .Values.global.ingress.tls -}}
-    {{- $host := index .Values.global.ingress.hosts 0 -}}
-    {{- printf "https://%s" $host.host -}}
+  {{- $host := index .Values.global.ingress.hosts 0 -}}
+  {{- if $host.host -}}
+    {{- if .Values.global.ingress.tls -}}
+      {{- printf "https://%s" $host.host -}}
+    {{- else -}}
+      {{- printf "http://%s" $host.host -}}
+    {{- end -}}
   {{- else -}}
-    {{- $host := index .Values.global.ingress.hosts 0 -}}
-    {{- printf "http://%s" $host.host -}}
+    {{- $svc := lookup "v1" "Service" .Release.Namespace (printf "%s-ingress" (include "keep.fullname" .)) -}}
+    {{- if and $svc $svc.status.loadBalancer.ingress -}}
+      {{- if $svc.status.loadBalancer.ingress.ip -}}
+        {{- printf "http://%s" $svc.status.loadBalancer.ingress.ip -}}
+      {{- else if $svc.status.loadBalancer.ingress.hostname -}}
+        {{- printf "http://%s" $svc.status.loadBalancer.ingress.hostname -}}
+      {{- else -}}
+        {{- print "http://localhost:3000" -}}
+      {{- end -}}
+    {{- else -}}
+      {{- print "http://localhost:3000" -}}
+    {{- end -}}
   {{- end -}}
 {{- else -}}
   {{- print "http://localhost:3000" -}}

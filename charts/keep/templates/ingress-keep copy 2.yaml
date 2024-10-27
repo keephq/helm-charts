@@ -7,6 +7,9 @@ metadata:
   labels:
     {{- include "keep.labels" . | nindent 4 }}
   annotations:
+    # -------------------
+    # NGINX annotations
+    # -------------------
     {{- if eq .Values.global.ingress.className "nginx" }}
     kubernetes.io/ingress.class: "nginx"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
@@ -39,46 +42,66 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /$1
     nginx.ingress.kubernetes.io/use-regex: "true"
     {{- end }}
+    # -------------------
+    # HAProxy annotations
+    # -------------------
+    {{- if eq .Values.global.ingress.className "haproxy" }}
+    haproxy.org/timeout-tunnel: "3600s"
+    haproxy.org/timeout-client: "3600s"
+    haproxy.org/timeout-server: "3600s"
+    haproxy.org/websocket-support: "true"
+    haproxy.org/buffering: "false"
+    haproxy.org/ssl-redirect: "false"
+    haproxy.org/backend-server-slot-increment: "1"
+    haproxy.org/load-balance: "roundrobin"
+    haproxy.org/path-precedence: "^/v2(/|$),^/websocket(/|$),^/"
+    haproxy.org/url-map: |
+      <default>#/v2 keep_keep-backend_http
+      <default>#/websocket keep_keep-websocket_http
+      <default>#/ keep_keep-frontend_http
+    haproxy.org/backend-config-websocket: |
+      option httpchk
+      option http-server-close
+      option forwardfor
+      http-request set-header X-Forwarded-Port %[dst_port]
+      http-request add-header X-Forwarded-Proto https if { ssl_fc }
+      http-request set-header X-Real-IP %[src]
+      http-request set-header Host %[req.hdr(host)]
+    haproxy.org/backend-config: |
+      balance roundrobin
+      option forwardfor
+      option http-server-close
+      option httplog
+      http-request set-header X-Forwarded-Proto https if { ssl_fc }
+      http-request set-header Host %[req.hdr(host)]
+      log-format "%ci:%cp [%tr] %ft %b/%s %TR/%Tw/%Tc/%Tr/%Ta %ST %B %CC %CS %tsc %ac/%fc/%bc/%sc/%rc %sq/%bq %hr %hs %{+Q}r"
+    {{- end }}
     {{- with .Values.global.ingress.annotations }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
 spec:
   ingressClassName: {{ .Values.global.ingress.className }}
-  {{- if .Values.global.ingress.tls }}
-  tls:
-    {{- range .Values.global.ingress.tls }}
-    - hosts:
-        {{- range .hosts }}
-        - {{ . | quote }}
-        {{- end }}
-      secretName: {{ .secretName }}
-    {{- end }}
-  {{- end }}
   rules:
     {{- if .Values.global.ingress.hosts }}
     {{- range .Values.global.ingress.hosts }}
     - host: {{ .host | quote }}
       http:
         paths:
-        {{- if $.Values.websocket.enabled }}
-        - path: {{ $.Values.global.ingress.websocketPrefix }}(/|$)(.*)
-          pathType: ImplementationSpecific
-          backend:
-            service:
-              name: {{ $fullName }}-websocket
-              port:
-                number: {{ $.Values.websocket.service.port }}
-        {{- end }}
-        {{- if $.Values.backend.enabled }}
-        - path: {{ $.Values.global.ingress.backendPrefix }}(/|$)(.*)
+        - path: /v2(/|$)(.*)
           pathType: ImplementationSpecific
           backend:
             service:
               name: {{ $fullName }}-backend
               port:
                 number: {{ $.Values.backend.service.port }}
-        {{- end }}
-        - path: {{ $.Values.global.ingress.frontendPrefix }}(.*)
+        - path: /websocket(/|$)(.*)
+          pathType: ImplementationSpecific
+          backend:
+            service:
+              name: {{ $fullName }}-websocket
+              port:
+                number: {{ $.Values.websocket.service.port }}
+        - path: /(.*)
           pathType: ImplementationSpecific
           backend:
             service:
@@ -89,25 +112,21 @@ spec:
     {{- else }}
     - http:
         paths:
-        {{- if $.Values.websocket.enabled }}
-        - path: {{ $.Values.global.ingress.websocketPrefix }}(/|$)(.*)
-          pathType: ImplementationSpecific
-          backend:
-            service:
-              name: {{ $fullName }}-websocket
-              port:
-                number: {{ $.Values.websocket.service.port }}
-        {{- end }}
-        {{- if $.Values.backend.enabled }}
-        - path: {{ $.Values.global.ingress.backendPrefix }}(/|$)(.*)
+        - path: /v2(/|$)(.*)
           pathType: ImplementationSpecific
           backend:
             service:
               name: {{ $fullName }}-backend
               port:
                 number: {{ $.Values.backend.service.port }}
-        {{- end }}
-        - path: {{ $.Values.global.ingress.frontendPrefix }}(.*)
+        - path: /websocket(/|$)(.*)
+          pathType: ImplementationSpecific
+          backend:
+            service:
+              name: {{ $fullName }}-websocket
+              port:
+                number: {{ $.Values.websocket.service.port }}
+        - path: /(.*)
           pathType: ImplementationSpecific
           backend:
             service:
