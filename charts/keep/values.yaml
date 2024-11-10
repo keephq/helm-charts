@@ -268,7 +268,7 @@ database:
     tag: "latest"
   env:
     - name: MYSQL_ALLOW_EMPTY_PASSWORD
-      value: yes
+      value: true
     - name: MYSQL_DATABASE
       value: keep
     - name: MYSQL_PASSWORD
