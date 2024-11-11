@@ -12,6 +12,8 @@ global:
   ingress:
     enabled: true
     className: "nginx"
+    # this is for cases where you want nginx configuration but the nginx className is different.
+    classType: ""
     annotations: {}
     # this is the prefix for the websocket route
     # so the full url will be <ingress-host>/websocket
