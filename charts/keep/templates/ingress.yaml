@@ -7,7 +7,7 @@ metadata:
   labels:
     {{- include "keep.labels" . | nindent 4 }}
   annotations:
-    {{- if eq .Values.global.ingress.className "nginx" }}
+    {{- if or (eq .Values.global.ingress.className "nginx") (eq .Values.global.ingress.classType "nginx") }}
     kubernetes.io/ingress.class: "nginx"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
