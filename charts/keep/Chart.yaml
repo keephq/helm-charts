@@ -1,10 +1,10 @@
 apiVersion: v2
 name: keep
-version: 0.1.37
+version: 0.1.38
 description: Keep Helm Chart
 type: application
 icon: https://platform.keephq.dev/_next/image?url=%2Fkeep.png&w=48&q=75
-appVersion: 0.28.6
+appVersion: 0.28.8
 deprecated: false
 annotations:
   app: keep
