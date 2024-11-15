@@ -24,10 +24,10 @@ metadata:
     
     # Backend configurations for path rewrites
     haproxy-ingress.github.io/config-backend: |
-      acl path_v2 path_beg /v2/
-      acl path_ws path_beg /websocket/
-      http-request set-path %[path,regsub(^/v2/,/)] if path_v2
-      http-request set-path %[path,regsub(^/websocket/,/)] if path_ws
+      acl path_v2 path_beg {{ .Values.global.ingress.backendPrefix }}/
+      acl path_ws path_beg {{ .Values.global.ingress.websocketPrefix }}/
+      http-request set-path %[path,regsub(^{{ .Values.global.ingress.backendPrefix }}/,/)] if path_v2
+      http-request set-path %[path,regsub(^{{ .Values.global.ingress.websocketPrefix }}/,/)] if path_ws
 
 spec:
   ingressClassName: haproxy
@@ -48,7 +48,7 @@ spec:
       http:
         paths:
         {{- if $.Values.websocket.enabled }}
-        - path: "/websocket"
+        - path: {{ $.Values.global.ingress.websocketPrefix }}
           pathType: Prefix
           backend:
             service:
@@ -57,7 +57,7 @@ spec:
                 number: {{ $.Values.websocket.service.port }}
         {{- end }}
         {{- if $.Values.backend.enabled }}
-        - path: "/v2"
+        - path: {{ $.Values.global.ingress.backendPrefix }}
           pathType: Prefix
           backend:
             service:
@@ -77,7 +77,7 @@ spec:
     - http:
         paths:
         {{- if $.Values.websocket.enabled }}
-        - path: "/websocket"
+        - path: {{ $.Values.global.ingress.websocketPrefix }}
           pathType: Prefix
           backend:
             service:
@@ -86,7 +86,7 @@ spec:
                 number: {{ $.Values.websocket.service.port }}
         {{- end }}
         {{- if $.Values.backend.enabled }}
-        - path: "/v2"
+        - path: {{ $.Values.global.ingress.backendPrefix }}
           pathType: Prefix
           backend:
             service:
