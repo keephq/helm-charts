@@ -49,7 +49,7 @@ jobs:
                 - containerPort: 443
                   hostPort: 443
                   protocol: TCP
-            EOF
+          EOF
   
       - name: Debug kind config
         if: ${{ inputs.debug_enabled }}
