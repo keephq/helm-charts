@@ -1,0 +1,228 @@
+name: Test Nginx Ingress
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      debug_enabled:
+        description: 'Run workflow with debug logging'
+        required: false
+        default: true
+        type: boolean
+
+jobs:
+  test-nginx-ingress:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.10.3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install test dependencies
+        run: |
+          npm install -g wscat
+          sudo apt-get update && sudo apt-get install -y curl
+
+      - name: Create kind config
+        run: |
+          cat <<-EOF > kind-config.yaml
+          kind: Cluster
+          apiVersion: kind.x-k8s.io/v1alpha4
+          nodes:
+            - role: control-plane
+              extraPortMappings:
+                - containerPort: 80
+                  hostPort: 80
+                  protocol: TCP
+                - containerPort: 443
+                  hostPort: 443
+                  protocol: TCP
+          EOF
+  
+      - name: Debug kind config
+        if: ${{ inputs.debug_enabled }}
+        run: cat kind-config.yaml
+  
+      - name: Create kind cluster
+        uses: helm/kind-action@v1.9.0
+        with:
+          wait: 600s
+          config: kind-config.yaml
+
+      - name: Install Nginx Ingress Controller
+        run: |
+          helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+          helm repo update
+          helm install nginx-ingress ingress-nginx/ingress-nginx \
+            --set controller.service.type=NodePort \
+            --set controller.watchIngressWithoutClass=true \
+            --set controller.allowSnippetAnnotations=true \
+            --set controller.config.allow-snippets=true \
+            --set controller.config.enable-snippets=true \
+            --set controller.hostPort.enabled=true \
+            --set controller.service.ports.http=80 \
+            --set controller.service.ports.https=443 \
+            --set controller.nodeSelector."kubernetes\.io/os"=linux \
+            --set controller.admissionWebhooks.enabled=false
+
+      - name: Wait for Nginx Ingress
+        run: |
+          echo "Waiting for Nginx Ingress pods..."
+          kubectl wait --namespace default \
+            --for=condition=ready pod \
+            --selector=app.kubernetes.io/instance=nginx-ingress \
+            --timeout=90s
+
+      - name: Create test values for nginx
+        run: |
+          mkdir -p debug
+          cat <<EOF > debug/nginx-values.yaml
+          global:
+            ingress:
+              enabled: true
+              className: nginx
+              classType: nginx
+              websocketPrefix: /websocket
+              backendPrefix: /v2
+              frontendPrefix: /
+          frontend:
+            enabled: true
+          backend:
+            enabled: true
+          websocket:
+            enabled: true
+          EOF
+
+      - name: Debug - Show test values
+        if: ${{ inputs.debug_enabled }}
+        run: cat debug/nginx-values.yaml
+
+      - name: Install Keep chart
+        run: |
+          helm install keep ./charts/keep -f debug/nginx-values.yaml
+    
+      - name: Wait for all pods
+        run: |
+          echo "Waiting for all pods to be ready..."
+          kubectl wait --for=condition=ready pod --all -n default --timeout=180s
+          
+          echo "Checking pod status..."
+          kubectl get pods -n default
+          
+          echo "Checking ingress status..."
+          kubectl get ingress -n default
+          
+          echo "Waiting additional 30s for services to stabilize..."
+          sleep 30
+
+      - name: Debug - Show resources
+        if: ${{ inputs.debug_enabled }}
+        run: |
+          echo "🔍 Checking all resources..."
+          kubectl get pods -A
+          kubectl get svc -A
+          kubectl get ingress -A
+          kubectl describe ingress -A
+
+      - name: Test endpoints
+        run: |
+          INGRESS_IP="127.0.0.1"
+          APP_NAME=$(helm list -n default -o json | jq -r '.[0].name')
+          MAX_RETRIES=5
+          RETRY_DELAY=10
+          
+          test_endpoint() {
+            local url=$1
+            local expected_code=$2
+            local headers=${3:-""}
+            
+            for ((i=1; i<=MAX_RETRIES; i++)); do
+              echo "Attempt $i of $MAX_RETRIES for $url"
+              echo "Headers being sent: $headers"
+              
+              if [ -n "$headers" ]; then
+                echo "Full curl command: curl -v $headers \"$url\""
+                RESP=$(curl -v $headers "$url" 2>&1)
+              else
+                echo "Full curl command: curl -v \"$url\""
+                RESP=$(curl -v "$url" 2>&1)
+              fi
+              
+              # Extract response code, handling connection failures
+              RESP_CODE=$(echo "$RESP" | grep "< HTTP" | awk '{print $3}')
+              if [ -z "$RESP_CODE" ]; then
+                echo "⚠️ No response code received - connection may have failed"
+                echo -e "\n🔍 Response Details:"
+                echo "------------------------"
+                echo "Response code: Connection failed"
+                echo -e "\n📋 Response Headers:"
+                echo "$RESP" | grep -E "^< " || echo "No headers found"
+                echo -e "\n📝 Response Body:"
+                echo "$RESP" | sed -n '/^* Connected/,/^* Connection/!p' | grep -v "^[*<>]" || echo "No body found"
+                echo "------------------------"
+                
+                if [ "$i" -lt "$MAX_RETRIES" ]; then
+                  echo "⏳ Waiting ${RETRY_DELAY}s before next attempt..."
+                  sleep "$RETRY_DELAY"
+                  continue
+                fi
+                echo "❌ Failed to establish connection after $MAX_RETRIES attempts"
+                return 1
+              fi
+              
+              echo -e "\n🔍 Response Details:"
+              echo "------------------------"
+              echo "Response code: $RESP_CODE"
+              echo -e "\n📋 Response Headers:"
+              echo "$RESP" | grep -E "^< " || echo "No headers found"
+              echo -e "\n📝 Response Body:"
+              echo "$RESP" | sed -n '/^* Connected/,/^* Connection/!p' | grep -v "^[*<>]" || echo "No body found"
+              echo "------------------------"
+              
+              if [ "$RESP_CODE" -eq "$expected_code" ]; then
+                echo "✅ Expected response code $expected_code received"
+                return 0
+              fi
+              
+              if [ "$i" -lt "$MAX_RETRIES" ]; then
+                echo "⏳ Waiting ${RETRY_DELAY}s before next attempt..."
+                sleep "$RETRY_DELAY"
+              fi
+            done
+            echo "❌ Failed to get expected response code $expected_code after $MAX_RETRIES attempts"
+            return 1
+          }
+          
+          echo "🌐 Testing frontend endpoint..."
+          test_endpoint "http://$INGRESS_IP/" 307 || exit 1
+          
+          echo "🔌 Testing backend endpoint..."
+          test_endpoint "http://$INGRESS_IP/v2/docs" 200 || exit 1
+          
+          echo "🔄 Testing websocket endpoint..."
+          # should return "OK"
+          test_endpoint "http://$INGRESS_IP/websocket/" 200 || exit 1
+        
+      - name: Debug - Show logs on failure
+        if: ${{ failure() && inputs.debug_enabled }}
+        run: |
+          echo "📜 Nginx Ingress Controller logs:"
+          kubectl logs -l app.kubernetes.io/instance=nginx-ingress --tail=100
+          
+          echo "Application pods logs:"
+          for pod in $(kubectl get pods -n default -l app.kubernetes.io/instance=keep -o name); do
+            echo "Logs for $pod:"
+            kubectl logs $pod --tail=100
+          done
