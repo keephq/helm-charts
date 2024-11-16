@@ -53,6 +53,8 @@ backend:
   env:
     - name: DATABASE_CONNECTION_STRING
       value: mysql+pymysql://root@keep-database:3306/keep
+    - name: DATABASE_NAME
+      value: keep-database
     - name: SECRET_MANAGER_TYPE
       value: k8s
     - name: PORT
