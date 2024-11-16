@@ -133,7 +133,7 @@ jobs:
         run: |
           INGRESS_IP="127.0.0.1"
           APP_NAME=$(helm list -n default -o json | jq -r '.[0].name')
-          MAX_RETRIES=5
+          MAX_RETRIES=20
           RETRY_DELAY=10
           
           test_endpoint() {
@@ -148,11 +148,31 @@ jobs:
               if [ -n "$headers" ]; then
                 echo "Full curl command: curl -v $headers \"$url\""
                 RESP=$(curl -v $headers "$url" 2>&1)
-                RESP_CODE=$(echo "$RESP" | grep "< HTTP" | awk '{print $3}')
               else
                 echo "Full curl command: curl -v \"$url\""
                 RESP=$(curl -v "$url" 2>&1)
-                RESP_CODE=$(echo "$RESP" | grep "< HTTP" | awk '{print $3}')
+              fi
+              
+              # Extract response code, handling connection failures
+              RESP_CODE=$(echo "$RESP" | grep "< HTTP" | awk '{print $3}')
+              if [ -z "$RESP_CODE" ]; then
+                echo "⚠️ No response code received - connection may have failed"
+                echo -e "\n🔍 Response Details:"
+                echo "------------------------"
+                echo "Response code: Connection failed"
+                echo -e "\n📋 Response Headers:"
+                echo "$RESP" | grep -E "^< " || echo "No headers found"
+                echo -e "\n📝 Response Body:"
+                echo "$RESP" | sed -n '/^* Connected/,/^* Connection/!p' | grep -v "^[*<>]" || echo "No body found"
+                echo "------------------------"
+                
+                if [ "$i" -lt "$MAX_RETRIES" ]; then
+                  echo "⏳ Waiting ${RETRY_DELAY}s before next attempt..."
+                  sleep "$RETRY_DELAY"
+                  continue
+                fi
+                echo "❌ Failed to establish connection after $MAX_RETRIES attempts"
+                return 1
               fi
               
               echo -e "\n🔍 Response Details:"

@@ -140,20 +140,36 @@ jobs:
           echo "🧪 Testing endpoints..."
           
           echo "Frontend (/) - Should redirect to /incidents:"
-          RESP=$(curl -s -I http://localhost/)
-          echo "$RESP" | grep "HTTP"
+          RESP=$(curl -v http://localhost/ 2>&1)
+          echo -e "\n📋 Response Headers:"
+          echo "$RESP" | grep -E "^< " || echo "No headers found"
+          echo -e "\n📝 Response Body:"
+          echo "$RESP" | sed -n '/^* Connected/,/^* Connection/!p' | grep -v "^[*<>]" || echo "No body found"
+          
+          RESP_CODE=$(echo "$RESP" | grep "< HTTP" | awk '{print $3}')
           LOCATION=$(echo "$RESP" | grep -i "location")
-          echo "$LOCATION"
+          echo -e "\nResponse code: $RESP_CODE"
+          echo "Location header: $LOCATION"
+          
           if [[ "$LOCATION" != *"/incidents"* ]]; then
             echo "❌ Redirect to /incidents not found"
             exit 1
           fi
+          echo "✅ Frontend redirect successful"
           
           echo -e "\nBackend (/v2/docs) - Should return API info:"
-          for i in {1..5}; do
-            echo "Attempt $i of 5..."
-            RESP=$(curl -s http://localhost/v2/docs/)
-            echo "Response: $RESP"
+          for i in {1..20}; do
+            echo -e "\nAttempt $i of 20..."
+            RESP=$(curl -v http://localhost/v2/docs/ 2>&1)
+            
+            echo -e "\n📋 Response Headers:"
+            echo "$RESP" | grep -E "^< " || echo "No headers found"
+            echo -e "\n📝 Response Body:"
+            echo "$RESP" | sed -n '/^* Connected/,/^* Connection/!p' | grep -v "^[*<>]" || echo "No body found"
+            
+            RESP_CODE=$(echo "$RESP" | grep "< HTTP" | awk '{print $3}')
+            echo -e "\nResponse code: $RESP_CODE"
+            
             if [[ $RESP == *"Rest API powering"* ]]; then
               echo "✅ Backend response successful"
               break
@@ -162,14 +178,16 @@ jobs:
               echo "❌ Unexpected backend response after 5 attempts"
               exit 1
             fi
-            echo "Waiting 2 seconds before next attempt..."
+            echo "⏳ Waiting 2 seconds before next attempt..."
             sleep 2
           done
           
           echo -e "\nWebSocket (/websocket) - Testing connection:"
-          wscat -c "ws://localhost/websocket/app/keepappkey?protocol=7&client=js&version=8.3.0&flash=false" &
+          echo "🔄 Attempting WebSocket connection..."
+          wscat -c "ws://localhost/websocket/app/keepappkey?protocol=7&client=js&version=8.3.0&flash=false" --showHeaders &
           WSCAT_PID=$!
           sleep 2
+          echo "📊 WebSocket connection attempt completed"
           kill $WSCAT_PID 2>/dev/null
 
       - name: Debug - Show logs on failure
