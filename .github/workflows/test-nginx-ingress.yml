@@ -112,12 +112,19 @@ jobs:
         run: |
           helm install keep ./charts/keep -f debug/nginx-values.yaml
     
-      - name: Wait for the backend pod
+      - name: Wait for all pods
         run: |
-          kubectl wait --namespace default \
-            --for=condition=ready pod \
-            --selector=app.kubernetes.io/instance=keep,keep-component=backend \
-            --timeout=90s
+          echo "Waiting for all pods to be ready..."
+          kubectl wait --for=condition=ready pod --all -n default --timeout=180s
+          
+          echo "Checking pod status..."
+          kubectl get pods -n default
+          
+          echo "Checking ingress status..."
+          kubectl get ingress -n default
+          
+          echo "Waiting additional 30s for services to stabilize..."
+          sleep 30
 
       - name: Debug - Show resources
         if: ${{ inputs.debug_enabled }}

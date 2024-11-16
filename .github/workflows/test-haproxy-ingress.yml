@@ -143,32 +143,48 @@ jobs:
             
             for ((i=1; i<=MAX_RETRIES; i++)); do
               echo "Attempt $i of $MAX_RETRIES for $url"
+              echo "Headers being sent: $headers"
+              
               if [ -n "$headers" ]; then
-                RESP_CODE=$(curl -s -o /dev/null -w "%{http_code}" $headers "$url")
+                echo "Full curl command: curl -v $headers \"$url\""
+                RESP=$(curl -v $headers "$url" 2>&1)
+                RESP_CODE=$(echo "$RESP" | grep "< HTTP" | awk '{print $3}')
               else
-                RESP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$url")
+                echo "Full curl command: curl -v \"$url\""
+                RESP=$(curl -v "$url" 2>&1)
+                RESP_CODE=$(echo "$RESP" | grep "< HTTP" | awk '{print $3}')
               fi
+              
+              echo -e "\n🔍 Response Details:"
+              echo "------------------------"
               echo "Response code: $RESP_CODE"
+              echo -e "\n📋 Response Headers:"
+              echo "$RESP" | grep -E "^< " || echo "No headers found"
+              echo -e "\n📝 Response Body:"
+              echo "$RESP" | sed -n '/^* Connected/,/^* Connection/!p' | grep -v "^[*<>]" || echo "No body found"
+              echo "------------------------"
               
               if [ "$RESP_CODE" -eq "$expected_code" ]; then
+                echo "✅ Expected response code $expected_code received"
                 return 0
               fi
               
               if [ "$i" -lt "$MAX_RETRIES" ]; then
-                echo "Waiting ${RETRY_DELAY}s before next attempt..."
+                echo "⏳ Waiting ${RETRY_DELAY}s before next attempt..."
                 sleep "$RETRY_DELAY"
               fi
             done
+            echo "❌ Failed to get expected response code $expected_code after $MAX_RETRIES attempts"
             return 1
           }
           
-          echo "Testing frontend endpoint..."
+          echo "🌐 Testing frontend endpoint..."
           test_endpoint "http://$INGRESS_IP/" 200 || exit 1
           
-          echo "Testing backend endpoint..."
+          echo "🔌 Testing backend endpoint..."
           test_endpoint "http://$INGRESS_IP/v2/docs/" 200 || exit 1
           
-          echo "Testing websocket endpoint..."
+          echo "🔄 Testing websocket endpoint..."
           test_endpoint "http://$INGRESS_IP/websocket/" 101 "-H 'Upgrade: websocket' -H 'Connection: Upgrade'" || \
           test_endpoint "http://$INGRESS_IP/websocket/" 400 "-H 'Upgrade: websocket' -H 'Connection: Upgrade'" || exit 1
 
