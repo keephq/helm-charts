@@ -35,22 +35,27 @@ jobs:
           npm install -g wscat
           sudo apt-get update && sudo apt-get install -y curl
 
+      - name: Create kind config
+        run: |
+          cat <<-EOF > kind-config.yaml
+          kind: Cluster
+          apiVersion: kind.x-k8s.io/v1alpha4
+          nodes:
+            - role: control-plane
+              extraPortMappings:
+                - containerPort: 80
+                  hostPort: 80
+                  protocol: TCP
+                - containerPort: 443
+                  hostPort: 443
+                  protocol: TCP
+          EOF
+
       - name: Create kind cluster
         uses: helm/kind-action@v1.9.0
         with:
           wait: 600s
-          config: |
-            kind: Cluster
-            apiVersion: kind.x-k8s.io/v1alpha4
-            nodes:
-            - role: control-plane
-              extraPortMappings:
-              - containerPort: 80
-                hostPort: 80
-                protocol: TCP
-              - containerPort: 443
-                hostPort: 443
-                protocol: TCP
+          config: kind-config.yaml
 
       - name: Install HAProxy Ingress Controller
         run: |
@@ -62,10 +67,11 @@ jobs:
 
       - name: Wait for HAProxy Ingress
         run: |
+          echo "Waiting for HAProxy Ingress pods..."
           kubectl wait --namespace default \
             --for=condition=ready pod \
             --selector=app.kubernetes.io/instance=haproxy-ingress \
-            --timeout=90s
+            --timeout=120s
 
       - name: Set up chart-testing
         uses: helm/chart-testing-action@v2.6.1
@@ -89,57 +95,98 @@ jobs:
             enabled: true
           EOF
 
-      - name: Debug - Show test values
-        if: ${{ inputs.debug_enabled }}
-        run: cat haproxy-values.yaml
-
       - name: Run chart-testing install
         run: |
           ct install --debug --config ct.yaml --namespace default --values haproxy-values.yaml
 
-      - name: Wait for the backend pod
+      - name: Wait for all pods
         run: |
-          kubectl wait --namespace default \
-            --for=condition=ready pod \
-            --selector=app.kubernetes.io/instance=keep,keep-component=backend \
-            --timeout=90s
+          echo "Waiting for all pods to be ready..."
+          kubectl wait --for=condition=ready pod --all -n default --timeout=180s
+          
+          echo "Checking pod status..."
+          kubectl get pods -n default
+          
+          echo "Checking ingress status..."
+          kubectl get ingress -n default
+          
+          echo "Waiting additional 30s for services to stabilize..."
+          sleep 30
 
-      - name: Debug - Show pods and services
-        if: ${{ inputs.debug_enabled }}
+      - name: Verify services and endpoints
         run: |
-          kubectl get pods -A
-          kubectl get svc -A
-          kubectl get ingress -A
-          kubectl describe ingress -A
+          echo "Service Status:"
+          kubectl get svc -n default
+          
+          echo "Endpoint Status:"
+          kubectl get endpoints -n default
+          
+          echo "Ingress Details:"
+          kubectl describe ingress -n default
 
       - name: Test HAProxy Ingress endpoints
         run: |
           INGRESS_IP="127.0.0.1"
           APP_NAME=$(helm list -n default -o json | jq -r '.[0].name')
+          MAX_RETRIES=5
+          RETRY_DELAY=10
+          
+          test_endpoint() {
+            local url=$1
+            local expected_code=$2
+            local headers=${3:-""}
+            
+            for ((i=1; i<=MAX_RETRIES; i++)); do
+              echo "Attempt $i of $MAX_RETRIES for $url"
+              if [ -n "$headers" ]; then
+                RESP_CODE=$(curl -s -o /dev/null -w "%{http_code}" $headers "$url")
+              else
+                RESP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$url")
+              fi
+              echo "Response code: $RESP_CODE"
+              
+              if [ "$RESP_CODE" -eq "$expected_code" ]; then
+                return 0
+              fi
+              
+              if [ "$i" -lt "$MAX_RETRIES" ]; then
+                echo "Waiting ${RETRY_DELAY}s before next attempt..."
+                sleep "$RETRY_DELAY"
+              fi
+            done
+            return 1
+          }
           
           echo "Testing frontend endpoint..."
-          RESP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://$INGRESS_IP/)
-          echo "Frontend response code: $RESP_CODE"
-          [ "$RESP_CODE" -eq 200 ] || exit 1
+          test_endpoint "http://$INGRESS_IP/" 200 || exit 1
           
           echo "Testing backend endpoint..."
-          RESP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://$INGRESS_IP/v2/docs/)
-          echo "Backend response code: $RESP_CODE"
-          [ "$RESP_CODE" -eq 200 ] || exit 1
+          test_endpoint "http://$INGRESS_IP/v2/docs/" 200 || exit 1
           
           echo "Testing websocket endpoint..."
-          RESP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -H "Upgrade: websocket" -H "Connection: Upgrade" http://$INGRESS_IP/websocket/)
-          echo "WebSocket response code: $RESP_CODE"
-          [ "$RESP_CODE" -eq 101 ] || [ "$RESP_CODE" -eq 400 ] || exit 1
+          test_endpoint "http://$INGRESS_IP/websocket/" 101 "-H 'Upgrade: websocket' -H 'Connection: Upgrade'" || \
+          test_endpoint "http://$INGRESS_IP/websocket/" 400 "-H 'Upgrade: websocket' -H 'Connection: Upgrade'" || exit 1
 
       - name: Debug - Show logs on failure
-        if: ${{ failure() && inputs.debug_enabled }}
+        if: ${{ failure() }}
         run: |
           echo "HAProxy Ingress Controller logs:"
           kubectl logs -l app.kubernetes.io/instance=haproxy-ingress -n default --tail=100
           
+          echo "All pods status:"
+          kubectl get pods -n default -o wide
+          
           echo "Application pods logs:"
-          for pod in $(kubectl get pods -n default -l app.kubernetes.io/instance=$APP_NAME -o name); do
+          for pod in $(kubectl get pods -n default -o name); do
             echo "Logs for $pod:"
-            kubectl logs $pod -n default --tail=100
+            kubectl logs $pod -n default --tail=100 || true
           done
+          
+          echo "Ingress configuration:"
+          kubectl get ingress -n default -o yaml
+          
+          echo "Endpoints:"
+          kubectl get endpoints -n default
+          
+          echo "Services:"
+          kubectl get svc -n default

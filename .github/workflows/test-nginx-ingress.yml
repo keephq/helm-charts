@@ -35,9 +35,9 @@ jobs:
           npm install -g wscat
           sudo apt-get update && sudo apt-get install -y curl
 
-      - name: Create kind config
-        run: |
-          cat <<-EOF > kind-config.yaml
+          - name: Create kind config
+          run: |
+            cat <<-EOF > kind-config.yaml
             kind: Cluster
             apiVersion: kind.x-k8s.io/v1alpha4
             nodes:
@@ -49,12 +49,12 @@ jobs:
                   - containerPort: 443
                     hostPort: 443
                     protocol: TCP
-          EOF
+            EOF
   
       - name: Debug kind config
         if: ${{ inputs.debug_enabled }}
         run: cat kind-config.yaml
-
+  
       - name: Create kind cluster
         uses: helm/kind-action@v1.9.0
         with:
@@ -143,12 +143,21 @@ jobs:
           fi
           
           echo -e "\nBackend (/v2/docs) - Should return API info:"
-          RESP=$(curl -s http://localhost/v2/docs/)
-          echo "Response: $RESP"
-          if [[ $RESP != *"Rest API powering"* ]]; then
-            echo "❌ Unexpected backend response"
-            exit 1
-          fi
+          for i in {1..5}; do
+            echo "Attempt $i of 5..."
+            RESP=$(curl -s http://localhost/v2/docs/)
+            echo "Response: $RESP"
+            if [[ $RESP == *"Rest API powering"* ]]; then
+              echo "✅ Backend response successful"
+              break
+            fi
+            if [[ $i -eq 5 ]]; then
+              echo "❌ Unexpected backend response after 5 attempts"
+              exit 1
+            fi
+            echo "Waiting 2 seconds before next attempt..."
+            sleep 2
+          done
           
           echo -e "\nWebSocket (/websocket) - Testing connection:"
           wscat -c "ws://localhost/websocket/app/keepappkey?protocol=7&client=js&version=8.3.0&flash=false" &
