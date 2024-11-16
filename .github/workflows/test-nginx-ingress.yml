@@ -9,7 +9,7 @@ on:
       debug_enabled:
         description: 'Run workflow with debug logging'
         required: false
-        default: false
+        default: true
         type: boolean
 
 jobs:
@@ -158,8 +158,8 @@ jobs:
           echo "✅ Frontend redirect successful"
           
           echo -e "\nBackend (/v2/docs) - Should return API info:"
-          for i in {1..20}; do
-            echo -e "\nAttempt $i of 20..."
+          for i in {1..5}; do
+            echo -e "\nAttempt $i of 5..."
             RESP=$(curl -v http://localhost/v2/docs/ 2>&1)
             
             echo -e "\n📋 Response Headers:"

@@ -9,7 +9,7 @@ on:
       debug_enabled:
         description: 'Run workflow with debug logging'
         required: false
-        default: false
+        default: true
         type: boolean
 
 jobs:
@@ -133,7 +133,7 @@ jobs:
         run: |
           INGRESS_IP="127.0.0.1"
           APP_NAME=$(helm list -n default -o json | jq -r '.[0].name')
-          MAX_RETRIES=20
+          MAX_RETRIES=5
           RETRY_DELAY=10
           
           test_endpoint() {
