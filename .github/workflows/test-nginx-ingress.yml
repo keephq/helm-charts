@@ -39,17 +39,11 @@ jobs:
         uses: helm/kind-action@v1.9.0
         with:
           wait: 600s
-          config: |
+          config: |-
             kind: Cluster
             apiVersion: kind.x-k8s.io/v1alpha4
             nodes:
             - role: control-plane
-              kubeadmConfigPatches:
-              - |
-                kind: InitConfiguration
-                nodeRegistration:
-                  kubeletExtraArgs:
-                    node-labels: "ingress-ready=true"
               extraPortMappings:
               - containerPort: 80
                 hostPort: 80
