@@ -61,9 +61,13 @@ jobs:
         run: |
           helm repo add haproxy-ingress https://haproxy-ingress.github.io/charts
           helm repo update
-          helm install haproxy-ingress haproxy-ingress/haproxy-ingress \
+          helm install haproxy haproxy-ingress/haproxy-ingress \
             --set controller.service.type=NodePort \
-            --set controller.watchIngressWithoutClass=true
+            --set controller.kind=DaemonSet \
+            --set controller.daemonset.useHostPort=true \
+            --set controller.service.ports.http=80 \
+            --set controller.service.ports.https=443 \
+            --set controller.service.ports.stat=30024
 
       - name: Wait for HAProxy Ingress
         run: |
