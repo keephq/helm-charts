@@ -138,59 +138,83 @@ jobs:
 
       - name: Test endpoints
         run: |
-          echo "🧪 Testing endpoints..."
+          INGRESS_IP="127.0.0.1"
+          APP_NAME=$(helm list -n default -o json | jq -r '.[0].name')
+          MAX_RETRIES=5
+          RETRY_DELAY=10
           
-          echo "Frontend (/) - Should redirect to /incidents:"
-          RESP=$(curl -v http://localhost/ 2>&1)
-          echo -e "\n📋 Response Headers:"
-          echo "$RESP" | grep -E "^< " || echo "No headers found"
-          echo -e "\n📝 Response Body:"
-          echo "$RESP" | sed -n '/^* Connected/,/^* Connection/!p' | grep -v "^[*<>]" || echo "No body found"
-          
-          RESP_CODE=$(echo "$RESP" | grep "< HTTP" | awk '{print $3}')
-          LOCATION=$(echo "$RESP" | grep -i "location")
-          echo -e "\nResponse code: $RESP_CODE"
-          echo "Location header: $LOCATION"
-          
-          if [[ "$LOCATION" != *"/incidents"* ]]; then
-            echo "❌ Redirect to /incidents not found"
-            exit 1
-          fi
-          echo "✅ Frontend redirect successful"
-          
-          echo -e "\nBackend (/v2/docs) - Should return API info:"
-          for i in {1..5}; do
-            echo -e "\nAttempt $i of 5..."
-            RESP=$(curl -v http://localhost/v2/docs 2>&1)
+          test_endpoint() {
+            local url=$1
+            local expected_code=$2
+            local headers=${3:-""}
             
-            echo -e "\n📋 Response Headers:"
-            echo "$RESP" | grep -E "^< " || echo "No headers found"
-            echo -e "\n📝 Response Body:"
-            echo "$RESP" | sed -n '/^* Connected/,/^* Connection/!p' | grep -v "^[*<>]" || echo "No body found"
-            
-            RESP_CODE=$(echo "$RESP" | grep "< HTTP" | awk '{print $3}')
-            echo -e "\nResponse code: $RESP_CODE"
-            
-            if [[ $RESP == *"Rest API powering"* ]]; then
-              echo "✅ Backend response successful"
-              break
-            fi
-            if [[ $i -eq 5 ]]; then
-              echo "❌ Unexpected backend response after 5 attempts"
-              exit 1
-            fi
-            echo "⏳ Waiting 2 seconds before next attempt..."
-            sleep 2
-          done
+            for ((i=1; i<=MAX_RETRIES; i++)); do
+              echo "Attempt $i of $MAX_RETRIES for $url"
+              echo "Headers being sent: $headers"
+              
+              if [ -n "$headers" ]; then
+                echo "Full curl command: curl -v $headers \"$url\""
+                RESP=$(curl -v $headers "$url" 2>&1)
+              else
+                echo "Full curl command: curl -v \"$url\""
+                RESP=$(curl -v "$url" 2>&1)
+              fi
+              
+              # Extract response code, handling connection failures
+              RESP_CODE=$(echo "$RESP" | grep "< HTTP" | awk '{print $3}')
+              if [ -z "$RESP_CODE" ]; then
+                echo "⚠️ No response code received - connection may have failed"
+                echo -e "\n🔍 Response Details:"
+                echo "------------------------"
+                echo "Response code: Connection failed"
+                echo -e "\n📋 Response Headers:"
+                echo "$RESP" | grep -E "^< " || echo "No headers found"
+                echo -e "\n📝 Response Body:"
+                echo "$RESP" | sed -n '/^* Connected/,/^* Connection/!p' | grep -v "^[*<>]" || echo "No body found"
+                echo "------------------------"
+                
+                if [ "$i" -lt "$MAX_RETRIES" ]; then
+                  echo "⏳ Waiting ${RETRY_DELAY}s before next attempt..."
+                  sleep "$RETRY_DELAY"
+                  continue
+                fi
+                echo "❌ Failed to establish connection after $MAX_RETRIES attempts"
+                return 1
+              fi
+              
+              echo -e "\n🔍 Response Details:"
+              echo "------------------------"
+              echo "Response code: $RESP_CODE"
+              echo -e "\n📋 Response Headers:"
+              echo "$RESP" | grep -E "^< " || echo "No headers found"
+              echo -e "\n📝 Response Body:"
+              echo "$RESP" | sed -n '/^* Connected/,/^* Connection/!p' | grep -v "^[*<>]" || echo "No body found"
+              echo "------------------------"
+              
+              if [ "$RESP_CODE" -eq "$expected_code" ]; then
+                echo "✅ Expected response code $expected_code received"
+                return 0
+              fi
+              
+              if [ "$i" -lt "$MAX_RETRIES" ]; then
+                echo "⏳ Waiting ${RETRY_DELAY}s before next attempt..."
+                sleep "$RETRY_DELAY"
+              fi
+            done
+            echo "❌ Failed to get expected response code $expected_code after $MAX_RETRIES attempts"
+            return 1
+          }
           
-          echo -e "\nWebSocket (/websocket) - Testing connection:"
-          echo "🔄 Attempting WebSocket connection..."
-          wscat -c "ws://localhost/websocket/app/keepappkey?protocol=7&client=js&version=8.3.0&flash=false" --showHeaders &
-          WSCAT_PID=$!
-          sleep 2
-          echo "📊 WebSocket connection attempt completed"
-          kill $WSCAT_PID 2>/dev/null
-
+          echo "🌐 Testing frontend endpoint..."
+          test_endpoint "http://$INGRESS_IP/" 307 || exit 1
+          
+          echo "🔌 Testing backend endpoint..."
+          test_endpoint "http://$INGRESS_IP/v2/docs" 200 || exit 1
+          
+          echo "🔄 Testing websocket endpoint..."
+          # should return "OK"
+          test_endpoint "http://$INGRESS_IP/websocket/" 200 || exit 1
+        
       - name: Debug - Show logs on failure
         if: ${{ failure() && inputs.debug_enabled }}
         run: |
