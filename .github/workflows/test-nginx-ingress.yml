@@ -160,7 +160,7 @@ jobs:
           echo -e "\nBackend (/v2/docs) - Should return API info:"
           for i in {1..5}; do
             echo -e "\nAttempt $i of 5..."
-            RESP=$(curl -v http://localhost/v2/docs/ 2>&1)
+            RESP=$(curl -v http://localhost/v2/docs 2>&1)
             
             echo -e "\n📋 Response Headers:"
             echo "$RESP" | grep -E "^< " || echo "No headers found"

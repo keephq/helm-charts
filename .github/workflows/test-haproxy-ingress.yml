@@ -206,7 +206,7 @@ jobs:
           test_endpoint "http://$INGRESS_IP/" 307 || exit 1
           
           echo "🔌 Testing backend endpoint..."
-          test_endpoint "http://$INGRESS_IP/v2/docs/" 200 || exit 1
+          test_endpoint "http://$INGRESS_IP/v2/docs" 200 || exit 1
           
           echo "🔄 Testing websocket endpoint..."
           test_endpoint "http://$INGRESS_IP/websocket/" 101 "-H 'Upgrade: websocket' -H 'Connection: Upgrade'" || \
