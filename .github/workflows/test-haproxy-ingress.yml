@@ -78,7 +78,8 @@ jobs:
 
       - name: Create test values for haproxy
         run: |
-          cat <<EOF > haproxy-values.yaml
+          mkdir -p debug
+          cat <<EOF > debug/haproxy-values.yaml
           global:
             ingress:
               enabled: true
