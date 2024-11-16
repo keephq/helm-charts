@@ -95,9 +95,13 @@ jobs:
             enabled: true
           EOF
 
-      - name: Run chart-testing install
+      - name: Debug - Show test values
+        if: ${{ inputs.debug_enabled }}
+        run: cat debug/haproxy-values.yaml
+  
+      - name: Install Keep chart
         run: |
-          ct install --debug --config ct.yaml --namespace default --values haproxy-values.yaml
+          helm install keep ./charts/keep -f debug/haproxy-values.yaml
 
       - name: Wait for all pods
         run: |

@@ -35,9 +35,9 @@ jobs:
           npm install -g wscat
           sudo apt-get update && sudo apt-get install -y curl
 
-          - name: Create kind config
-          run: |
-            cat <<-EOF > kind-config.yaml
+      - name: Create kind config
+        run: |
+          cat <<-EOF > kind-config.yaml
             kind: Cluster
             apiVersion: kind.x-k8s.io/v1alpha4
             nodes:
