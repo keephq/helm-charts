@@ -1,0 +1,166 @@
+name: Test Nginx Ingress
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      debug_enabled:
+        description: 'Run workflow with debug logging'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  test-nginx-ingress:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.10.3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install test dependencies
+        run: |
+          npm install -g wscat
+          sudo apt-get update && sudo apt-get install -y curl
+
+      - name: Create kind cluster
+        uses: helm/kind-action@v1.9.0
+        with:
+          wait: 600s
+          config: |
+            kind: Cluster
+            apiVersion: kind.x-k8s.io/v1alpha4
+            nodes:
+            - role: control-plane
+              kubeadmConfigPatches:
+              - |
+                kind: InitConfiguration
+                nodeRegistration:
+                  kubeletExtraArgs:
+                    node-labels: "ingress-ready=true"
+              extraPortMappings:
+              - containerPort: 80
+                hostPort: 80
+                protocol: TCP
+              - containerPort: 443
+                hostPort: 443
+                protocol: TCP
+
+      - name: Install Nginx Ingress Controller
+        run: |
+          helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+          helm repo update
+          helm install nginx-ingress ingress-nginx/ingress-nginx \
+            --set controller.service.type=NodePort \
+            --set controller.watchIngressWithoutClass=true \
+            --set controller.allowSnippetAnnotations=true \
+            --set controller.config.allow-snippets=true \
+            --set controller.config.enable-snippets=true \
+            --set controller.hostPort.enabled=true \
+            --set controller.service.ports.http=80 \
+            --set controller.service.ports.https=443 \
+            --set controller.nodeSelector."kubernetes\.io/os"=linux \
+            --set controller.admissionWebhooks.enabled=false
+
+      - name: Wait for Nginx Ingress
+        run: |
+          kubectl wait --namespace default \
+            --for=condition=ready pod \
+            --selector=app.kubernetes.io/instance=nginx-ingress \
+            --timeout=90s
+
+      - name: Create test values for nginx
+        run: |
+          mkdir -p debug
+          cat <<EOF > debug/nginx-values.yaml
+          global:
+            ingress:
+              enabled: true
+              className: nginx
+              classType: nginx
+              websocketPrefix: /websocket
+              backendPrefix: /v2/docs
+              frontendPrefix: /
+          frontend:
+            enabled: true
+          backend:
+            enabled: true
+          websocket:
+            enabled: true
+          EOF
+
+      - name: Debug - Show test values
+        if: ${{ inputs.debug_enabled }}
+        run: cat debug/nginx-values.yaml
+
+      - name: Install Keep chart
+        run: |
+          helm install keep ./charts/keep -f debug/nginx-values.yaml
+    
+      - name: Wait for the backend pod
+        run: |
+          kubectl wait --namespace default \
+            --for=condition=ready pod \
+            --selector=app.kubernetes.io/instance=keep,keep-component=backend \
+            --timeout=90s
+
+      - name: Debug - Show resources
+        if: ${{ inputs.debug_enabled }}
+        run: |
+          echo "🔍 Checking all resources..."
+          kubectl get pods -A
+          kubectl get svc -A
+          kubectl get ingress -A
+          kubectl describe ingress -A
+
+      - name: Test endpoints
+        run: |
+          echo "🧪 Testing endpoints..."
+          
+          echo "Frontend (/) - Should redirect to /incidents:"
+          RESP=$(curl -s -I http://localhost/)
+          echo "$RESP" | grep "HTTP"
+          LOCATION=$(echo "$RESP" | grep -i "location")
+          echo "$LOCATION"
+          if [[ "$LOCATION" != *"/incidents"* ]]; then
+            echo "❌ Redirect to /incidents not found"
+            exit 1
+          fi
+          
+          echo -e "\nBackend (/v2/docs) - Should return API info:"
+          RESP=$(curl -s http://localhost/v2/docs/)
+          echo "Response: $RESP"
+          if [[ $RESP != *"Rest API powering"* ]]; then
+            echo "❌ Unexpected backend response"
+            exit 1
+          fi
+          
+          echo -e "\nWebSocket (/websocket) - Testing connection:"
+          wscat -c "ws://localhost/websocket/app/keepappkey?protocol=7&client=js&version=8.3.0&flash=false" &
+          WSCAT_PID=$!
+          sleep 2
+          kill $WSCAT_PID 2>/dev/null
+
+      - name: Debug - Show logs on failure
+        if: ${{ failure() && inputs.debug_enabled }}
+        run: |
+          echo "📜 Nginx Ingress Controller logs:"
+          kubectl logs -l app.kubernetes.io/instance=nginx-ingress --tail=100
+          
+          echo "Application pods logs:"
+          for pod in $(kubectl get pods -n default -l app.kubernetes.io/instance=keep -o name); do
+            echo "Logs for $pod:"
+            kubectl logs $pod --tail=100
+          done
