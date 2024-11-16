@@ -37,20 +37,24 @@ jobs:
 
       - name: Create kind config
         run: |
-          cat > kind-config.yaml << EOF
+          cat <<-EOF > kind-config.yaml
             kind: Cluster
             apiVersion: kind.x-k8s.io/v1alpha4
             nodes:
-            - role: control-plane
-              extraPortMappings:
-              - containerPort: 80
-                hostPort: 80
-                protocol: TCP
-              - containerPort: 443
-                hostPort: 443
-                protocol: TCP
-            EOF
+              - role: control-plane
+                extraPortMappings:
+                  - containerPort: 80
+                    hostPort: 80
+                    protocol: TCP
+                  - containerPort: 443
+                    hostPort: 443
+                    protocol: TCP
+          EOF
   
+      - name: Debug kind config
+        if: ${{ inputs.debug_enabled }}
+        run: cat kind-config.yaml
+
       - name: Create kind cluster
         uses: helm/kind-action@v1.9.0
         with:
