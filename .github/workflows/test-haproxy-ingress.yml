@@ -74,7 +74,7 @@ jobs:
           echo "Waiting for HAProxy Ingress pods..."
           kubectl wait --namespace default \
             --for=condition=ready pod \
-            --selector=app.kubernetes.io/instance=haproxy-ingress \
+            --selector=app.kubernetes.io/name=haproxy-ingress \
             --timeout=120s
 
       - name: Set up chart-testing
