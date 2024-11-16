@@ -11,6 +11,7 @@ global:
   # this section controls the ingress resource at nginx-ingress.yaml
   ingress:
     enabled: true
+    # Keep supports both nginx and haproxy ingress controllers
     className: "nginx"
     # this is for cases where you want nginx configuration but the nginx className is different.
     classType: ""
