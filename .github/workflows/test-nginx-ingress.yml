@@ -79,9 +79,10 @@ jobs:
 
       - name: Wait for Nginx Ingress
         run: |
+          echo "Waiting for Nginx Ingress pods..."
           kubectl wait --namespace default \
             --for=condition=ready pod \
-            --selector=app.kubernetes.io/instance=nginx-ingress \
+            --selector=app.kubernetes.io/name=nginx-ingress \
             --timeout=90s
 
       - name: Create test values for nginx

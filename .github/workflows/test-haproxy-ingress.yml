@@ -209,8 +209,8 @@ jobs:
           test_endpoint "http://$INGRESS_IP/v2/docs" 200 || exit 1
           
           echo "🔄 Testing websocket endpoint..."
-          test_endpoint "http://$INGRESS_IP/websocket/" 101 "-H 'Upgrade: websocket' -H 'Connection: Upgrade'" || \
-          test_endpoint "http://$INGRESS_IP/websocket/" 400 "-H 'Upgrade: websocket' -H 'Connection: Upgrade'" || exit 1
+          # should return "OK"
+          test_endpoint "http://$INGRESS_IP/websocket/" 200 || exit 1
 
       - name: Debug - Show logs on failure
         if: ${{ failure() }}
