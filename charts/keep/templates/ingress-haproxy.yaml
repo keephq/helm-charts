@@ -13,21 +13,17 @@ metadata:
     haproxy-ingress.github.io/timeout-server: "3600s"
     haproxy-ingress.github.io/timeout-connect: "3600s"
     haproxy-ingress.github.io/timeout-tunnel: "3600s"
-    
-    # WebSocket support
-    haproxy-ingress.github.io/config-backend: |
-      timeout tunnel 3600s
-      option http-keep-alive
-      http-reuse safe
-
     haproxy-ingress.github.io/ssl-redirect: "false"
     
-    # Backend configurations for path rewrites
+    # Backend configurations for path rewrites + # WebSocket support
     haproxy-ingress.github.io/config-backend: |
       acl path_v2 path_beg {{ .Values.global.ingress.backendPrefix }}/
       acl path_ws path_beg {{ .Values.global.ingress.websocketPrefix }}/
       http-request set-path %[path,regsub(^{{ .Values.global.ingress.backendPrefix }}/,/)] if path_v2
       http-request set-path %[path,regsub(^{{ .Values.global.ingress.websocketPrefix }}/,/)] if path_ws
+      timeout tunnel 3600s
+      option http-keep-alive
+      http-reuse safe
 
 spec:
   ingressClassName: haproxy
