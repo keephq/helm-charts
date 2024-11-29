@@ -265,6 +265,7 @@ database:
     enabled: true
     size: 5Gi
     storageClass: ""
+    retain: false
   image:
     repository: mysql
     pullPolicy: IfNotPresent
