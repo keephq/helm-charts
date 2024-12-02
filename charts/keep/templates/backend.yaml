@@ -102,7 +102,7 @@ spec:
         {{- if .Values.backend.waitForDatabase }}
         - name: wait-for-database
           image: busybox
-          command: ['sh', '-c', 'until nc -z keep-database 3306; do sleep 1; done;']
+          command: ['sh', '-c', 'until nc -z {{ include "keep.findEnvVar" (list "DATABASE_NAME" .) | default "keep-database" }} 3306; do sleep 1; done;']
         {{- end }}
         {{- range .Values.backend.extraInitContainers }}
         - name: {{ .name }}
