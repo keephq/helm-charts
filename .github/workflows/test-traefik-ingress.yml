@@ -1,0 +1,107 @@
+name: Test Traefik Ingress
+
+on:
+  pull_request:
+    paths:
+      - 'charts/**'
+      - '.github/workflows/test-traefik-ingress.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'charts/**'
+      - '.github/workflows/test-traefik-ingress.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.12.1
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          check-latest: true
+
+      - name: Set up chart-testing
+        uses: helm/chart-testing-action@v2.6.1
+
+      - name: Run chart-testing (list-changed)
+        id: list-changed
+        run: |
+          changed=$(ct list-changed --config ct.yaml)
+          if [[ -n "$changed" ]]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Kind cluster with port mappings
+        if: steps.list-changed.outputs.changed == 'true'
+        uses: helm/kind-action@v1.8.0
+        with:
+          config: |
+            kind: Cluster
+            apiVersion: kind.x-k8s.io/v1alpha4
+            nodes:
+            - role: control-plane
+              extraPortMappings:
+              - containerPort: 30080
+                hostPort: 30080
+                protocol: TCP
+              - containerPort: 443
+                hostPort: 443
+                protocol: TCP
+
+      - name: Install Traefik
+        if: steps.list-changed.outputs.changed == 'true'
+        run: |
+          helm repo add traefik https://traefik.github.io/charts
+          helm repo update
+          helm install traefik traefik/traefik \
+            --set installCRDs=true \
+            --set ports.web.port=8000 \
+            --set ports.web.exposedPort=80 \
+            --set ports.web.nodePort=30080 \
+            --set service.type=NodePort \
+            --set ingressClass.enabled=true \
+            --set ingressClass.isDefaultClass=true
+
+      - name: Wait for Traefik
+        if: steps.list-changed.outputs.changed == 'true'
+        run: |
+          kubectl wait --namespace default \
+            --for=condition=ready pod \
+            --selector=app.kubernetes.io/name=traefik \
+            --timeout=90s
+
+      - name: Wait for CRDs
+        if: steps.list-changed.outputs.changed == 'true'
+        run: |
+          kubectl wait --for condition=established --timeout=60s crd/middlewares.traefik.io
+
+      - name: Run chart-testing (install)
+        if: steps.list-changed.outputs.changed == 'true'
+        run: |
+          ct install \
+            --config ct.yaml \
+            --helm-extra-set-args "--set global.ingress.className=traefik --set global.ingress.classType=traefik"
+
+      - name: Test endpoints
+        if: steps.list-changed.outputs.changed == 'true'
+        run: |
+          echo "Testing frontend endpoint..."
+          curl -v --retry 5 --retry-delay 10 http://localhost:30080/
+
+          echo "Testing backend endpoint..."
+          curl -v --retry 5 --retry-delay 10 http://localhost:30080/v2/docs
+
+          echo "Testing websocket endpoint..."
+          curl -v --retry 5 --retry-delay 10 -H "Upgrade: websocket" -H "Connection: Upgrade" http://localhost:30080/websocket/
