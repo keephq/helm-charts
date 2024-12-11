@@ -99,10 +99,10 @@ spec:
           resources:
             {{- toYaml .Values.backend.resources | nindent 12 }}
       initContainers:
-        {{- if .Values.backend.waitForDatabase }}
+        {{- if .Values.backend.waitForDatabase.enabled }}
         - name: wait-for-database
           image: busybox
-          command: ['sh', '-c', 'until nc -z {{ include "keep.findEnvVar" (list "DATABASE_NAME" .) | default "keep-database" }} 3306; do sleep 1; done;']
+          command: ['sh', '-c', 'until nc -z {{ include "keep.findEnvVar" (list "DATABASE_NAME" .) | default "keep-database" }} {{ .Values.backend.waitForDatabase.port }}; do sleep 1; done;']
         {{- end }}
         {{- range .Values.backend.extraInitContainers }}
         - name: {{ .name }}

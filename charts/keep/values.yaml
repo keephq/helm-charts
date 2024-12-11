@@ -44,7 +44,9 @@ backend:
   enabled: true
   # if true, wait for the database to be ready before starting the API
   # if you use external database, you can set this to false
-  waitForDatabase: true
+  waitForDatabase:
+    enabled: true
+    port: 3306
   # if true, the database connection string will be read from a secret
   # if it is false, the DATABASE_CONNECTION_STRING value can be set directly
   databaseConnectionStringFromSecret:
