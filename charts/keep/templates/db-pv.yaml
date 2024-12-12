@@ -2,6 +2,9 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
+  labels:
+    {{- include "keep.labels" . | nindent 4 }}
+    app.kubernetes.io/component: database
   name: {{ include "keep.fullname" . }}-pv
 spec:
   capacity:

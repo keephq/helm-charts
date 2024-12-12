@@ -6,6 +6,7 @@ metadata:
   name: {{ $fullName }}-ingress
   labels:
     {{- include "keep.labels" . | nindent 4 }}
+    app.kubernetes.io/component: networking
   annotations:
     {{- if or (eq .Values.global.ingress.className "nginx") (eq .Values.global.ingress.classType "nginx") }}
     kubernetes.io/ingress.class: "nginx"

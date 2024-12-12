@@ -5,6 +5,7 @@ metadata:
   name: {{ include "keep.fullname" . }}-websocket
   labels:
     {{- include "keep.labels" . | nindent 4 }}
+    app.kubernetes.io/component: websocket
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
