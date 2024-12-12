@@ -9,7 +9,7 @@ global:
     className: nginx
     classType: nginx
     websocketPrefix: /websocket
-    backendPrefix: /v2/docs
+    backendPrefix: /v2
     frontendPrefix: /
 frontend:
   enabled: true
