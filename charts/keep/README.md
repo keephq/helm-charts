@@ -1,6 +1,6 @@
 # keep
 
-![Version: 0.1.25](https://img.shields.io/badge/Version-0.1.25-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.27.0](https://img.shields.io/badge/AppVersion-0.27.0-informational?style=flat-square)
+![Version: 0.1.47](https://img.shields.io/badge/Version-0.1.47-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.31.7](https://img.shields.io/badge/AppVersion-0.31.7-informational?style=flat-square)
 
 Keep Helm Chart
 
@@ -21,6 +21,7 @@ Keep Helm Chart
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| additionalLabels | object | `{}` |  |
 | backend.affinity | object | `{}` |  |
 | backend.autoscaling.enabled | bool | `false` |  |
 | backend.autoscaling.maxReplicas | int | `3` |  |
@@ -86,7 +87,7 @@ Keep Helm Chart
 | database.autoscaling.enabled | bool | `false` |  |
 | database.enabled | bool | `true` |  |
 | database.env[0].name | string | `"MYSQL_ALLOW_EMPTY_PASSWORD"` |  |
-| database.env[0].value | string | `"yes"` |  |
+| database.env[0].value | bool | `true` |  |
 | database.env[1].name | string | `"MYSQL_DATABASE"` |  |
 | database.env[1].value | string | `"keep"` |  |
 | database.env[2].name | string | `"MYSQL_PASSWORD"` |  |
@@ -109,6 +110,7 @@ Keep Helm Chart
 | database.pv.size | string | `"5Gi"` |  |
 | database.pv.storageClass | string | `""` |  |
 | database.pvc.enabled | bool | `true` |  |
+| database.pvc.retain | bool | `false` |  |
 | database.pvc.size | string | `"5Gi"` |  |
 | database.pvc.storageClass | string | `""` |  |
 | database.replicaCount | int | `1` |  |
@@ -172,22 +174,12 @@ Keep Helm Chart
 | global.ingress.annotations | object | `{}` |  |
 | global.ingress.backendPrefix | string | `"/v2"` |  |
 | global.ingress.className | string | `"nginx"` |  |
+| global.ingress.classType | string | `""` |  |
 | global.ingress.enabled | bool | `true` |  |
 | global.ingress.frontendPrefix | string | `"/"` |  |
 | global.ingress.hosts | list | `[]` |  |
 | global.ingress.tls | list | `[]` |  |
 | global.ingress.websocketPrefix | string | `"/websocket"` |  |
-| ingress-nginx.controller.admissionWebhooks.certManager.enabled | bool | `false` |  |
-| ingress-nginx.controller.admissionWebhooks.failurePolicy | string | `"Ignore"` |  |
-| ingress-nginx.controller.admissionWebhooks.patch.enabled | bool | `true` |  |
-| ingress-nginx.controller.admissionWebhooks.patch.image.pullPolicy | string | `"IfNotPresent"` |  |
-| ingress-nginx.controller.allowSnippetAnnotations | bool | `true` |  |
-| ingress-nginx.controller.service.annotations | object | `{}` |  |
-| ingress-nginx.controller.service.enabled | bool | `true` |  |
-| ingress-nginx.controller.service.ports.http | int | `80` |  |
-| ingress-nginx.controller.service.ports.https | int | `443` |  |
-| ingress-nginx.controller.service.type | string | `"LoadBalancer"` |  |
-| ingress-nginx.enabled | bool | `true` |  |
 | isGKE | bool | `false` |  |
 | nameOverride | string | `""` |  |
 | namespace | string | `"keep"` |  |
