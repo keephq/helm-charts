@@ -4,16 +4,18 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   name: {{ $fullName }}
-  labels: {{- include "keep.labels" . | nindent 4 }}
+  labels:
+    {{- include "keep.labels" . | nindent 4 }}
+    app.kubernetes.io/component: frontend
 spec:
   host: {{ .Values.frontend.route.host }}
   to:
     kind: Service
     name: {{ $fullName }}-frontend
     weight: 100
-  port: 
+  port:
     targetPort: {{ .Values.frontend.service.port }}
   wildcardPolicy: {{ .Values.frontend.route.wildcardPolicy }}
-  tls: 
-  {{ toYaml .Values.frontend.route.tls | indent 4 }} 
+  tls:
+  {{ toYaml .Values.frontend.route.tls | indent 4 }}
 {{- end}}

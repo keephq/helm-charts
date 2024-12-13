@@ -5,7 +5,8 @@ metadata:
   name: {{ include "keep.name" . }}-database
   labels:
     {{- include "keep.labels" . | nindent 4 }}
-    keep-component: database-service
+    app.kubernetes.io/component: database
+    keep-component: database
 spec:
   type: {{ .Values.database.service.type }}
   ports:

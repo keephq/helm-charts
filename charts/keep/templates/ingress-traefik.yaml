@@ -6,6 +6,7 @@ metadata:
   name: {{ $fullName }}-ingress
   labels:
     {{- include "keep.labels" . | nindent 4 }}
+    app.kubernetes.io/component: networking
   annotations:
     traefik.ingress.kubernetes.io/router.middlewares: {{ .Release.Namespace }}-strip-prefix@kubernetescrd
     traefik.ingress.kubernetes.io/router.entrypoints: web
@@ -13,7 +14,7 @@ metadata:
     traefik.ingress.kubernetes.io/timeouts.connect: "3600s"
     traefik.ingress.kubernetes.io/timeouts.read: "3600s"
     traefik.ingress.kubernetes.io/timeouts.write: "3600s"
-    
+
     # WebSocket configuration
     traefik.ingress.kubernetes.io/websockets.enabled: "true"
     {{- with .Values.global.ingress.annotations }}

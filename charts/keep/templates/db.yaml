@@ -5,6 +5,7 @@ metadata:
   name: {{ include "keep.fullname" . }}-database
   labels:
     {{- include "keep.labels" . | nindent 4 }}
+    app.kubernetes.io/component: database
     keep-component: database
 spec:
   {{- if not .Values.database.autoscaling.enabled }}
@@ -21,7 +22,8 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "keep.selectorLabels" . | nindent 8 }}
+        {{- include "keep.labels" . | nindent 8 }}
+        app.kubernetes.io/component: database
         keep-component: database
     spec:
       {{- with .Values.database.imagePullSecrets }}

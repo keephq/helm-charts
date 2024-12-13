@@ -5,7 +5,8 @@ metadata:
   name: {{ include "keep.fullname" . }}-backend
   labels:
     {{- include "keep.labels" . | nindent 4 }}
-    keep-component: backend-service
+    app.kubernetes.io/component: backend
+    keep-component: backend
   annotations:
     {{- if .Values.isGKE }}
     cloud.google.com/backend-config: '{"default": "{{ include "keep.fullname" . }}-backend-backendconfig"}'

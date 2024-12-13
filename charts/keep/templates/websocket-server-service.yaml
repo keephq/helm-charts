@@ -5,6 +5,7 @@ metadata:
   name: {{ include "keep.fullname" . }}-websocket
   labels:
     {{- include "keep.labels" . | nindent 4 }}
+    app.kubernetes.io/component: websocket
     keep-component: websocket-service
 spec:
   type: {{ .Values.websocket.service.type }}

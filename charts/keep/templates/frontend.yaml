@@ -5,6 +5,7 @@ metadata:
   name: {{ include "keep.fullname" . }}-frontend
   labels:
     {{- include "keep.labels" . | nindent 4 }}
+    app.kubernetes.io/component: frontend
     keep-component: frontend
 spec:
   {{- if not .Values.frontend.autoscaling.enabled }}
@@ -21,7 +22,8 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "keep.selectorLabels" . | nindent 8 }}
+        {{- include "keep.labels" . | nindent 8 }}
+        app.kubernetes.io/component: frontend
         keep-component: frontend
     spec:
       {{- with .Values.frontend.imagePullSecrets }}
@@ -51,10 +53,10 @@ spec:
             - name: NEXTAUTH_URL
               value: {{ include "keep.nextAuthUrl" . | quote }}
             {{- range .Values.frontend.env }}
-            {{- if and 
-                  (ne .name "PUSHER_HOST") 
-                  (ne .name "API_URL_CLIENT") 
-                  (ne .name "API_URL") 
+            {{- if and
+                  (ne .name "PUSHER_HOST")
+                  (ne .name "API_URL_CLIENT")
+                  (ne .name "API_URL")
                   (ne .name "NEXTAUTH_URL") }}
             - name: {{ .name }}
               value: {{ .value | quote }}

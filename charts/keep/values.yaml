@@ -39,6 +39,10 @@ global:
     #       - keep.example.com
     #    secretName: keep-tls
 
+# Additional labels that should be applied to all resources
+additionalLabels: {}
+  # app: keep
+
 backend:
   # if true, the backend will be enabled
   enabled: true
