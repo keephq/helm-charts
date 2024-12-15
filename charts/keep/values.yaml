@@ -40,7 +40,8 @@ global:
     #    secretName: keep-tls
 
 # Additional labels that should be applied to all resources
-additionalLabels: {}
+additionalLabels:
+  {}
   # app: keep
 
 backend:
@@ -81,7 +82,9 @@ backend:
     pullPolicy: Always
   extraInitContainers: []
   imagePullSecrets: []
-  podAnnotations: {}
+  podAnnotations:
+    "prometheus.io/scrape": "true"
+    "prometheus.io/path": "/metrics/processing"
   podSecurityContext: {}
   securityContext: {}
   service:
