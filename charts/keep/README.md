@@ -1,6 +1,6 @@
 # keep
 
-![Version: 0.1.49](https://img.shields.io/badge/Version-0.1.49-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.32.0](https://img.shields.io/badge/AppVersion-0.32.0-informational?style=flat-square)
+![Version: 0.1.50](https://img.shields.io/badge/Version-0.1.50-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.32.1](https://img.shields.io/badge/AppVersion-0.32.1-informational?style=flat-square)
 
 Keep Helm Chart
 
