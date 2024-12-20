@@ -10,6 +10,9 @@ metadata:
     {{- if .Values.database.pvc.retain }}
     helm.sh/resource-policy: keep
     {{- end }}
+  labels:
+    {{- include "keep.labels" . | nindent 4 }}
+    app.kubernetes.io/component: database
 spec:
   {{- if $existingPvc }}
   # Use existing PVC spec

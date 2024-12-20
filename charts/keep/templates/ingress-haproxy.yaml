@@ -6,6 +6,7 @@ metadata:
   name: {{ $fullName }}-ingress
   labels:
     {{- include "keep.labels" . | nindent 4 }}
+    app.kubernetes.io/component: networking
   annotations:
     kubernetes.io/ingress.class: "haproxy"
     # HAProxy timeout configurations
@@ -14,7 +15,7 @@ metadata:
     haproxy-ingress.github.io/timeout-connect: "3600s"
     haproxy-ingress.github.io/timeout-tunnel: "3600s"
     haproxy-ingress.github.io/ssl-redirect: "false"
-    
+
     # Backend configurations for path rewrites + # WebSocket support
     haproxy-ingress.github.io/config-backend: |
       acl path_v2 path_beg {{ .Values.global.ingress.backendPrefix }}/

@@ -6,15 +6,16 @@ metadata:
   name: {{ $fullName }}-websocket
   labels:
     {{- include "keep.labels" . | nindent 4 }}
+    app.kubernetes.io/component: websocket
 spec:
   host: {{ .Values.websocket.route.host }}
   to:
     kind: Service
     name: {{ $fullName }}-websocket
     weight: 100
-  port: 
+  port:
     targetPort: {{ .Values.websocket.service.port }}
   wildcardPolicy: {{ .Values.websocket.route.wildcardPolicy }}
-  tls: 
-    {{ toYaml .Values.websocket.route.tls | indent 4 }} 
+  tls:
+    {{ toYaml .Values.websocket.route.tls | indent 4 }}
 {{- end }}

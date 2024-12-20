@@ -40,6 +40,10 @@ helm.sh/chart: {{ include "keep.chart" . }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/part-of: keep
+{{- if .Values.additionalLabels }}
+{{ toYaml .Values.additionalLabels }}
+{{- end }}
 {{- end }}
 
 {{/*

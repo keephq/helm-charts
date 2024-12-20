@@ -5,6 +5,7 @@ metadata:
   name: {{ include "keep.fullname" . }}-backend
   labels:
     {{- include "keep.labels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
     keep-component: backend
 spec:
   {{- if not .Values.backend.autoscaling.enabled }}
@@ -27,7 +28,8 @@ spec:
         {{- end }}
       {{- end }}
       labels:
-        {{- include "keep.selectorLabels" . | nindent 8 }}
+        {{- include "keep.labels" . | nindent 8 }}
+        app.kubernetes.io/component: backend
         keep-component: backend
     spec:
       {{- with .Values.backend.imagePullSecrets }}

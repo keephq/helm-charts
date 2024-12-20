@@ -5,6 +5,7 @@ metadata:
   name: {{ include "keep.fullname" . }}-websocket
   labels:
     {{- include "keep.labels" . | nindent 4 }}
+    app.kubernetes.io/component: websocket
     keep-component: websocket
 spec:
   {{- if not .Values.websocket.autoscaling.enabled }}
@@ -21,7 +22,8 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "keep.selectorLabels" . | nindent 8 }}
+        {{- include "keep.labels" . | nindent 8 }}
+        app.kubernetes.io/component: websocket
         keep-component: websocket
     spec:
       {{- with .Values.websocket.imagePullSecrets }}

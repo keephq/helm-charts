@@ -6,6 +6,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "keep.labels" . | nindent 4 }}
+    app.kubernetes.io/component: networking
 spec:
   stripPrefix:
     prefixes:

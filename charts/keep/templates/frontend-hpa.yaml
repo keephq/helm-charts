@@ -5,6 +5,7 @@ metadata:
   name: {{ include "keep.fullname" . }}-frontend
   labels:
     {{- include "keep.labels" . | nindent 4 }}
+    app.kubernetes.io/component: frontend
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
