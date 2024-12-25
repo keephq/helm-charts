@@ -73,6 +73,8 @@ backend:
       value: keep-websocket
     - name: PUSHER_PORT
       value: 6001
+    - name: PROMETHEUS_MULTIPROC_DIR
+      value: "/tmp/prometheus"
   openAiApi:
     enabled: false
     openAiApiKey: ""
