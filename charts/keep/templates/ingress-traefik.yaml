@@ -8,7 +8,6 @@ metadata:
     {{- include "keep.labels" . | nindent 4 }}
     app.kubernetes.io/component: networking
   annotations:
-    traefik.ingress.kubernetes.io/router.middlewares: {{ .Release.Namespace }}-strip-prefix@kubernetescrd
     traefik.ingress.kubernetes.io/router.entrypoints: web
     traefik.ingress.kubernetes.io/timeouts.idle: "3600s"
     traefik.ingress.kubernetes.io/timeouts.connect: "3600s"
