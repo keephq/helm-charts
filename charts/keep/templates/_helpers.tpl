@@ -121,7 +121,11 @@ Helper function for API_URL_CLIENT for the frontend
 {{- if $apiUrlClient -}}
   {{- $apiUrlClient -}}
 {{- else -}}
-  {{- include "keep.backendPrefix" . -}}
+  {{- if .Values.global.ingress.enabled -}}
+    {{- include "keep.backendPrefix" . -}}
+  {{- else -}}
+    {{- print "/backend" -}}
+  {{- end -}}
 {{- end -}}
 {{- end -}}
 
