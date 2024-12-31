@@ -49,6 +49,7 @@ kind create cluster --config debug/kind-config.yaml
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo update
 helm install nginx-ingress ingress-nginx/ingress-nginx \
+  --version 4.11.4 \
   --set controller.service.type=NodePort \
   --set controller.watchIngressWithoutClass=true \
   --set controller.allowSnippetAnnotations=true \
@@ -77,7 +78,7 @@ echo "⏳ Waiting for Keep backend to be ready..."
 kubectl wait --namespace default \
   --for=condition=ready pod \
   --selector=app.kubernetes.io/instance=keep,keep-component=backend \
-  --timeout=90s
+  --timeout=120s
 
 # Check status
 check_status
