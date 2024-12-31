@@ -81,6 +81,22 @@ Helper function to find an environment variable in the list
 {{- end -}}
 
 {{/*
+Helper function to find an environment variable in the list
+*/}}
+{{- define "keep.findBackendEnvVar" -}}
+{{- $name := index . 0 -}}
+{{- $root := index . 1 -}}
+{{- if and $root.Values.backend $root.Values.backend.env -}}
+  {{- range $root.Values.backend.env -}}
+    {{- if eq .name $name -}}
+      {{- .value -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- end -}}
+
+
+{{/*
 Helper function for websocket host (relative)
 */}}
 {{- define "keep.websocketPrefix" -}}
@@ -187,11 +203,16 @@ Helper function for NEXTAUTH_URL
 Helper function for KEEP_API_URL that handles both relative and absolute URLs
 */}}
 {{- define "keep.keepApiUrl" -}}
-{{- $apiUrlClient := include "keep.apiUrlClient" . -}}
-{{- /* Check if the URL starts with http:// or https:// */ -}}
-{{- if or (hasPrefix "http://" $apiUrlClient) (hasPrefix "https://" $apiUrlClient) -}}
-    {{- $apiUrlClient -}}
+{{- $backendApiUrl := include "keep.findBackendEnvVar" (list "KEEP_API_URL" .) -}}
+{{- if $backendApiUrl -}}
+    {{- $backendApiUrl -}}
 {{- else -}}
-    {{- include "keep.fullUrl" . -}}{{- $apiUrlClient -}}
+    {{- $apiUrlClient := include "keep.apiUrlClient" . -}}
+    {{- /* Check if the URL starts with http:// or https:// */ -}}
+    {{- if or (hasPrefix "http://" $apiUrlClient) (hasPrefix "https://" $apiUrlClient) -}}
+        {{- $apiUrlClient -}}
+    {{- else -}}
+        {{- include "keep.fullUrl" . -}}{{- $apiUrlClient -}}
+    {{- end -}}
 {{- end -}}
 {{- end -}}
