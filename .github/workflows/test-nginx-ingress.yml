@@ -71,6 +71,7 @@ jobs:
             --set controller.allowSnippetAnnotations=true \
             --set controller.config.allow-snippets=true \
             --set controller.config.enable-snippets=true \
+            --set controller.config.annotations-risk-level=Critical \
             --set controller.hostPort.enabled=true \
             --set controller.service.ports.http=80 \
             --set controller.service.ports.https=443 \
