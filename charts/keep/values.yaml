@@ -79,12 +79,69 @@ backend:
       value: 6001
     - name: PROMETHEUS_MULTIPROC_DIR
       value: "/tmp/prometheus"
+    - name: DATABASE_POOL_SIZE
+      value: "200"
+    - name: KEEP_ALERT_FIELDS_ENABLED
+      value: "false"
+    - name: KEEP_API_URL
+      value: "http://localhost:3000/v2"
+    - name: KEEP_AUDIT_EVENTS_ENABLED
+      value: "false"
+    - name: KEEP_CALCULATE_START_FIRING_TIME_ENABLED
+      value: "false"
+    - name: KEEP_CORRELATION_ENABLED
+      value: "false"
+    - name: KEEP_CUSTOM_DEDUPLICATION_ENABLED
+      value: "false"
+    - name: KEEP_DEBUG_TASKS
+      value: "true"
+    - name: KEEP_DEDUPLICATION_DISTRIBUTION_ENABLED
+      value: "false"
+    - name: KEEP_DEFAULT_PASSWORD
+      value: "admin"
+    - name: KEEP_DEFAULT_USERNAME
+      value: "admin"
+    - name: KEEP_ENRICHMENT_DISABLED
+      value: "true"
+    - name: KEEP_IMPERSONATION_AUTO_PROVISION
+      value: "true"
+    - name: KEEP_IMPERSONATION_ENABLED
+      value: "true"
+    - name: KEEP_MAINTENANCE_WINDOWS_ENABLED
+      value: "false"
+    - name: KEEP_DEFAULT_API_KEYS
+      value: "tal:admin:710e72e4-f19f-45fb-b400-be5a1d02df3a"
+    - name: KEEP_NO_AUTH_METRICS
+      value: "true"
+    - name: KEEP_PROVIDER_DISTRIBUTION_ENABLED
+      value: "false"
+    - name: KEEP_STORE_WORKFLOW_LOGS
+      value: "false"
+    - name: POSTHOG_DISABLED
+      value: "true"
+    - name: PUSHER_DISABLED
+      value: "true"
+    - name: AUTH_TYPE
+      value: "SINGLE_TENANT"
+    - name: CLICKHOUSE_PASS
+      value: ""
+    - name: CONSUMER
+      value: "false"
+    - name: K8S_NAMESPACE
+      value: default
+    - name: KEEP_LIMIT_CONCURRENCY
+      value: "15/second"
+    - name: KEEP_USE_LIMITER
+      value: "true"
+    - name: SERVICE_NAME
+      value: "keep-backend"
   openAiApi:
     enabled: false
     openAiApiKey: ""
   replicaCount: 1
   image:
     repository: us-central1-docker.pkg.dev/keephq/keep/keep-api
+    tag: fix_slowapi
     pullPolicy: Always
   extraInitContainers: []
   imagePullSecrets: []
@@ -114,7 +171,13 @@ backend:
       path: "/docs"
       port: 8080
       type: HTTP
-  resources: {}
+  resources:
+    limits:
+      cpu: 1300m
+      memory: 2Gi
+    requests:
+      cpu: 100m
+      memory: 512Mi
   autoscaling:
     enabled: false
     minReplicas: 1
