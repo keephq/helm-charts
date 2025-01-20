@@ -9,7 +9,7 @@ metadata:
     app.kubernetes.io/component: networking
   annotations:
     {{- if or (eq .Values.global.ingress.className "nginx") (eq .Values.global.ingress.classType "nginx") }}
-    kubernetes.io/ingress.class: "nginx"
+    kubernetes.io/ingress.class: {{ .Values.global.ingress.className }}
     nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "3600"
