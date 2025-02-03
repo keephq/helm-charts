@@ -79,6 +79,24 @@ backend:
       value: 6001
     - name: PROMETHEUS_MULTIPROC_DIR
       value: "/tmp/prometheus"
+  # -- Name of the secret to include
+  envFromSecret: ""
+
+  # -- Sensible environment variables will be rendered as a new secret object; escape {{ in secret values to avoid Helm interpretation.
+  envRenderSecret: {}
+
+  # -- List of secrets to include. Must include name and can be marked as optional.
+  envFromSecrets: []
+  # - name: keep-secret-name
+  #   prefix: prefix
+  #   optional: true
+
+  # -- configmaps to include. Must include name and can be marked as optional.
+  # each entry should contain a name key, and can optionally specify whether the configmap must be defined with an optional key.
+  envFromConfigMaps: []
+  # - name: keep-env-configmap-name
+  #   prefix: prefix
+  #   optional: true
   openAiApi:
     enabled: false
     openAiApiKey: ""
@@ -155,6 +173,24 @@ frontend:
       value: 0.0.0.0
     - name: PUSHER_APP_KEY
       value: "keepappkey"
+  # -- Name of the secret to include
+  envFromSecret: ""
+
+  # -- Sensible environment variables will be rendered as a new secret object; escape {{ in secret values to avoid Helm interpretation.
+  envRenderSecret: {}
+
+  # -- List of secrets to include. Must include name and can be marked as optional.
+  envFromSecrets: []
+  # - name: keep-secret-name
+  #   prefix: prefix
+  #   optional: true
+
+  # -- Configmaps to include. Must include name and can be marked as optional.
+  # each entry should contain a name key, and can optionally specify whether the configmap must be defined with an optional key.
+  envFromConfigMaps: []
+  # - name: keep-env-configmap-name
+  #   prefix: prefix
+  #   optional: true
   replicaCount: 1
   image:
     repository: us-central1-docker.pkg.dev/keephq/keep/keep-ui

@@ -1,6 +1,6 @@
 # keep
 
-![Version: 0.1.50](https://img.shields.io/badge/Version-0.1.50-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.32.1](https://img.shields.io/badge/AppVersion-0.32.1-informational?style=flat-square)
+![Version: 0.1.59](https://img.shields.io/badge/Version-0.1.59-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.34.5](https://img.shields.io/badge/AppVersion-0.34.5-informational?style=flat-square)
 
 Keep Helm Chart
 
@@ -39,6 +39,10 @@ Keep Helm Chart
 | backend.databaseConnectionStringFromSecret.secretKey | string | `""` |  |
 | backend.databaseConnectionStringFromSecret.secretName | string | `""` |  |
 | backend.enabled | bool | `true` |  |
+| backend.envFromConfigMaps | list | `[]` | configmaps to include. Must include name and can be marked as optional. each entry should contain a name key, and can optionally specify whether the configmap must be defined with an optional key. |
+| backend.envFromSecret | string | `""` | Name of the secret to include |
+| backend.envFromSecrets | list | `[]` | List of secrets to include. Must include name and can be marked as optional. |
+| backend.envRenderSecret | object | `{}` | Sensible environment variables will be rendered as a new secret object; escape {{ in secret values to avoid Helm interpretation. |
 | backend.env[0].name | string | `"DATABASE_CONNECTION_STRING"` |  |
 | backend.env[0].value | string | `"mysql+pymysql://root@keep-database:3306/keep"` |  |
 | backend.env[1].name | string | `"DATABASE_NAME"` |  |
@@ -57,6 +61,8 @@ Keep Helm Chart
 | backend.env[7].value | string | `"keep-websocket"` |  |
 | backend.env[8].name | string | `"PUSHER_PORT"` |  |
 | backend.env[8].value | int | `6001` |  |
+| backend.env[9].name | string | `"PROMETHEUS_MULTIPROC_DIR"` |  |
+| backend.env[9].value | string | `"/tmp/prometheus"` |  |
 | backend.extraInitContainers | list | `[]` |  |
 | backend.extraVolumeMounts | list | `[]` |  |
 | backend.extraVolumes | list | `[]` |  |
@@ -71,7 +77,9 @@ Keep Helm Chart
 | backend.nodeSelector | object | `{}` |  |
 | backend.openAiApi.enabled | bool | `false` |  |
 | backend.openAiApi.openAiApiKey | string | `""` |  |
-| backend.podAnnotations | object | `{}` |  |
+| backend.podAnnotations."prometheus.io/path" | string | `"/metrics/processing"` |  |
+| backend.podAnnotations."prometheus.io/port" | string | `"8080"` |  |
+| backend.podAnnotations."prometheus.io/scrape" | string | `"true"` |  |
 | backend.podSecurityContext | object | `{}` |  |
 | backend.replicaCount | int | `1` |  |
 | backend.resources | object | `{}` |  |
@@ -136,6 +144,10 @@ Keep Helm Chart
 | frontend.backendConfig.healthCheck.type | string | `"HTTP"` |  |
 | frontend.backendConfig.healthCheck.unhealthyThreshold | int | `3` |  |
 | frontend.enabled | bool | `true` |  |
+| frontend.envFromConfigMaps | list | `[]` | Configmaps to include. Must include name and can be marked as optional. each entry should contain a name key, and can optionally specify whether the configmap must be defined with an optional key. |
+| frontend.envFromSecret | string | `""` | Name of the secret to include |
+| frontend.envFromSecrets | list | `[]` | List of secrets to include. Must include name and can be marked as optional. |
+| frontend.envRenderSecret | object | `{}` | Sensible environment variables will be rendered as a new secret object; escape {{ in secret values to avoid Helm interpretation. |
 | frontend.env[0].name | string | `"NEXTAUTH_SECRET"` |  |
 | frontend.env[0].value | string | `"secret"` |  |
 | frontend.env[1].name | string | `"VERCEL"` |  |

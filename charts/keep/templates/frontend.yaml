@@ -60,6 +60,33 @@ spec:
               value: {{ .value | quote }}
             {{- end }}
             {{- end }}
+          {{- if or .Values.frontend.envFromSecret (or .Values.frontend.envRenderSecret .Values.frontend.envFromSecrets) .Values.frontend.envFromConfigMaps }}
+          envFrom:
+            {{- if .Values.frontend.envFromSecret }}
+            - secretRef:
+                name: {{ tpl .Values.frontend.envFromSecret . }}
+            {{- end }}
+            {{- if .Values.frontend.envRenderSecret }}
+            - secretRef:
+                name: {{ include "keep.fullname" . }}-frontend-env
+            {{- end }}
+            {{- range .Values.frontend.envFromSecrets }}
+            - secretRef:
+                name: {{ tpl .name $ }}
+                optional: {{ .optional | default false }}
+              {{- if .prefix }}
+              prefix: {{ tpl .prefix $ }}
+              {{- end }}
+            {{- end }}
+            {{- range .Values.frontend.envFromConfigMaps }}
+            - configMapRef:
+                name: {{ tpl .name $ }}
+                optional: {{ .optional | default false }}
+              {{- if .prefix }}
+              prefix: {{ tpl .prefix $ }}
+              {{- end }}
+            {{- end }}
+          {{- end }}
           volumeMounts:
             - name: state-volume
               mountPath: /state
