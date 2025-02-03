@@ -140,6 +140,7 @@ backend:
     targetCPUUtilizationPercentage: 80
     targetMemoryUtilizationPercentage: 80
   nodeSelector: {}
+  topologySpreadConstraints: []
   tolerations: []
   affinity: {}
   healthCheck:
@@ -231,6 +232,7 @@ frontend:
     targetCPUUtilizationPercentage: 80
     targetMemoryUtilizationPercentage: 80
   nodeSelector: {}
+  topologySpreadConstraints: []
   tolerations: []
   affinity: {}
   healthCheck:
@@ -284,6 +286,7 @@ websocket:
     targetCPUUtilizationPercentage: 80
     targetMemoryUtilizationPercentage: 80
   nodeSelector: {}
+  topologySpreadConstraints: []
   tolerations: []
   affinity: {}
   healthCheck:
