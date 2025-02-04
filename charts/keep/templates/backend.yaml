@@ -87,6 +87,33 @@ spec:
                   name: {{ .Values.backend.databaseConnectionStringFromSecret.secretName }}
                   key: {{ .Values.backend.databaseConnectionStringFromSecret.secretKey }}
             {{- end }}
+          {{- if or .Values.backend.envFromSecret (or .Values.backend.envRenderSecret .Values.backend.envFromSecrets) .Values.backend.envFromConfigMaps }}
+          envFrom:
+            {{- if .Values.backend.envFromSecret }}
+            - secretRef:
+                name: {{ tpl .Values.backend.envFromSecret . }}
+            {{- end }}
+            {{- if .Values.backend.envRenderSecret }}
+            - secretRef:
+                name: {{ include "keep.fullname" . }}-backend-env
+            {{- end }}
+            {{- range .Values.backend.envFromSecrets }}
+            - secretRef:
+                name: {{ tpl .name $ }}
+                optional: {{ .optional | default false }}
+              {{- if .prefix }}
+              prefix: {{ tpl .prefix $ }}
+              {{- end }}
+            {{- end }}
+            {{- range .Values.backend.envFromConfigMaps }}
+            - configMapRef:
+                name: {{ tpl .name $ }}
+                optional: {{ .optional | default false }}
+              {{- if .prefix }}
+              prefix: {{ tpl .prefix $ }}
+              {{- end }}
+            {{- end }}
+          {{- end }}
           volumeMounts:
             - name: state-volume
               mountPath: /state
