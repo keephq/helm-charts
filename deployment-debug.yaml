@@ -1,0 +1,172 @@
+---
+# Source: keep/templates/backend.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loadtest-keep-backend
+  labels:
+    helm.sh/chart: keep-0.1.59
+    app.kubernetes.io/name: keep
+    app.kubernetes.io/instance: loadtest
+    app.kubernetes.io/version: "0.34.5"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: keep
+    app.kubernetes.io/component: backend
+    keep-component: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: keep
+      app.kubernetes.io/instance: loadtest
+      keep-component: backend
+  template:
+    metadata:
+      annotations:
+        prometheus.io/path: "/metrics/processing"
+        prometheus.io/port: "8080"
+        prometheus.io/scrape: "true"
+      labels:
+        helm.sh/chart: keep-0.1.59
+        app.kubernetes.io/name: keep
+        app.kubernetes.io/instance: loadtest
+        app.kubernetes.io/version: "0.34.5"
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/part-of: keep
+        app.kubernetes.io/component: backend
+        keep-component: backend
+    spec:
+      serviceAccountName: loadtest-keep
+      securityContext:
+        {}
+      containers:
+        - name: keep
+          securityContext:
+            {}
+          image: "us-central1-docker.pkg.dev/keephq/keep/keep-api:0.34.5"
+          imagePullPolicy: Always
+          command: ["gunicorn"]
+          args:
+            - "keep.api.api:get_app"
+            - "--bind"
+            - "0.0.0.0:8080"
+            - "--workers"
+            - "4"
+            - "-k"
+            - "uvicorn.workers.UvicornWorker"
+            - "-c"
+            - "/venv/lib/python3.11/site-packages/keep/api/config.py"
+            - "--preload"
+            - "--access-logfile"
+            - "/tmp/accesslog"
+            - "--error-logfile"
+            - "/tmp/errorlog"
+            - "--log-level"
+            - "debug"
+            - "--access-logformat"
+            - "%(t)s %(h)s \"%(r)s\" %(s)s %(b)s \"%(f)s\" \"%(a)s\" %(L)s"
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: KEEP_API_URL
+              value: "http://localhost:3000/v2"
+            - name: DATABASE_CONNECTION_STRING
+              value: "postgresql+psycopg2://postgres:mysecretpassword@keep-database:5432/keep"
+            - name: DATABASE_NAME
+              value: "keep-database"
+            - name: SECRET_MANAGER_TYPE
+              value: "k8s"
+            - name: PORT
+              value: "8080"
+            - name: PUSHER_APP_ID
+              value: "1"
+            - name: PUSHER_APP_KEY
+              value: "keepappkey"
+            - name: PUSHER_APP_SECRET
+              value: "keepappsecret"
+            - name: PUSHER_HOST
+              value: "keep-websocket"
+            - name: PUSHER_PORT
+              value: "6001"
+            - name: PROMETHEUS_MULTIPROC_DIR
+              value: "/tmp/prometheus"
+            - name: DATABASE_POOL_SIZE
+              value: "200"
+            - name: KEEP_ALERT_FIELDS_ENABLED
+              value: "false"
+            - name: KEEP_API_URL
+              value: "http://localhost:3000/v2"
+            - name: KEEP_AUDIT_EVENTS_ENABLED
+              value: "false"
+            - name: KEEP_CALCULATE_START_FIRING_TIME_ENABLED
+              value: "false"
+            - name: KEEP_CORRELATION_ENABLED
+              value: "false"
+            - name: KEEP_CUSTOM_DEDUPLICATION_ENABLED
+              value: "false"
+            - name: KEEP_DEBUG_TASKS
+              value: "false"
+            - name: KEEP_DEDUPLICATION_DISTRIBUTION_ENABLED
+              value: "false"
+            - name: KEEP_DEFAULT_PASSWORD
+              value: "admin"
+            - name: KEEP_DEFAULT_USERNAME
+              value: "admin"
+            - name: KEEP_ENRICHMENT_DISABLED
+              value: "true"
+            - name: KEEP_IMPERSONATION_AUTO_PROVISION
+              value: "true"
+            - name: KEEP_IMPERSONATION_ENABLED
+              value: "true"
+            - name: KEEP_MAINTENANCE_WINDOWS_ENABLED
+              value: "false"
+            - name: KEEP_DEFAULT_API_KEYS
+              value: "tal:admin:710e72e4-f19f-45fb-b400-be5a1d02df3a"
+            - name: KEEP_NO_AUTH_METRICS
+              value: "true"
+            - name: KEEP_PROVIDER_DISTRIBUTION_ENABLED
+              value: "false"
+            - name: KEEP_STORE_WORKFLOW_LOGS
+              value: "false"
+            - name: POSTHOG_DISABLED
+              value: "true"
+            - name: PUSHER_DISABLED
+              value: "true"
+            - name: AUTH_TYPE
+              value: "SINGLE_TENANT"
+            - name: CLICKHOUSE_PASS
+              value: "1"
+            - name: CONSUMER
+              value: "false"
+            - name: KEEP_LIMIT_CONCURRENCY
+              value: "15/second"
+            - name: KEEP_USE_LIMITER
+              value: "true"
+            - name: SERVICE_NAME
+              value: "keep-backend"
+            - name: KEEP_LOG_FILE
+              value: "/tmp/keep.log"
+            - name: K8S_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          volumeMounts:
+            - name: state-volume
+              mountPath: /state
+              readOnly: false
+          resources:
+            limits:
+              cpu: 1300m
+              memory: 2Gi
+            requests:
+              cpu: 100m
+              memory: 512Mi
+      initContainers:
+        - name: wait-for-database
+          image: busybox
+          command: ['sh', '-c', 'until nc -z keep-database 5432; do sleep 1; done;']
+      volumes:
+        - name: state-volume
+          emptyDir: {}

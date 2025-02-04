@@ -10,10 +10,10 @@ metadata:
 spec:
   type: {{ .Values.database.service.type }}
   ports:
-    - port: {{ .Values.database.service.port }}
-      targetPort: 3306
+    - port: {{ index .Values.database .Values.database.type "port" }}
+      targetPort: {{ index .Values.database .Values.database.type "port" }}
       protocol: TCP
-      name: mysql
+      name: {{ .Values.database.type }}
   selector:
     {{- include "keep.selectorLabels" . | nindent 4 }}
     keep-component: database

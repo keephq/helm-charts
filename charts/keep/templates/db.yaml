@@ -38,18 +38,35 @@ spec:
           securityContext:
             {{- toYaml .Values.database.securityContext | nindent 12 }}
           image: "{{ .Values.database.image.repository }}:{{ .Values.database.image.tag }}"
+          {{- if eq .Values.database.type "mysql" }}
+          image: "{{ .Values.database.mysql.image.repository }}:{{ .Values.database.mysql.image.tag }}"
+          {{- else }}
+          image: "{{ .Values.database.postgres.image.repository }}:{{ .Values.database.postgres.image.tag }}"
+          args:
+            - "-c"
+            - "max_connections={{ .Values.database.postgres.config.maxConnections }}"
+            - "-c"
+            - "shared_buffers={{ .Values.database.postgres.config.sharedBuffers }}"
+          {{- end }}
           imagePullPolicy: {{ .Values.database.image.pullPolicy }}
           ports:
-            - name: mysql
-              containerPort: {{ .Values.database.service.port }}
+            - name: {{ .Values.database.type }}
+              containerPort: {{ index .Values.database .Values.database.type "port" }}
               protocol: TCP
           env:
-            {{- range .Values.database.env }}
+            {{- if eq .Values.database.type "mysql" }}
+            {{- range .Values.database.mysql.env }}
             - name: {{ .name }}
               value: {{ .value | quote }}
             {{- end }}
+            {{- else }}
+            {{- range .Values.database.postgres.env }}
+            - name: {{ .name }}
+              value: {{ .value | quote }}
+            {{- end }}
+            {{- end }}
           volumeMounts:
-          - mountPath: /var/lib/mysql
+          - mountPath: {{ index .Values.database .Values.database.type "dataDir" }}
             name: {{ include "keep.fullname" . }}-pv
             readOnly: false
           {{- with .Values.database.extraVolumeMounts }}

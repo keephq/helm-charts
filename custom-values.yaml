@@ -51,7 +51,7 @@ backend:
   # if you use external database, you can set this to false
   waitForDatabase:
     enabled: true
-    port: 5432
+    port: 3306
   # if true, the database connection string will be read from a secret
   # if it is false, the DATABASE_CONNECTION_STRING value can be set directly
   databaseConnectionStringFromSecret:
@@ -59,9 +59,10 @@ backend:
     secretName: ""
     secretKey: ""
   env:
+    - name: KEEP_API_URL
+      value: http://test:8080
     - name: DATABASE_CONNECTION_STRING
-      # value: mysql+pymysql://root@keep-database:3306/keep
-      value: postgresql+psycopg2://postgres:mysecretpassword@keep-database:5432/keep
+      value: mysql+pymysql://root@keep-database:3306/keep
     - name: DATABASE_NAME
       value: keep-database
     - name: SECRET_MANAGER_TYPE
@@ -80,75 +81,12 @@ backend:
       value: 6001
     - name: PROMETHEUS_MULTIPROC_DIR
       value: "/tmp/prometheus"
-    - name: DATABASE_POOL_SIZE
-      value: "200"
-    - name: KEEP_ALERT_FIELDS_ENABLED
-      value: "false"
-    - name: KEEP_API_URL
-      value: "http://localhost:3000/v2"
-    - name: KEEP_AUDIT_EVENTS_ENABLED
-      value: "false"
-    - name: KEEP_CALCULATE_START_FIRING_TIME_ENABLED
-      value: "false"
-    - name: KEEP_CORRELATION_ENABLED
-      value: "false"
-    - name: KEEP_CUSTOM_DEDUPLICATION_ENABLED
-      value: "false"
-    - name: KEEP_DEBUG_TASKS
-      value: "false"
-    - name: KEEP_DEDUPLICATION_DISTRIBUTION_ENABLED
-      value: "false"
-    - name: KEEP_DEFAULT_PASSWORD
-      value: "admin"
-    - name: KEEP_DEFAULT_USERNAME
-      value: "admin"
-    - name: KEEP_ENRICHMENT_DISABLED
-      value: "true"
-    - name: KEEP_IMPERSONATION_AUTO_PROVISION
-      value: "true"
-    - name: KEEP_IMPERSONATION_ENABLED
-      value: "true"
-    - name: KEEP_MAINTENANCE_WINDOWS_ENABLED
-      value: "false"
-    - name: KEEP_DEFAULT_API_KEYS
-      value: "tal:admin:710e72e4-f19f-45fb-b400-be5a1d02df3a"
-    - name: KEEP_NO_AUTH_METRICS
-      value: "true"
-    - name: KEEP_PROVIDER_DISTRIBUTION_ENABLED
-      value: "false"
-    - name: KEEP_STORE_WORKFLOW_LOGS
-      value: "false"
-    - name: POSTHOG_DISABLED
-      value: "true"
-    - name: PUSHER_DISABLED
-      value: "true"
-    - name: AUTH_TYPE
-      value: "SINGLE_TENANT"
-    - name: CLICKHOUSE_PASS
-      value: "1"
-    - name: CONSUMER
-      value: "false"
-    - name: KEEP_LIMIT_CONCURRENCY
-      value: "15/second"
-    - name: KEEP_USE_LIMITER
-      value: "true"
-    - name: SERVICE_NAME
-      value: "keep-backend"
-    - name: KEEP_LOG_FILE
-      value: "/tmp/keep.log"
-    # - name: KEEP_DEBUG_MIDDLEWARES
-    #   value: "true"
-    # - name: DATABASE_ECHO
-    #  value: "true"
-    - name: KEEP_EVENT_WORKERS
-      value: "5"
   openAiApi:
     enabled: false
     openAiApiKey: ""
   replicaCount: 1
   image:
     repository: us-central1-docker.pkg.dev/keephq/keep/keep-api
-    tag: bugfix_slow
     pullPolicy: Always
   extraInitContainers: []
   imagePullSecrets: []
@@ -178,13 +116,7 @@ backend:
       path: "/docs"
       port: 8080
       type: HTTP
-  resources:
-    limits:
-      cpu: 3000m
-      memory: 2Gi
-    requests:
-      cpu: 1500m
-      memory: 512Mi
+  resources: {}
   autoscaling:
     enabled: false
     minReplicas: 1
@@ -207,27 +139,6 @@ backend:
           port: 8080
   extraVolumeMounts: []
   extraVolumes: []
-  command: 
-    - "gunicorn"
-  args:
-    - "keep.api.api:get_app"
-    - "--bind"
-    - "0.0.0.0:8080"
-    - "--workers"
-    - "4"
-    - "-k" 
-    - "uvicorn.workers.UvicornWorker"
-    - "-c"
-    - "/venv/lib/python3.11/site-packages/keep/api/config.py"
-    - "--preload"
-    - "--access-logfile"
-    - "/tmp/accesslog"
-    - "--error-logfile"
-    - "/tmp/errorlog"
-    - "--log-level"
-    - "debug"
-    - "--access-logformat"
-    - "%(t)s %(h)s \"%(r)s\" %(s)s %(b)s \"%(f)s\" \"%(a)s\" %(L)s"
 
 frontend:
   enabled: true
@@ -361,7 +272,6 @@ websocket:
 
 database:
   enabled: true
-  type: postgres  # can be 'mysql' or 'postgres'
   replicaCount: 1
   pv:
     enabled: true
@@ -373,50 +283,24 @@ database:
     storageClass: ""
     retain: false
   image:
-    # This will be overridden by type-specific settings
-    repository: ""
+    repository: mysql
     pullPolicy: IfNotPresent
     tag: "latest"
-  mysql:
-    image:
-      repository: mysql
-      tag: "latest"
-    env:
-      - name: MYSQL_ALLOW_EMPTY_PASSWORD
-        value: true
-      - name: MYSQL_DATABASE
-        value: keep
-      - name: MYSQL_PASSWORD
-        value: null
-    port: 3306
-    dataDir: /var/lib/mysql
-  postgres:
-    image:
-      repository: postgres
-      tag: "latest"
-    env:
-      - name: POSTGRES_DB
-        value: keep
-      - name: POSTGRES_PASSWORD
-        value: mysecretpassword
-    port: 5432
-    dataDir: /var/lib/postgresql/data
-    config:
-      maxConnections: 1000
-      sharedBuffers: 256MB
+  env:
+    - name: MYSQL_ALLOW_EMPTY_PASSWORD
+      value: true
+    - name: MYSQL_DATABASE
+      value: keep
+    - name: MYSQL_PASSWORD
+      value: null
   imagePullSecrets: []
   podAnnotations: {}
   podSecurityContext: {}
   securityContext: {}
   service:
     type: ClusterIP
-  resources:
-    requests:
-      cpu: "2"
-      memory: "4Gi"
-    limits:
-      cpu: "4"
-      memory: "8Gi"
+    port: 3306
+  resources: {}
   autoscaling:
     enabled: false
   nodeSelector: {}
@@ -424,6 +308,14 @@ database:
   affinity: {}
   healthCheck:
     enabled: false
-    probes: {}
+    probes:
+      readinessProbe:
+        tcpSocket:
+          port: 3306
+        initialDelaySeconds: 30
+        periodSeconds: 10
+      livenessProbe:
+        tcpSocket:
+          port: 3306
   extraVolumeMounts: []
   extraVolumes: []
