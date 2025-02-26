@@ -310,6 +310,11 @@ websocket:
 database:
   enabled: true
   replicaCount: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
   pv:
     enabled: true
     size: 5Gi
