@@ -25,6 +25,12 @@ spec:
       annotations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- if .Values.database.config }}
+      annotations:
+        {{- if not .Values.database.podAnnotations }}
+        {{- end }}
+        checksum/config: {{ include (print $.Template.BasePath "/db-configmap.yaml") . | sha256sum }}
+      {{- end }}
       labels:
         {{- include "keep.labels" . | nindent 8 }}
         app.kubernetes.io/component: database
@@ -47,6 +53,10 @@ spec:
             - name: mysql
               containerPort: {{ .Values.database.service.port }}
               protocol: TCP
+          {{- if .Values.database.config }}
+          args:
+            - --defaults-file=/etc/mysql/custom.cnf
+          {{- end }}
           env:
             {{- range .Values.database.env }}
             - name: {{ .name }}
@@ -56,6 +66,11 @@ spec:
           - mountPath: /var/lib/mysql
             name: {{ include "keep.fullname" . }}-pv
             readOnly: false
+          {{- if .Values.database.config }}
+          - mountPath: /etc/mysql/custom.cnf
+            name: mysql-config
+            subPath: custom.cnf
+          {{- end }}
           {{- with .Values.database.extraVolumeMounts }}
             {{- toYaml . | nindent 10 }}
           {{- end }}
@@ -80,6 +95,11 @@ spec:
         - name: {{ include "keep.fullname" . }}-pv
           persistentVolumeClaim:
             claimName: {{ include "keep.fullname" . }}-pvc
+        {{- if .Values.database.config }}
+        - name: mysql-config
+          configMap:
+            name: {{ include "keep.fullname" . }}-mysql-config
+        {{- end }}
         {{- with .Values.database.extraVolumes }}
         {{- toYaml . | nindent 8 }}
         {{- end }}

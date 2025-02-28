@@ -1,6 +1,6 @@
 # keep
 
-![Version: 0.1.66](https://img.shields.io/badge/Version-0.1.66-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.37.10](https://img.shields.io/badge/AppVersion-0.37.10-informational?style=flat-square)
+![Version: 0.1.66](https://img.shields.io/badge/Version-0.1.66-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.37.17](https://img.shields.io/badge/AppVersion-0.37.17-informational?style=flat-square)
 
 Keep Helm Chart
 
@@ -97,6 +97,10 @@ Keep Helm Chart
 | backend.waitForDatabase.port | int | `3306` |  |
 | database.affinity | object | `{}` |  |
 | database.autoscaling.enabled | bool | `false` |  |
+| database.cleanup.days | int | `90` |  |
+| database.cleanup.enabled | bool | `false` |  |
+| database.cleanup.schedule | string | `"0 1 * * *"` |  |
+| database.config | object | `{}` |  |
 | database.enabled | bool | `true` |  |
 | database.env[0].name | string | `"MYSQL_ALLOW_EMPTY_PASSWORD"` |  |
 | database.env[0].value | bool | `true` |  |

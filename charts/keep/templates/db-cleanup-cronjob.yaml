@@ -1,0 +1,85 @@
+{{- if and .Values.database.enabled .Values.database.cleanup.enabled -}}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "keep.fullname" . }}-db-cleanup
+  labels:
+    {{- include "keep.labels" . | nindent 4 }}
+    app.kubernetes.io/component: database
+spec:
+  schedule: {{ .Values.database.cleanup.schedule }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            {{- include "keep.labels" . | nindent 12 }}
+            app.kubernetes.io/component: database
+        spec:
+          serviceAccountName: {{ include "keep.serviceAccountName" . }}
+          containers:
+          - name: mysql-cleanup
+            image: {{ .Values.database.image.repository }}:{{ .Values.database.image.tag | default "latest" }}
+            imagePullPolicy: {{ .Values.database.image.pullPolicy }}
+            command:
+              - /bin/bash
+              - -c
+              - |
+                TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+                echo "[${TIMESTAMP}] Alert cleanup job started - deleting alerts older than {{ .Values.database.cleanup.days }} days"
+
+                mysql -h keep-database -u root --skip-column-names << EOF
+                USE keep;
+
+                -- Get counts before cleanup for reporting
+                SELECT COUNT(*) INTO @total_alerts FROM alert WHERE timestamp < DATE_SUB(NOW(), INTERVAL {{ .Values.database.cleanup.days }} DAY);
+                SELECT COUNT(*) INTO @total_lastalerts FROM lastalert WHERE timestamp < DATE_SUB(NOW(), INTERVAL {{ .Values.database.cleanup.days }} DAY);
+
+                -- Delete from alerttoincident where alert_id points to old alerts
+                SELECT COUNT(*) INTO @count_alerttoincident FROM alerttoincident ati
+                JOIN alert a ON ati.alert_id = a.id
+                WHERE a.timestamp < DATE_SUB(NOW(), INTERVAL {{ .Values.database.cleanup.days }} DAY);
+
+                DELETE ati FROM alerttoincident ati
+                JOIN alert a ON ati.alert_id = a.id
+                WHERE a.timestamp < DATE_SUB(NOW(), INTERVAL {{ .Values.database.cleanup.days }} DAY);
+
+                SELECT CONCAT('Deleted ', @count_alerttoincident, ' records from alerttoincident table');
+
+                -- Delete from alerttogroup where alert_id points to old alerts
+                SELECT COUNT(*) INTO @count_alerttogroup FROM alerttogroup atg
+                JOIN alert a ON atg.alert_id = a.id
+                WHERE a.timestamp < DATE_SUB(NOW(), INTERVAL {{ .Values.database.cleanup.days }} DAY);
+
+                DELETE atg FROM alerttogroup atg
+                JOIN alert a ON atg.alert_id = a.id
+                WHERE a.timestamp < DATE_SUB(NOW(), INTERVAL {{ .Values.database.cleanup.days }} DAY);
+
+                SELECT CONCAT('Deleted ', @count_alerttogroup, ' records from alerttogroup table');
+
+                -- Clean up lastalert table
+                DELETE FROM lastalert
+                WHERE timestamp < DATE_SUB(NOW(), INTERVAL {{ .Values.database.cleanup.days }} DAY);
+
+                SELECT CONCAT('Deleted ', @total_lastalerts, ' records from lastalert table');
+
+                -- Delete old alerts
+                DELETE FROM alert
+                WHERE timestamp < DATE_SUB(NOW(), INTERVAL {{ .Values.database.cleanup.days }} DAY);
+
+                SELECT CONCAT('Deleted ', @total_alerts, ' records from alert table');
+                EOF
+
+                RESULT=$?
+                TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+
+                if [ $RESULT -eq 0 ]; then
+                  echo "[${TIMESTAMP}] Alert cleanup job completed successfully"
+                else
+                  echo "[${TIMESTAMP}] Alert cleanup job failed with exit code: $RESULT"
+                fi
+          restartPolicy: OnFailure
+{{- end }}
