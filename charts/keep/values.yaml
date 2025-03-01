@@ -105,7 +105,6 @@ backend:
   replicaCount: 1
   image:
     repository: us-central1-docker.pkg.dev/keephq/keep/keep-api
-    tag: bugfix_slow
     pullPolicy: Always
   extraInitContainers: []
   imagePullSecrets: []
