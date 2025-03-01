@@ -41,7 +41,6 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.database.securityContext | nindent 12 }}
-          image: "{{ .Values.database.image.repository }}:{{ .Values.database.image.tag }}"
           {{- if eq .Values.database.type "mysql" }}
           image: "{{ .Values.database.mysql.image.repository }}:{{ .Values.database.mysql.image.tag }}"
           {{- else }}
