@@ -1,0 +1,14 @@
+global:
+  ingress:
+    enabled: true
+    className: nginx
+    classType: nginx
+    websocketPrefix: /websocket
+    backendPrefix: /v2
+    frontendPrefix: /
+frontend:
+  enabled: true
+backend:
+  enabled: true
+websocket:
+  enabled: true
