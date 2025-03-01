@@ -169,14 +169,23 @@ jobs:
             --for=condition=ready pod \
             --selector=app.kubernetes.io/instance=keep,keep-component=database \
             --timeout=120s
+          
+          # Give MySQL a bit more time to fully initialize
+          echo "Giving MySQL additional time to initialize..."
+          sleep 30
+          
+          # Check if MySQL process is running in the pod
+          DB_POD=$(kubectl get pod -l keep-component=database -o jsonpath="{.items[0].metadata.name}")
+          echo "Checking MySQL process status..."
+          kubectl exec $DB_POD -- ps aux | grep mysql
 
       - name: Test database connection
         run: |
           DB_POD=$(kubectl get pod -l keep-component=database -o jsonpath="{.items[0].metadata.name}")
           echo "Testing MySQL connection..."
-          kubectl exec $DB_POD -- mysql -u root -pmysecretpassword -e "SHOW TABLES;" keep
+          kubectl exec $DB_POD -- bash -c "mysql -u root -pmysecretpassword keep -e 'SHOW TABLES;'"
           echo "Testing database version..."
-          kubectl exec $DB_POD -- mysql -u root -pmysecretpassword -e "SELECT VERSION();" keep
+          kubectl exec $DB_POD -- bash -c "mysql -u root -pmysecretpassword -e 'SELECT VERSION();'"
 
       - name: Wait for all pods
         run: |
@@ -286,7 +295,20 @@ jobs:
           kubectl logs -l app.kubernetes.io/instance=nginx-ingress --tail=100
           
           echo "📜 Database logs:"
-          kubectl logs -l keep-component=database --tail=100
+          kubectl logs -l keep-component=database --tail=200
+          
+          echo "📜 MySQL Database status:"
+          DB_POD=$(kubectl get pod -l keep-component=database -o jsonpath="{.items[0].metadata.name}" 2>/dev/null) || echo "No database pod found"
+          if [ -n "$DB_POD" ]; then
+            echo "Pod details for $DB_POD:"
+            kubectl describe pod $DB_POD
+            
+            echo "MySQL process status:"
+            kubectl exec $DB_POD -- ps aux 2>/dev/null || echo "Cannot execute command in database pod"
+            
+            echo "MySQL container logs:"
+            kubectl logs $DB_POD --tail=200
+          fi
           
           echo "📜 Backend logs:"
           kubectl logs -l keep-component=backend --tail=100
