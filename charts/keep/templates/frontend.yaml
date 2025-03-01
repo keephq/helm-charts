@@ -60,10 +60,40 @@ spec:
               value: {{ .value | quote }}
             {{- end }}
             {{- end }}
+          {{- if or .Values.frontend.envFromSecret (or .Values.frontend.envRenderSecret .Values.frontend.envFromSecrets) .Values.frontend.envFromConfigMaps }}
+          envFrom:
+            {{- if .Values.frontend.envFromSecret }}
+            - secretRef:
+                name: {{ tpl .Values.frontend.envFromSecret . }}
+            {{- end }}
+            {{- if .Values.frontend.envRenderSecret }}
+            - secretRef:
+                name: {{ include "keep.fullname" . }}-frontend-env
+            {{- end }}
+            {{- range .Values.frontend.envFromSecrets }}
+            - secretRef:
+                name: {{ tpl .name $ }}
+                optional: {{ .optional | default false }}
+              {{- if .prefix }}
+              prefix: {{ tpl .prefix $ }}
+              {{- end }}
+            {{- end }}
+            {{- range .Values.frontend.envFromConfigMaps }}
+            - configMapRef:
+                name: {{ tpl .name $ }}
+                optional: {{ .optional | default false }}
+              {{- if .prefix }}
+              prefix: {{ tpl .prefix $ }}
+              {{- end }}
+            {{- end }}
+          {{- end }}
           volumeMounts:
             - name: state-volume
               mountPath: /state
               readOnly: false
+            {{- with .Values.frontend.extraVolumeMounts }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
           {{- if .Values.frontend.healthCheck.enabled }}
           {{- toYaml .Values.frontend.healthCheck.probes | nindent 10 }}
           {{- end }}
@@ -74,6 +104,10 @@ spec:
       {{- end }}
       {{- with .Values.frontend.nodeSelector }}
       nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.backend.topologySpreadConstraints }}
+      topologySpreadConstraints:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.frontend.affinity }}
@@ -87,4 +121,7 @@ spec:
       volumes:
         - name: state-volume
           emptyDir: {}
+        {{- with .Values.frontend.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
 {{- end }}

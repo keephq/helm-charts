@@ -93,6 +93,33 @@ spec:
                   name: {{ .Values.backend.databaseConnectionStringFromSecret.secretName }}
                   key: {{ .Values.backend.databaseConnectionStringFromSecret.secretKey }}
             {{- end }}
+          {{- if or .Values.backend.envFromSecret (or .Values.backend.envRenderSecret .Values.backend.envFromSecrets) .Values.backend.envFromConfigMaps }}
+          envFrom:
+            {{- if .Values.backend.envFromSecret }}
+            - secretRef:
+                name: {{ tpl .Values.backend.envFromSecret . }}
+            {{- end }}
+            {{- if .Values.backend.envRenderSecret }}
+            - secretRef:
+                name: {{ include "keep.fullname" . }}-backend-env
+            {{- end }}
+            {{- range .Values.backend.envFromSecrets }}
+            - secretRef:
+                name: {{ tpl .name $ }}
+                optional: {{ .optional | default false }}
+              {{- if .prefix }}
+              prefix: {{ tpl .prefix $ }}
+              {{- end }}
+            {{- end }}
+            {{- range .Values.backend.envFromConfigMaps }}
+            - configMapRef:
+                name: {{ tpl .name $ }}
+                optional: {{ .optional | default false }}
+              {{- if .prefix }}
+              prefix: {{ tpl .prefix $ }}
+              {{- end }}
+            {{- end }}
+          {{- end }}
           volumeMounts:
             - name: state-volume
               mountPath: /state
@@ -110,7 +137,7 @@ spec:
         {{- if .Values.backend.waitForDatabase.enabled }}
         - name: wait-for-database
           image: busybox
-          command: ['sh', '-c', 'until nc -z {{ include "keep.findEnvVar" (list "DATABASE_NAME" .) | default "keep-database" }} {{ .Values.backend.waitForDatabase.port }}; do sleep 1; done;']
+          command: ['sh', '-c', 'until nc -z {{ include "keep.findBackendEnvVar" (list "DATABASE_NAME" .) | default "keep-database" }} {{ .Values.backend.waitForDatabase.port }}; do sleep 1; done;']
         {{- end }}
         {{- range .Values.backend.extraInitContainers }}
         - name: {{ .name }}
@@ -134,6 +161,10 @@ spec:
 
       {{- with .Values.backend.nodeSelector }}
       nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.backend.topologySpreadConstraints }}
+      topologySpreadConstraints:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.backend.affinity }}

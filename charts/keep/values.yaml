@@ -60,8 +60,8 @@ backend:
     secretKey: ""
   env:
     - name: DATABASE_CONNECTION_STRING
-      # value: mysql+pymysql://root@keep-database:3306/keep
-      value: postgresql+psycopg2://postgres:mysecretpassword@keep-database:5432/keep
+      value: mysql+pymysql://root@keep-database:3306/keep
+      # value: postgresql+psycopg2://postgres:mysecretpassword@keep-database:5432/keep
     - name: DATABASE_NAME
       value: keep-database
     - name: SECRET_MANAGER_TYPE
@@ -80,68 +80,24 @@ backend:
       value: 6001
     - name: PROMETHEUS_MULTIPROC_DIR
       value: "/tmp/prometheus"
-    - name: DATABASE_POOL_SIZE
-      value: "200"
-    - name: KEEP_ALERT_FIELDS_ENABLED
-      value: "false"
-    - name: KEEP_API_URL
-      value: "http://localhost:3000/v2"
-    - name: KEEP_AUDIT_EVENTS_ENABLED
-      value: "false"
-    - name: KEEP_CALCULATE_START_FIRING_TIME_ENABLED
-      value: "false"
-    - name: KEEP_CORRELATION_ENABLED
-      value: "false"
-    - name: KEEP_CUSTOM_DEDUPLICATION_ENABLED
-      value: "false"
-    - name: KEEP_DEBUG_TASKS
-      value: "false"
-    - name: KEEP_DEDUPLICATION_DISTRIBUTION_ENABLED
-      value: "false"
-    - name: KEEP_DEFAULT_PASSWORD
-      value: "admin"
-    - name: KEEP_DEFAULT_USERNAME
-      value: "admin"
-    - name: KEEP_ENRICHMENT_DISABLED
-      value: "true"
-    - name: KEEP_IMPERSONATION_AUTO_PROVISION
-      value: "true"
-    - name: KEEP_IMPERSONATION_ENABLED
-      value: "true"
-    - name: KEEP_MAINTENANCE_WINDOWS_ENABLED
-      value: "false"
-    - name: KEEP_DEFAULT_API_KEYS
-      value: "tal:admin:710e72e4-f19f-45fb-b400-be5a1d02df3a"
-    - name: KEEP_NO_AUTH_METRICS
-      value: "true"
-    - name: KEEP_PROVIDER_DISTRIBUTION_ENABLED
-      value: "false"
-    - name: KEEP_STORE_WORKFLOW_LOGS
-      value: "false"
-    - name: POSTHOG_DISABLED
-      value: "true"
-    - name: PUSHER_DISABLED
-      value: "true"
-    - name: AUTH_TYPE
-      value: "SINGLE_TENANT"
-    - name: CLICKHOUSE_PASS
-      value: "1"
-    - name: CONSUMER
-      value: "false"
-    - name: KEEP_LIMIT_CONCURRENCY
-      value: "15/second"
-    - name: KEEP_USE_LIMITER
-      value: "true"
-    - name: SERVICE_NAME
-      value: "keep-backend"
-    - name: KEEP_LOG_FILE
-      value: "/tmp/keep.log"
-    # - name: KEEP_DEBUG_MIDDLEWARES
-    #   value: "true"
-    # - name: DATABASE_ECHO
-    #  value: "true"
-    - name: KEEP_EVENT_WORKERS
-      value: "5"
+  # -- Name of the secret to include
+  envFromSecret: ""
+
+  # -- Sensible environment variables will be rendered as a new secret object; escape {{ in secret values to avoid Helm interpretation.
+  envRenderSecret: {}
+
+  # -- List of secrets to include. Must include name and can be marked as optional.
+  envFromSecrets: []
+  # - name: keep-secret-name
+  #   prefix: prefix
+  #   optional: true
+
+  # -- configmaps to include. Must include name and can be marked as optional.
+  # each entry should contain a name key, and can optionally specify whether the configmap must be defined with an optional key.
+  envFromConfigMaps: []
+  # - name: keep-env-configmap-name
+  #   prefix: prefix
+  #   optional: true
   openAiApi:
     enabled: false
     openAiApiKey: ""
@@ -192,6 +148,7 @@ backend:
     targetCPUUtilizationPercentage: 80
     targetMemoryUtilizationPercentage: 80
   nodeSelector: {}
+  topologySpreadConstraints: []
   tolerations: []
   affinity: {}
   healthCheck:
@@ -246,6 +203,24 @@ frontend:
       value: 0.0.0.0
     - name: PUSHER_APP_KEY
       value: "keepappkey"
+  # -- Name of the secret to include
+  envFromSecret: ""
+
+  # -- Sensible environment variables will be rendered as a new secret object; escape {{ in secret values to avoid Helm interpretation.
+  envRenderSecret: {}
+
+  # -- List of secrets to include. Must include name and can be marked as optional.
+  envFromSecrets: []
+  # - name: keep-secret-name
+  #   prefix: prefix
+  #   optional: true
+
+  # -- Configmaps to include. Must include name and can be marked as optional.
+  # each entry should contain a name key, and can optionally specify whether the configmap must be defined with an optional key.
+  envFromConfigMaps: []
+  # - name: keep-env-configmap-name
+  #   prefix: prefix
+  #   optional: true
   replicaCount: 1
   image:
     repository: us-central1-docker.pkg.dev/keephq/keep/keep-ui
@@ -286,6 +261,7 @@ frontend:
     targetCPUUtilizationPercentage: 80
     targetMemoryUtilizationPercentage: 80
   nodeSelector: {}
+  topologySpreadConstraints: []
   tolerations: []
   affinity: {}
   healthCheck:
@@ -339,6 +315,7 @@ websocket:
     targetCPUUtilizationPercentage: 80
     targetMemoryUtilizationPercentage: 80
   nodeSelector: {}
+  topologySpreadConstraints: []
   tolerations: []
   affinity: {}
   healthCheck:
@@ -427,3 +404,10 @@ database:
     probes: {}
   extraVolumeMounts: []
   extraVolumes: []
+
+# Add this new section before or after database section
+deleteSecretJob:
+  image:
+    repository: bitnami/kubectl
+    tag: latest
+    pullPolicy: Always
