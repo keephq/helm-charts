@@ -134,13 +134,14 @@ backend:
       path: "/docs"
       port: 8080
       type: HTTP
-  resources:
-    limits:
-      cpu: 3000m
-      memory: 2Gi
-    requests:
-      cpu: 1500m
-      memory: 512Mi
+  resources: {}
+  # resources:
+  #   limits:
+  #     cpu: 3000m
+  #     memory: 2Gi
+  #   requests:
+  #     cpu: 1500m
+  #     memory: 512Mi
   autoscaling:
     enabled: false
     minReplicas: 1
@@ -256,6 +257,13 @@ frontend:
       port: 3000
       type: HTTP
   resources: {}
+  # resources:
+  #   limits:
+  #     cpu: 3000m
+  #     memory: 2Gi
+  #   requests:
+  #     cpu: 1500m
+  #     memory: 512Mi
   autoscaling:
     enabled: false
     minReplicas: 1
@@ -395,13 +403,14 @@ database:
   securityContext: {}
   service:
     type: ClusterIP
-  resources:
-    requests:
-      cpu: "2"
-      memory: "4Gi"
-    limits:
-      cpu: "4"
-      memory: "8Gi"
+  resources: {}
+  # resources:
+  #   requests:
+  #     cpu: "2"
+  #     memory: "4Gi"
+  #   limits:
+  #     cpu: "4"
+  #     memory: "8Gi"
   autoscaling:
     enabled: false
   nodeSelector: {}
