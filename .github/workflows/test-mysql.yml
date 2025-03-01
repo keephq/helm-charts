@@ -141,6 +141,18 @@ jobs:
                 - name: MYSQL_ROOT_PASSWORD
                   value: mysecretpassword
               port: 3306
+              # Add MySQL readiness probe to ensure database is truly ready
+              readinessProbe:
+                exec:
+                  command:
+                    - bash
+                    - -c
+                    - "mysqladmin ping -h 127.0.0.1 -u root -p\${MYSQL_ROOT_PASSWORD}"
+                initialDelaySeconds: 30
+                periodSeconds: 10
+                timeoutSeconds: 5
+                successThreshold: 1
+                failureThreshold: 3
               config:
                 maxConnections: 100
                 innodbBufferPoolSize: 128M
@@ -168,24 +180,48 @@ jobs:
           kubectl wait --namespace default \
             --for=condition=ready pod \
             --selector=app.kubernetes.io/instance=keep,keep-component=database \
-            --timeout=120s
+            --timeout=180s
           
-          # Give MySQL a bit more time to fully initialize
-          echo "Giving MySQL additional time to initialize..."
-          sleep 30
-          
-          # Check if MySQL process is running in the pod
+          # Get pod name
           DB_POD=$(kubectl get pod -l keep-component=database -o jsonpath="{.items[0].metadata.name}")
-          echo "Checking MySQL process status..."
-          kubectl exec $DB_POD -- mysqladmin ping -h localhost -u root -pmysecretpassword
+          
+          # Test TCP connectivity first (more reliable than socket)
+          echo "Waiting for MySQL to accept TCP connections..."
+          COUNTER=0
+          MAX_TRIES=30
+          while [ $COUNTER -lt $MAX_TRIES ]; do
+            if kubectl exec $DB_POD -- mysqladmin ping -h 127.0.0.1 -u root -pmysecretpassword; then
+              echo "✅ MySQL is accepting connections!"
+              break
+            fi
+            echo "⏳ Waiting for MySQL to initialize (attempt $((COUNTER+1))/$MAX_TRIES)..."
+            sleep 10
+            COUNTER=$((COUNTER+1))
+          done
+          
+          if [ $COUNTER -eq $MAX_TRIES ]; then
+            echo "❌ MySQL failed to initialize properly after all attempts"
+            kubectl describe pod $DB_POD
+            kubectl logs $DB_POD
+            exit 1
+          fi
+          
+          # Verify MySQL is fully functional with a simple query
+          echo "Testing MySQL functionality..."
+          kubectl exec $DB_POD -- mysql -h 127.0.0.1 -u root -pmysecretpassword -e "SELECT 1;"
+          if [ $? -ne 0 ]; then
+            echo "❌ MySQL query test failed"
+            exit 1
+          fi
+          echo "✅ MySQL is fully initialized and functional"
 
       - name: Test database connection
         run: |
           DB_POD=$(kubectl get pod -l keep-component=database -o jsonpath="{.items[0].metadata.name}")
           echo "Testing MySQL connection..."
-          kubectl exec $DB_POD -- bash -c "mysql -u root -pmysecretpassword keep -e 'SHOW TABLES;'"
+          kubectl exec $DB_POD -- bash -c "mysql -h 127.0.0.1 -u root -pmysecretpassword keep -e 'SHOW TABLES;'"
           echo "Testing database version..."
-          kubectl exec $DB_POD -- bash -c "mysql -u root -pmysecretpassword -e 'SELECT VERSION();'"
+          kubectl exec $DB_POD -- bash -c "mysql -h 127.0.0.1 -u root -pmysecretpassword -e 'SELECT VERSION();'"
 
       - name: Wait for all pods
         run: |
