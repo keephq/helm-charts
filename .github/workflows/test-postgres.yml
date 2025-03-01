@@ -51,22 +51,39 @@ jobs:
                   protocol: TCP
           EOF
   
+      - name: Debug kind config
+        if: ${{ inputs.debug_enabled }}
+        run: cat kind-config.yaml
+
       - name: Create kind cluster
         uses: helm/kind-action@v1.9.0
         with:
           wait: 600s
           config: kind-config.yaml
 
-      - name: Install NGINX Ingress Controller
+      - name: Install Nginx Ingress Controller
         run: |
-          kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+          helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+          helm repo update
+          helm install nginx-ingress ingress-nginx/ingress-nginx \
+            --set controller.service.type=NodePort \
+            --set controller.watchIngressWithoutClass=true \
+            --set controller.allowSnippetAnnotations=true \
+            --set controller.config.allow-snippets=true \
+            --set controller.config.enable-snippets=true \
+            --set controller.config.annotations-risk-level=Critical \
+            --set controller.hostPort.enabled=true \
+            --set controller.service.ports.http=80 \
+            --set controller.service.ports.https=443 \
+            --set controller.nodeSelector."kubernetes\.io/os"=linux \
+            --set controller.admissionWebhooks.enabled=false
 
-      - name: Wait for NGINX Ingress
+      - name: Wait for Nginx Ingress
         run: |
-          echo "Waiting for NGINX Ingress pods..."
-          kubectl wait --namespace ingress-nginx \
+          echo "Waiting for Nginx Ingress pods..."
+          kubectl wait --namespace default \
             --for=condition=ready pod \
-            --selector=app.kubernetes.io/component=controller \
+            --selector=app.kubernetes.io/instance=nginx-ingress \
             --timeout=90s
 
       - name: Create test values for PostgreSQL
@@ -77,6 +94,7 @@ jobs:
             ingress:
               enabled: true
               className: nginx
+              classType: nginx
               websocketPrefix: /websocket
               backendPrefix: /v2
               frontendPrefix: /
@@ -263,6 +281,9 @@ jobs:
       - name: Debug - Show logs on failure
         if: ${{ failure() && inputs.debug_enabled }}
         run: |
+          echo "📜 Nginx Ingress Controller logs:"
+          kubectl logs -l app.kubernetes.io/instance=nginx-ingress --tail=100
+          
           echo "📜 Database logs:"
           kubectl logs -l keep-component=database --tail=100
           
@@ -273,4 +294,4 @@ jobs:
           for pod in $(kubectl get pods -n default -l app.kubernetes.io/instance=keep -o name); do
             echo "Logs for $pod:"
             kubectl logs $pod --tail=100
-          done 
+          done
