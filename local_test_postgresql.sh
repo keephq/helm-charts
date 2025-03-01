@@ -14,6 +14,9 @@ frontend:
   enabled: true
 backend:
   enabled: true
+  waitForDatabase:
+    enabled: true
+    port: 5432
 env:
   - name: DATABASE_CONNECTION_STRING
     value: "postgresql+psycopg2://postgres:mysecretpassword@keep-database:5432/keep"

@@ -51,7 +51,8 @@ backend:
   # if you use external database, you can set this to false
   waitForDatabase:
     enabled: true
-    port: 5432
+    port: 3306
+    # port: 5432
   # if true, the database connection string will be read from a secret
   # if it is false, the DATABASE_CONNECTION_STRING value can be set directly
   databaseConnectionStringFromSecret:
