@@ -177,7 +177,7 @@ jobs:
           # Check if MySQL process is running in the pod
           DB_POD=$(kubectl get pod -l keep-component=database -o jsonpath="{.items[0].metadata.name}")
           echo "Checking MySQL process status..."
-          kubectl exec $DB_POD -- ps aux | grep mysql
+          kubectl exec $DB_POD -- mysqladmin ping -h localhost -u root -pmysecretpassword
 
       - name: Test database connection
         run: |
