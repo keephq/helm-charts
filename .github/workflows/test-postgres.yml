@@ -171,6 +171,8 @@ jobs:
 
       - name: Test database connection
         run: |
+          # Give database a bit more time to fully initialize
+          sleep 5
           DB_POD=$(kubectl get pod -l keep-component=database -o jsonpath="{.items[0].metadata.name}")
           echo "Testing PostgreSQL connection..."
           kubectl exec $DB_POD -- psql -U postgres -d keep -c "\dt"
