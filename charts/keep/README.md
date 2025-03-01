@@ -1,6 +1,6 @@
 # keep
 
-![Version: 0.1.61](https://img.shields.io/badge/Version-0.1.61-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.34.5](https://img.shields.io/badge/AppVersion-0.34.5-informational?style=flat-square)
+![Version: 0.1.66](https://img.shields.io/badge/Version-0.1.66-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.37.10](https://img.shields.io/badge/AppVersion-0.37.10-informational?style=flat-square)
 
 Keep Helm Chart
 
@@ -130,7 +130,13 @@ Keep Helm Chart
 | database.securityContext | object | `{}` |  |
 | database.service.port | int | `3306` |  |
 | database.service.type | string | `"ClusterIP"` |  |
+| database.strategy.rollingUpdate.maxSurge | int | `0` |  |
+| database.strategy.rollingUpdate.maxUnavailable | int | `1` |  |
+| database.strategy.type | string | `"RollingUpdate"` |  |
 | database.tolerations | list | `[]` |  |
+| deleteSecretJob.image.pullPolicy | string | `"Always"` |  |
+| deleteSecretJob.image.repository | string | `"bitnami/kubectl"` |  |
+| deleteSecretJob.image.tag | string | `"latest"` |  |
 | frontend.affinity | object | `{}` |  |
 | frontend.autoscaling.enabled | bool | `false` |  |
 | frontend.autoscaling.maxReplicas | int | `3` |  |
