@@ -164,7 +164,7 @@ backend:
           port: 8080
   extraVolumeMounts: []
   extraVolumes: []
-  command: 
+  command:
     - "gunicorn"
   args:
     - "keep.api.api:get_app"
@@ -172,7 +172,7 @@ backend:
     - "0.0.0.0:8080"
     - "--workers"
     - "4"
-    - "-k" 
+    - "-k"
     - "uvicorn.workers.UvicornWorker"
     - "-c"
     - "/venv/lib/python3.11/site-packages/keep/api/config.py"
