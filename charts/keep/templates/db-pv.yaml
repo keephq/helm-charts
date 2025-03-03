@@ -14,5 +14,9 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: {{ .Values.database.pv.storageClass }}
   hostPath:
+    {{- if eq .Values.database.type "mysql" }}
     path: "/var/lib/mysql"
+    {{- else }}
+    path: "/var/lib/postgresql/data"
+    {{- end }}
 {{- end }}

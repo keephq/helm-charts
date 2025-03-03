@@ -52,6 +52,7 @@ backend:
   waitForDatabase:
     enabled: true
     port: 3306
+    # port: 5432
   # if true, the database connection string will be read from a secret
   # if it is false, the DATABASE_CONNECTION_STRING value can be set directly
   databaseConnectionStringFromSecret:
@@ -61,6 +62,7 @@ backend:
   env:
     - name: DATABASE_CONNECTION_STRING
       value: mysql+pymysql://root@keep-database:3306/keep
+      # value: postgresql+psycopg2://postgres:mysecretpassword@keep-database:5432/keep
     - name: DATABASE_NAME
       value: keep-database
     - name: SECRET_MANAGER_TYPE
@@ -133,6 +135,13 @@ backend:
       port: 8080
       type: HTTP
   resources: {}
+  # resources:
+  #   limits:
+  #     cpu: 3000m
+  #     memory: 2Gi
+  #   requests:
+  #     cpu: 1500m
+  #     memory: 512Mi
   autoscaling:
     enabled: false
     minReplicas: 1
@@ -156,6 +165,29 @@ backend:
           port: 8080
   extraVolumeMounts: []
   extraVolumes: []
+  # override the default command
+  # command:
+  #   - "gunicorn"
+  # override the default args
+  # args:
+  #   - "keep.api.api:get_app"
+  #   - "--bind"
+  #   - "0.0.0.0:8080"
+  #   - "--workers"
+  #   - "4"
+  #   - "-k"
+  #   - "uvicorn.workers.UvicornWorker"
+  #   - "-c"
+  #   - "/venv/lib/python3.11/site-packages/keep/api/config.py"
+  #   - "--preload"
+  #   - "--access-logfile"
+  #   - "/tmp/accesslog"
+  #   - "--error-logfile"
+  #   - "/tmp/errorlog"
+  #   - "--log-level"
+  #   - "debug"
+  #   - "--access-logformat"
+  #   - "%(t)s %(h)s \"%(r)s\" %(s)s %(b)s \"%(f)s\" \"%(a)s\" %(L)s"
 
 frontend:
   enabled: true
@@ -225,6 +257,13 @@ frontend:
       port: 3000
       type: HTTP
   resources: {}
+  # resources:
+  #   limits:
+  #     cpu: 3000m
+  #     memory: 2Gi
+  #   requests:
+  #     cpu: 1500m
+  #     memory: 512Mi
   autoscaling:
     enabled: false
     minReplicas: 1
@@ -309,6 +348,8 @@ websocket:
 
 database:
   enabled: true
+  # type: postgres  # can be 'mysql' or 'postgres'
+  type: mysql
   replicaCount: 1
   strategy:
     type: RollingUpdate
@@ -333,24 +374,51 @@ database:
     storageClass: ""
     retain: false
   image:
-    repository: mysql
+    # This will be overridden by type-specific settings
+    repository: ""
     pullPolicy: IfNotPresent
     tag: "latest"
-  env:
-    - name: MYSQL_ALLOW_EMPTY_PASSWORD
-      value: true
-    - name: MYSQL_DATABASE
-      value: keep
-    - name: MYSQL_PASSWORD
-      value: null
+  mysql:
+    image:
+      repository: mysql
+      tag: "latest"
+    env:
+      - name: MYSQL_ALLOW_EMPTY_PASSWORD
+        value: true
+      - name: MYSQL_DATABASE
+        value: keep
+      - name: MYSQL_PASSWORD
+        value: null
+    port: 3306
+    dataDir: /var/lib/mysql
+  postgres:
+    image:
+      repository: postgres
+      tag: "latest"
+    env:
+      - name: POSTGRES_DB
+        value: keep
+      - name: POSTGRES_PASSWORD
+        value: mysecretpassword
+    port: 5432
+    dataDir: /var/lib/postgresql/data
+    config:
+      maxConnections: 1000
+      sharedBuffers: 256MB
   imagePullSecrets: []
   podAnnotations: {}
   podSecurityContext: {}
   securityContext: {}
   service:
     type: ClusterIP
-    port: 3306
   resources: {}
+  # resources:
+  #   requests:
+  #     cpu: "2"
+  #     memory: "4Gi"
+  #   limits:
+  #     cpu: "4"
+  #     memory: "8Gi"
   autoscaling:
     enabled: false
   nodeSelector: {}
@@ -358,15 +426,7 @@ database:
   affinity: {}
   healthCheck:
     enabled: false
-    probes:
-      readinessProbe:
-        tcpSocket:
-          port: 3306
-        initialDelaySeconds: 30
-        periodSeconds: 10
-      livenessProbe:
-        tcpSocket:
-          port: 3306
+    probes: {}
   extraVolumeMounts: []
   extraVolumes: []
 
