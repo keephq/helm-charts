@@ -356,6 +356,14 @@ database:
     rollingUpdate:
       maxSurge: 0
       maxUnavailable: 1
+  # MySQL custom configuration settings
+  config: {}
+    # Add more MySQL configuration parameters as needed
+  # Configuration for alert cleanup
+  cleanup:
+    enabled: false
+    schedule: "0 1 * * *"
+    days: 90
   pv:
     enabled: true
     size: 5Gi

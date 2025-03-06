@@ -1,6 +1,6 @@
 # keep
 
-![Version: 0.1.66](https://img.shields.io/badge/Version-0.1.66-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.37.10](https://img.shields.io/badge/AppVersion-0.37.10-informational?style=flat-square)
+![Version: 0.1.68](https://img.shields.io/badge/Version-0.1.68-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.38.0](https://img.shields.io/badge/AppVersion-0.38.0-informational?style=flat-square)
 
 Keep Helm Chart
 
@@ -97,27 +97,42 @@ Keep Helm Chart
 | backend.waitForDatabase.port | int | `3306` |  |
 | database.affinity | object | `{}` |  |
 | database.autoscaling.enabled | bool | `false` |  |
+| database.cleanup.days | int | `90` |  |
+| database.cleanup.enabled | bool | `false` |  |
+| database.cleanup.schedule | string | `"0 1 * * *"` |  |
+| database.config | object | `{}` |  |
 | database.enabled | bool | `true` |  |
-| database.env[0].name | string | `"MYSQL_ALLOW_EMPTY_PASSWORD"` |  |
-| database.env[0].value | bool | `true` |  |
-| database.env[1].name | string | `"MYSQL_DATABASE"` |  |
-| database.env[1].value | string | `"keep"` |  |
-| database.env[2].name | string | `"MYSQL_PASSWORD"` |  |
-| database.env[2].value | string | `nil` |  |
 | database.extraVolumeMounts | list | `[]` |  |
 | database.extraVolumes | list | `[]` |  |
 | database.healthCheck.enabled | bool | `false` |  |
-| database.healthCheck.probes.livenessProbe.tcpSocket.port | int | `3306` |  |
-| database.healthCheck.probes.readinessProbe.initialDelaySeconds | int | `30` |  |
-| database.healthCheck.probes.readinessProbe.periodSeconds | int | `10` |  |
-| database.healthCheck.probes.readinessProbe.tcpSocket.port | int | `3306` |  |
+| database.healthCheck.probes | object | `{}` |  |
 | database.image.pullPolicy | string | `"IfNotPresent"` |  |
-| database.image.repository | string | `"mysql"` |  |
+| database.image.repository | string | `""` |  |
 | database.image.tag | string | `"latest"` |  |
 | database.imagePullSecrets | list | `[]` |  |
+| database.mysql.dataDir | string | `"/var/lib/mysql"` |  |
+| database.mysql.env[0].name | string | `"MYSQL_ALLOW_EMPTY_PASSWORD"` |  |
+| database.mysql.env[0].value | bool | `true` |  |
+| database.mysql.env[1].name | string | `"MYSQL_DATABASE"` |  |
+| database.mysql.env[1].value | string | `"keep"` |  |
+| database.mysql.env[2].name | string | `"MYSQL_PASSWORD"` |  |
+| database.mysql.env[2].value | string | `nil` |  |
+| database.mysql.image.repository | string | `"mysql"` |  |
+| database.mysql.image.tag | string | `"latest"` |  |
+| database.mysql.port | int | `3306` |  |
 | database.nodeSelector | object | `{}` |  |
 | database.podAnnotations | object | `{}` |  |
 | database.podSecurityContext | object | `{}` |  |
+| database.postgres.config.maxConnections | int | `1000` |  |
+| database.postgres.config.sharedBuffers | string | `"256MB"` |  |
+| database.postgres.dataDir | string | `"/var/lib/postgresql/data"` |  |
+| database.postgres.env[0].name | string | `"POSTGRES_DB"` |  |
+| database.postgres.env[0].value | string | `"keep"` |  |
+| database.postgres.env[1].name | string | `"POSTGRES_PASSWORD"` |  |
+| database.postgres.env[1].value | string | `"mysecretpassword"` |  |
+| database.postgres.image.repository | string | `"postgres"` |  |
+| database.postgres.image.tag | string | `"latest"` |  |
+| database.postgres.port | int | `5432` |  |
 | database.pv.enabled | bool | `true` |  |
 | database.pv.size | string | `"5Gi"` |  |
 | database.pv.storageClass | string | `""` |  |
@@ -128,12 +143,12 @@ Keep Helm Chart
 | database.replicaCount | int | `1` |  |
 | database.resources | object | `{}` |  |
 | database.securityContext | object | `{}` |  |
-| database.service.port | int | `3306` |  |
 | database.service.type | string | `"ClusterIP"` |  |
 | database.strategy.rollingUpdate.maxSurge | int | `0` |  |
 | database.strategy.rollingUpdate.maxUnavailable | int | `1` |  |
 | database.strategy.type | string | `"RollingUpdate"` |  |
 | database.tolerations | list | `[]` |  |
+| database.type | string | `"mysql"` |  |
 | deleteSecretJob.image.pullPolicy | string | `"Always"` |  |
 | deleteSecretJob.image.repository | string | `"bitnami/kubectl"` |  |
 | deleteSecretJob.image.tag | string | `"latest"` |  |

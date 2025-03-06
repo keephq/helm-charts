@@ -1,0 +1,15 @@
+{{- if and .Values.database.enabled .Values.database.config -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "keep.fullname" . }}-mysql-config
+  labels:
+    {{- include "keep.labels" . | nindent 4 }}
+    app.kubernetes.io/component: database
+data:
+  custom.cnf: |
+    [mysqld]
+    {{- range $key, $value := .Values.database.config }}
+    {{ $key }}={{ $value }}
+    {{- end }}
+{{- end }}
