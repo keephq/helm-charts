@@ -22,7 +22,7 @@ spec:
           serviceAccountName: {{ include "keep.serviceAccountName" . }}
           containers:
           - name: mysql-cleanup
-            image: {{ .Values.database.image.repository }}:{{ .Values.database.image.tag | default "latest" }}
+            image: {{ .Values.database.mysql.image.repository }}:{{ .Values.database.mysql.image.tag }}
             imagePullPolicy: {{ .Values.database.image.pullPolicy }}
             command:
               - /bin/bash
