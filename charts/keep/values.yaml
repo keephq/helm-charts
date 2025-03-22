@@ -94,7 +94,7 @@ backend:
       #       with:
       #         message: |
       #           **{{ alert.name }}**
-                
+      #
       #           {{ alert.description }}
       #         chat_id: "-100"
       #         parse_mode: "markdown"
