@@ -6,6 +6,7 @@ metadata:
   name: {{ include "keep.fullname" . }}-providers
   labels:
     {{- include "keep.labels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
 stringData:
   KEEP_PROVIDERS: |
     {{- toJson .Values.backend.provision.providers | nindent 4 }}
@@ -20,6 +21,7 @@ metadata:
   name: {{ include "keep.fullname" . }}-workflows
   labels:
     {{- include "keep.labels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
 data:
   {{- range .Values.backend.provision.workflows }}
   {{ .id }}.yaml: |
