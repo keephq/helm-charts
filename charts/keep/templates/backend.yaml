@@ -19,7 +19,7 @@ spec:
     metadata:
       {{- if .Values.backend.podAnnotations }}
       annotations:
-        # Force reload on config changes
+        # Force reload on provision changes
         checksum/provision-providers: {{ .Values.backend.provision.providers | toYaml | sha256sum }}
         checksum/provision-workflows: {{ .Values.backend.provision.workflows | toYaml | sha256sum }}
         {{- range $key, $value := .Values.backend.podAnnotations }}
