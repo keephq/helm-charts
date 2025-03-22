@@ -1,0 +1,31 @@
+{{- if .Values.backend.provision.providers }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "keep.fullname" . }}-providers
+  labels:
+    {{- include "keep.labels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+stringData:
+  KEEP_PROVIDERS: |
+    {{- toJson .Values.backend.provision.providers | nindent 4 }}
+type: Opaque
+{{- end }}
+
+{{- if .Values.backend.provision.workflows }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "keep.fullname" . }}-workflows
+  labels:
+    {{- include "keep.labels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+data:
+  {{- range .Values.backend.provision.workflows }}
+  {{ .id }}.yaml: |
+    workflow:
+      {{- toYaml . | nindent 6 }}
+  {{- end }}
+{{- end }}

@@ -59,6 +59,45 @@ backend:
     enabled: false
     secretName: ""
     secretKey: ""
+  provision:
+    providers: {}
+      # keepVictoriaMetrics:
+      #   type: victoriametrics
+      #   authentication:
+      #     VMAlertHost: http://localhost
+      #     VMAlertPort: 1234
+      #     deduplication_rules:
+      #       deduplication_rule_name_example_1:
+      #         description: deduplication rule name example 1
+      #         fingerprint_fields:
+      #           - fingerprint
+      #           - source
+      #           - service
+      #         full_deduplication: true
+      #         ignore_fields:
+      #           - name
+      #           - lastReceived
+    workflows: []
+      # - id: telegram-example
+      #   name: Telegram Example
+      #   description: Sends notifications to Telegram
+      #   triggers:
+      #     - type: alert
+      #       filters:
+      #         - key: source
+      #           value: keep
+      #   actions:
+      #     - name: telegram-action
+      #       provider:
+      #         type: telegram
+      #         config: "{{ providers.telegram }}"
+      #       with:
+      #         message: |
+      #           **{{ alert.name }}**
+      #
+      #           {{ alert.description }}
+      #         chat_id: "-100"
+      #         parse_mode: "markdown"
   env:
     - name: DATABASE_CONNECTION_STRING
       value: mysql+pymysql://root@keep-database:3306/keep
