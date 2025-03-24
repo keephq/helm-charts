@@ -25,7 +25,6 @@ metadata:
 data:
   {{- range .Values.backend.provision.workflows }}
   {{ .id }}.yaml: |
-    workflow:
-      {{- toYaml . | nindent 6 }}
+    {{- toYaml . | nindent 4 }}
   {{- end }}
 {{- end }}
