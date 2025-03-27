@@ -100,7 +100,7 @@ spec:
                   name: {{ .Values.backend.databaseConnectionStringFromSecret.secretName }}
                   key: {{ .Values.backend.databaseConnectionStringFromSecret.secretKey }}
             {{- end }}
-          {{- if or .Values.backend.envFromSecret (or .Values.backend.envRenderSecret .Values.backend.envFromSecrets) .Values.backend.envFromConfigMaps }}
+          {{- if or .Values.backend.provision.providers .Values.backend.envFromSecret (or .Values.backend.envRenderSecret .Values.backend.envFromSecrets) .Values.backend.envFromConfigMaps }}
           envFrom:
             {{- if .Values.backend.provision.providers }}
             - secretRef:
