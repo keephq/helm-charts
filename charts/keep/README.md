@@ -66,11 +66,19 @@ Keep Helm Chart
 | backend.extraInitContainers | list | `[]` |  |
 | backend.extraVolumeMounts | list | `[]` |  |
 | backend.extraVolumes | list | `[]` |  |
-| backend.healthCheck.enabled | bool | `false` |  |
-| backend.healthCheck.probes.livenessProbe.tcpSocket.port | int | `8080` |  |
-| backend.healthCheck.probes.readinessProbe.initialDelaySeconds | int | `30` |  |
-| backend.healthCheck.probes.readinessProbe.periodSeconds | int | `10` |  |
-| backend.healthCheck.probes.readinessProbe.tcpSocket.port | int | `8080` |  |
+| backend.healthCheck.enabled | bool | `true` |  |
+| backend.healthCheck.probes.livenessProbe.httpGet.path | string | `/healthcheck	` |  |
+| backend.healthCheck.probes.livenessProbe.httpGet.port | int | `8080` |  |
+| backend.healthCheck.probes.livenessProbe.initialDelaySeconds | int | `60` |  |
+| backend.healthCheck.probes.livenessProbe.periodSeconds | int | `10` |  |
+| backend.healthCheck.probes.livenessProbe.failureThreshold | int | `5` |  |
+| backend.healthCheck.probes.livenessProbe.successThreshold | int | `1` |  |
+| backend.healthCheck.probes.readinessProbe.httpGet.path | string | `/healthcheck	` |  |
+| backend.healthCheck.probes.readinessProbe.httpGet.port | int | `8080` |  |
+| backend.healthCheck.probes.readinessProbe.initialDelaySeconds | int | `10` |  |
+| backend.healthCheck.probes.readinessProbe.periodSeconds | int | `5` |  |
+| backend.healthCheck.probes.readinessProbe.failureThreshold | int | `3` |  |
+| backend.healthCheck.probes.readinessProbe.successThreshold | int | `1` |  |
 | backend.image.pullPolicy | string | `"Always"` |  |
 | backend.image.repository | string | `"us-central1-docker.pkg.dev/keephq/keep/keep-api"` |  |
 | backend.imagePullSecrets | list | `[]` |  |
