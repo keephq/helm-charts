@@ -194,16 +194,24 @@ backend:
   tolerations: []
   affinity: {}
   healthCheck:
-    enabled: false
+    enabled: true
     probes:
       readinessProbe:
-        tcpSocket:
+        httpGet:
+          path: /healthcheck
           port: 8080
-        initialDelaySeconds: 30
-        periodSeconds: 10
+        initialDelaySeconds: 10
+        periodSeconds: 5
+        failureThreshold: 3
+        successThreshold: 1
       livenessProbe:
-        tcpSocket:
+        httpGet:
+          path: /healthcheck
           port: 8080
+        initialDelaySeconds: 60
+        periodSeconds: 10
+        failureThreshold: 5
+        successThreshold: 1
   extraVolumeMounts: []
   extraVolumes: []
   # override the default command
