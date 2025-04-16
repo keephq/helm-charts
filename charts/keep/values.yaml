@@ -60,7 +60,8 @@ backend:
     secretName: ""
     secretKey: ""
   provision:
-    providers: {}
+    providers:
+      {}
       # keepVictoriaMetrics:
       #   type: victoriametrics
       #   authentication:
@@ -77,7 +78,8 @@ backend:
       #         ignore_fields:
       #           - name
       #           - lastReceived
-    workflows: []
+    workflows:
+      []
       # - id: telegram-example
       #   name: Telegram Example
       #   description: Sends notifications to Telegram
@@ -253,6 +255,8 @@ frontend:
       value: 0.0.0.0
     - name: PUSHER_APP_KEY
       value: "keepappkey"
+    - name: FRIGADE_DISABLED
+      value: "true"
   # -- Name of the secret to include
   envFromSecret: ""
 
@@ -404,7 +408,8 @@ database:
       maxSurge: 0
       maxUnavailable: 1
   # MySQL custom configuration settings
-  config: {}
+  config:
+    {}
     # Add more MySQL configuration parameters as needed
   # Configuration for alert cleanup
   cleanup:
