@@ -1,6 +1,6 @@
 # keep
 
-![Version: 0.1.69](https://img.shields.io/badge/Version-0.1.69-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.38.7](https://img.shields.io/badge/AppVersion-0.38.7-informational?style=flat-square)
+![Version: 0.1.84](https://img.shields.io/badge/Version-0.1.84-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.42.0](https://img.shields.io/badge/AppVersion-0.42.0-informational?style=flat-square)
 
 Keep Helm Chart
 
@@ -67,17 +67,17 @@ Keep Helm Chart
 | backend.extraVolumeMounts | list | `[]` |  |
 | backend.extraVolumes | list | `[]` |  |
 | backend.healthCheck.enabled | bool | `true` |  |
-| backend.healthCheck.probes.livenessProbe.httpGet.path | string | `/healthcheck	` |  |
+| backend.healthCheck.probes.livenessProbe.failureThreshold | int | `5` |  |
+| backend.healthCheck.probes.livenessProbe.httpGet.path | string | `"/healthcheck"` |  |
 | backend.healthCheck.probes.livenessProbe.httpGet.port | int | `8080` |  |
 | backend.healthCheck.probes.livenessProbe.initialDelaySeconds | int | `60` |  |
 | backend.healthCheck.probes.livenessProbe.periodSeconds | int | `10` |  |
-| backend.healthCheck.probes.livenessProbe.failureThreshold | int | `5` |  |
 | backend.healthCheck.probes.livenessProbe.successThreshold | int | `1` |  |
-| backend.healthCheck.probes.readinessProbe.httpGet.path | string | `/healthcheck	` |  |
+| backend.healthCheck.probes.readinessProbe.failureThreshold | int | `3` |  |
+| backend.healthCheck.probes.readinessProbe.httpGet.path | string | `"/healthcheck"` |  |
 | backend.healthCheck.probes.readinessProbe.httpGet.port | int | `8080` |  |
 | backend.healthCheck.probes.readinessProbe.initialDelaySeconds | int | `10` |  |
 | backend.healthCheck.probes.readinessProbe.periodSeconds | int | `5` |  |
-| backend.healthCheck.probes.readinessProbe.failureThreshold | int | `3` |  |
 | backend.healthCheck.probes.readinessProbe.successThreshold | int | `1` |  |
 | backend.image.pullPolicy | string | `"Always"` |  |
 | backend.image.repository | string | `"us-central1-docker.pkg.dev/keephq/keep/keep-api"` |  |
@@ -89,6 +89,8 @@ Keep Helm Chart
 | backend.podAnnotations."prometheus.io/port" | string | `"8080"` |  |
 | backend.podAnnotations."prometheus.io/scrape" | string | `"true"` |  |
 | backend.podSecurityContext | object | `{}` |  |
+| backend.provision.providers | object | `{}` |  |
+| backend.provision.workflows | list | `[]` |  |
 | backend.replicaCount | int | `1` |  |
 | backend.resources | object | `{}` |  |
 | backend.route.enabled | bool | `false` |  |
@@ -190,6 +192,8 @@ Keep Helm Chart
 | frontend.env[4].value | string | `"0.0.0.0"` |  |
 | frontend.env[5].name | string | `"PUSHER_APP_KEY"` |  |
 | frontend.env[5].value | string | `"keepappkey"` |  |
+| frontend.env[6].name | string | `"FRIGADE_DISABLED"` |  |
+| frontend.env[6].value | string | `"true"` |  |
 | frontend.healthCheck.enabled | bool | `false` |  |
 | frontend.healthCheck.probes.livenessProbe.httpGet.path | string | `"/"` |  |
 | frontend.healthCheck.probes.livenessProbe.httpGet.port | string | `"http"` |  |
