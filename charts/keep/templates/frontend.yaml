@@ -44,6 +44,10 @@ spec:
               containerPort: {{ .Values.frontend.service.port }}
               protocol: TCP
           env:
+            {{- if .Values.openAiApi.enabled }}
+            - name: OPENAI_API_KEY
+              value: {{ .Values.openAiApi.openAiApiKey | default "" | quote }}
+            {{- end }}
             - name: PUSHER_HOST
               value: {{ include "keep.pusherHost" . | quote }}
             - name: API_URL_CLIENT

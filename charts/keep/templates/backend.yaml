@@ -85,9 +85,9 @@ spec:
               value: {{ tpl (.value | toString) $ | quote }}
               {{- end }}
             {{- end }}
-            {{- if .Values.backend.openAiApi.enabled }}
+            {{- if .Values.openAiApi.enabled }}
             - name: OPENAI_API_KEY
-              value: {{ .Values.backend.openAiApi.openAiApiKey | default "" | quote }}
+              value: {{ .Values.openAiApi.openAiApiKey | default "" | quote }}
             {{- end }}
             - name: K8S_NAMESPACE
               valueFrom:
