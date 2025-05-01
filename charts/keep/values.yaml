@@ -6,6 +6,9 @@ serviceAccount:
 nameOverride: ""
 fullnameOverride: ""
 isGKE: false
+openAiApi:
+  enabled: false
+  openAiApiKey: ""
 
 global:
   # this section controls the ingress resource at nginx-ingress.yaml
@@ -140,9 +143,6 @@ backend:
   # - name: keep-env-configmap-name
   #   prefix: prefix
   #   optional: true
-  openAiApi:
-    enabled: false
-    openAiApiKey: ""
   replicaCount: 1
   image:
     repository: us-central1-docker.pkg.dev/keephq/keep/keep-api
