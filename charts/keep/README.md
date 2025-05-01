@@ -83,8 +83,6 @@ Keep Helm Chart
 | backend.image.repository | string | `"us-central1-docker.pkg.dev/keephq/keep/keep-api"` |  |
 | backend.imagePullSecrets | list | `[]` |  |
 | backend.nodeSelector | object | `{}` |  |
-| backend.openAiApi.enabled | bool | `false` |  |
-| backend.openAiApi.openAiApiKey | string | `""` |  |
 | backend.podAnnotations."prometheus.io/path" | string | `"/metrics/processing"` |  |
 | backend.podAnnotations."prometheus.io/port" | string | `"8080"` |  |
 | backend.podAnnotations."prometheus.io/scrape" | string | `"true"` |  |
@@ -233,6 +231,8 @@ Keep Helm Chart
 | isGKE | bool | `false` |  |
 | nameOverride | string | `""` |  |
 | namespace | string | `"keep"` |  |
+| openAiApi.enabled | bool | `false` |  |
+| openAiApi.openAiApiKey | string | `""` |  |
 | serviceAccount.annotations | object | `{}` |  |
 | serviceAccount.create | bool | `true` |  |
 | serviceAccount.name | string | `""` |  |
