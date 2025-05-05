@@ -4,7 +4,7 @@ version: 0.1.86
 description: Keep Helm Chart
 type: application
 icon: https://platform.keephq.dev/_next/image?url=%2Fkeep.png&w=48&q=75
-appVersion: 0.42.5
+appVersion: 0.43.0
 deprecated: false
 annotations:
   app: keep
