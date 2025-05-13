@@ -59,10 +59,18 @@ spec:
               containerPort: {{ .Values.backend.service.port }}
               protocol: TCP
           env:
+            {{- $keepApiUrlExists := false -}}
+            {{- range .Values.backend.env -}}
+              {{- if eq .name "KEEP_API_URL" -}}
+                {{- $keepApiUrlExists = true -}}
+              {{- end -}}
+            {{- end -}}
+            {{- if not $keepApiUrlExists }}
             - name: KEEP_API_URL
               value: {{ include "keep.keepApiUrl" . | quote }}
+            {{- end }}
             {{- if .Values.backend.provision.workflows }}
-            - name: KEEP_WORKFLOWS_DIRECTORY  
+            - name: KEEP_WORKFLOWS_DIRECTORY
               value: /workflows
             {{- end }}
             {{- range .Values.backend.env }}
