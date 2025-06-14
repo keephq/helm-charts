@@ -54,6 +54,8 @@ spec:
               value: {{ include "keep.apiUrlClient" . | quote }}
             - name: API_URL
               value: {{ include "keep.apiUrl" . | quote }}
+            - name: NEXTAUTH_URL
+              value: {{ include "keep.nextAuthUrl" . | quote }}
             {{- range .Values.frontend.env }}
             {{- if and
                   (ne .name "PUSHER_HOST")
