@@ -9,6 +9,9 @@ isGKE: false
 openAiApi:
   enabled: false
   openAiApiKey: ""
+  openAiModelName: ""
+  openAiOrganizationId: ""
+  openAiBaseUrl: ""
 
 global:
   # this section controls the ingress resource at nginx-ingress.yaml
