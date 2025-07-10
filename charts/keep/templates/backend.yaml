@@ -96,6 +96,12 @@ spec:
             {{- if .Values.openAiApi.enabled }}
             - name: OPENAI_API_KEY
               value: {{ .Values.openAiApi.openAiApiKey | default "" | quote }}
+            - name: OPENAI_MODEL_NAME
+              value: {{ .Values.openAiApi.openAiModelName | default "" | quote }}
+            - name: OPEN_AI_ORGANIZATION_ID
+              value: {{ .Values.openAiApi.openAiOrganizationId | default "" | quote }}
+            - name: OPENAI_BASE_URL
+              value: {{ .Values.openAiApi.openAiBaseUrl | default "" | quote }}
             {{- end }}
             - name: K8S_NAMESPACE
               valueFrom:
