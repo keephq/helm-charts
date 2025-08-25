@@ -25,7 +25,9 @@ metadata:
       timeout tunnel 3600s
       option http-keep-alive
       http-reuse safe
-
+    {{- with .Values.global.ingress.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
   ingressClassName: haproxy
   {{- if .Values.global.ingress.tls }}
