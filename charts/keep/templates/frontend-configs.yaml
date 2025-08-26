@@ -1,0 +1,30 @@
+{{- if .Values.frontend.envRenderSecret }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "keep.fullname" . }}-frontend-env-secret
+  labels:
+    {{- include "keep.labels" . | nindent 4 }}
+    app.kubernetes.io/component: frontend
+type: Opaque
+stringData:
+  {{- range $key, $value := .Values.frontend.envRenderSecret }}
+  {{ $key }}: {{ (tpl $value .) | quote }}
+  {{- end }}
+{{- end }}
+
+{{- if .Values.frontend.envRender }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "keep.fullname" . }}-frontend-env
+  labels:
+    {{- include "keep.labels" . | nindent 4 }}
+    app.kubernetes.io/component: frontend
+data:
+  {{- range $key, $value := .Values.frontend.envRender }}
+  {{ $key }}: {{ (tpl $value .) | quote }}
+  {{- end }}
+{{- end }}

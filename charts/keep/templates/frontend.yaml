@@ -17,9 +17,17 @@ spec:
       keep-component: frontend
   template:
     metadata:
-      {{- with .Values.frontend.podAnnotations }}
+      {{- if or .Values.frontend.podAnnotations .Values.frontend.envRender .Values.frontend.envRenderSecret }}
       annotations:
+        {{- if .Values.frontend.envRender }}
+        checksum/frontend-env: {{ .Values.frontend.envRender | toYaml | sha256sum }}
+        {{- end }}
+        {{- if .Values.frontend.envRenderSecret }}
+        checksum/frontend-env-secret: {{ .Values.frontend.envRenderSecret | toYaml | sha256sum }}
+        {{- end }}
+        {{- with .Values.frontend.podAnnotations }}
         {{- toYaml . | nindent 8 }}
+        {{- end }}
       {{- end }}
       labels:
         {{- include "keep.labels" . | nindent 8 }}
@@ -66,7 +74,7 @@ spec:
               value: {{ .value | quote }}
             {{- end }}
             {{- end }}
-          {{- if or .Values.frontend.envFromSecret (or .Values.frontend.envRenderSecret .Values.frontend.envFromSecrets) .Values.frontend.envFromConfigMaps }}
+          {{- if or .Values.frontend.envFromSecret (or .Values.frontend.envRenderSecret .Values.frontend.envFromSecrets) .Values.frontend.envFromConfigMaps .Values.frontend.envRender }}
           envFrom:
             {{- if .Values.frontend.envFromSecret }}
             - secretRef:
@@ -74,6 +82,10 @@ spec:
             {{- end }}
             {{- if .Values.frontend.envRenderSecret }}
             - secretRef:
+                name: {{ include "keep.fullname" . }}-frontend-env-secret
+            {{- end }}
+            {{- if .Values.frontend.envRender }}
+            - configMapRef:
                 name: {{ include "keep.fullname" . }}-frontend-env
             {{- end }}
             {{- range .Values.frontend.envFromSecrets }}
