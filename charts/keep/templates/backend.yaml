@@ -22,6 +22,12 @@ spec:
         # Force reload on provision changes
         checksum/provision-providers: {{ .Values.backend.provision.providers | toYaml | sha256sum }}
         checksum/provision-workflows: {{ .Values.backend.provision.workflows | toYaml | sha256sum }}
+        {{- if .Values.backend.envRender }}
+        checksum/backend-env: {{ .Values.backend.envRender | toYaml | sha256sum }}
+        {{- end }}
+        {{- if .Values.backend.envRenderSecret }}
+        checksum/backend-env-secret: {{ .Values.backend.envRenderSecret | toYaml | sha256sum }}
+        {{- end }}
         {{- range $key, $value := .Values.backend.podAnnotations }}
         {{- if kindIs "string" $value }}
         {{ $key }}: {{ tpl $value $ | quote }}
@@ -108,7 +114,7 @@ spec:
                   name: {{ .Values.backend.databaseConnectionStringFromSecret.secretName }}
                   key: {{ .Values.backend.databaseConnectionStringFromSecret.secretKey }}
             {{- end }}
-          {{- if or .Values.backend.provision.providers .Values.backend.envFromSecret (or .Values.backend.envRenderSecret .Values.backend.envFromSecrets) .Values.backend.envFromConfigMaps }}
+          {{- if or .Values.backend.provision.providers .Values.backend.envFromSecret (or .Values.backend.envRenderSecret .Values.backend.envFromSecrets) .Values.backend.envFromConfigMaps .Values.backend.envRender }}
           envFrom:
             {{- if .Values.backend.provision.providers }}
             - secretRef:
@@ -120,6 +126,10 @@ spec:
             {{- end }}
             {{- if .Values.backend.envRenderSecret }}
             - secretRef:
+                name: {{ include "keep.fullname" . }}-backend-env-secret
+            {{- end }}
+            {{- if .Values.backend.envRender }}
+            - configMapRef:
                 name: {{ include "keep.fullname" . }}-backend-env
             {{- end }}
             {{- range .Values.backend.envFromSecrets }}
