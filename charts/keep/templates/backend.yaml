@@ -182,7 +182,7 @@ spec:
           volumeMounts: {{ toYaml . | nindent 12 }}
           {{- end }}
           {{- with .restartPolicy }}
-          restartPolicy: {{ toYaml . | nindent 12 }}
+          restartPolicy: {{ tpl (toYaml .) $ | nindent 12 }}
           {{- end }}
         {{- end }}
 
