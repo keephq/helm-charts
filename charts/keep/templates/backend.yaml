@@ -181,6 +181,9 @@ spec:
           {{- with .volumeMounts }}
           volumeMounts: {{ toYaml . | nindent 12 }}
           {{- end }}
+          {{- with .restartPolicy }}
+          restartPolicy: {{ . }}
+          {{- end }}
         {{- end }}
 
       {{- with .Values.backend.nodeSelector }}
