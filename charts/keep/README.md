@@ -8,7 +8,7 @@ Keep Helm Chart
 
 ## Maintainers
 
-| Name | Email | Url |
+| Name | Email | URL |
 | ---- | ------ | --- |
 | Shahar Glazner | <shahar@keephq.dev> | <https://github.com/shahargl> |
 | Tal Borenstein | <tal@keephq.dev> | <https://github.com/talboren> |
