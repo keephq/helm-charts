@@ -3,6 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "keep.fullname" . }}-websocket
+  namespace: {{ include "keep.namespace" . }}
   labels:
     {{- include "keep.labels" . | nindent 4 }}
     app.kubernetes.io/component: websocket
