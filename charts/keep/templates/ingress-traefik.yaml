@@ -22,7 +22,7 @@ metadata:
     {{- end }}
 
 spec:
-  ingressClassName: traefik
+  ingressClassName: {{ .Values.global.ingress.className }}
   {{- if .Values.global.ingress.tls }}
   tls:
     {{- range .Values.global.ingress.tls }}
