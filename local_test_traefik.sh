@@ -66,7 +66,6 @@ helm repo update
 
 echo "🔧 Installing Traefik..."
 helm install traefik traefik/traefik \
-  --set installCRDs=true \
   --set ports.web.port=8000 \
   --set ports.web.exposedPort=80 \
   --set ports.web.nodePort=30080 \
