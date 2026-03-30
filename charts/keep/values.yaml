@@ -131,6 +131,9 @@ backend:
   # -- Sensible environment variables will be rendered as a new secret object; escape {{ in secret values to avoid Helm interpretation.
   envRenderSecret: {}
 
+  # -- Sensible environment variables will be rendered as a new configmap object; escape {{ in secret values to avoid Helm interpretation.
+  envRender: {}
+
   # -- List of secrets to include. Must include name and can be marked as optional.
   envFromSecrets: []
   # - name: keep-secret-name
@@ -259,7 +262,8 @@ frontend:
       value: "true"
   # -- Name of the secret to include
   envFromSecret: ""
-
+  # -- Sensible environment variables will be rendered as a new configmap object; escape {{ in secret values to avoid Helm interpretation.
+  envRender: {}
   # -- Sensible environment variables will be rendered as a new secret object; escape {{ in secret values to avoid Helm interpretation.
   envRenderSecret: {}
 
