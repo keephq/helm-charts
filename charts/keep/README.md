@@ -219,6 +219,10 @@ Keep Helm Chart
 | frontend.tolerations | list | `[]` |  |
 | frontend.topologySpreadConstraints | list | `[]` |  |
 | fullnameOverride | string | `""` |  |
+| global.httpRoute.annotations | object | `{}` |  |
+| global.httpRoute.enabled | bool | `false` |  |
+| global.httpRoute.hostnames | list | `[]` |  |
+| global.httpRoute.parentRefs | list | `[]` |  |
 | global.ingress.annotations | object | `{}` |  |
 | global.ingress.backendPrefix | string | `"/v2"` |  |
 | global.ingress.className | string | `"nginx"` |  |
