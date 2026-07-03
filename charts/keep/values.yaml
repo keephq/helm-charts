@@ -42,6 +42,27 @@ global:
     #       - keep.example.com
     #    secretName: keep-tls
 
+  # this section controls the Gateway API HTTPRoute at httproute.yaml
+  # opt-in alternative to the nginx Ingress above for clusters using the
+  # Kubernetes Gateway API (e.g. Envoy Gateway, Istio, Cilium)
+  httpRoute:
+    enabled: false
+    # references to the Gateway(s) this route should attach to
+    parentRefs: []
+    # parentRefs:
+    #   - name: my-gateway
+    #     namespace: gateway-system
+    #     sectionName: https
+    # hostnames the route matches (leave empty to inherit the Gateway's)
+    hostnames: []
+    # hostnames:
+    #   - keep.example.com
+    # extra annotations for the HTTPRoute resource
+    annotations: {}
+    # the path prefixes are reused from global.ingress above
+    # (websocketPrefix / backendPrefix / frontendPrefix) so routing stays
+    # consistent whichever mechanism is enabled
+
 # Additional labels that should be applied to all resources
 additionalLabels:
   {}
