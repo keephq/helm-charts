@@ -488,6 +488,7 @@ database:
 
 # Add this new section before or after database section
 deleteSecretJob:
+  imagePullSecrets: []
   image:
     repository: bitnami/kubectl
     tag: latest
