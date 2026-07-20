@@ -1,0 +1,20 @@
+{{- if and .Values.websocket.enabled .Values.websocket.podDisruptionBudget.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "keep.fullname" . }}-websocket
+  labels:
+    {{- include "keep.labels" . | nindent 4 }}
+    app.kubernetes.io/component: websocket
+spec:
+  {{- if .Values.websocket.podDisruptionBudget.minAvailable }}
+  minAvailable: {{ .Values.websocket.podDisruptionBudget.minAvailable }}
+  {{- end }}
+  {{- if .Values.websocket.podDisruptionBudget.maxUnavailable }}
+  maxUnavailable: {{ .Values.websocket.podDisruptionBudget.maxUnavailable }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "keep.selectorLabels" . | nindent 6 }}
+      keep-component: websocket
+{{- end }}
