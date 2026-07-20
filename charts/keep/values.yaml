@@ -196,6 +196,10 @@ backend:
   topologySpreadConstraints: []
   tolerations: []
   affinity: {}
+  podDisruptionBudget:
+    enabled: false
+    minAvailable: 1
+    # maxUnavailable: ""
   healthCheck:
     enabled: true
     probes:
@@ -329,6 +333,10 @@ frontend:
   topologySpreadConstraints: []
   tolerations: []
   affinity: {}
+  podDisruptionBudget:
+    enabled: false
+    minAvailable: 1
+    # maxUnavailable: ""
   healthCheck:
     enabled: false
     probes:
@@ -383,6 +391,10 @@ websocket:
   topologySpreadConstraints: []
   tolerations: []
   affinity: {}
+  podDisruptionBudget:
+    enabled: false
+    minAvailable: 1
+    # maxUnavailable: ""
   healthCheck:
     enabled: false
     probes:

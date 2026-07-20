@@ -86,6 +86,8 @@ Keep Helm Chart
 | backend.podAnnotations."prometheus.io/path" | string | `"/metrics/processing"` |  |
 | backend.podAnnotations."prometheus.io/port" | string | `"8080"` |  |
 | backend.podAnnotations."prometheus.io/scrape" | string | `"true"` |  |
+| backend.podDisruptionBudget.enabled | bool | `false` |  |
+| backend.podDisruptionBudget.minAvailable | int | `1` |  |
 | backend.podSecurityContext | object | `{}` |  |
 | backend.provision.providers | object | `{}` |  |
 | backend.provision.workflows | list | `[]` |  |
@@ -202,6 +204,8 @@ Keep Helm Chart
 | frontend.imagePullSecrets | list | `[]` |  |
 | frontend.nodeSelector | object | `{}` |  |
 | frontend.podAnnotations | object | `{}` |  |
+| frontend.podDisruptionBudget.enabled | bool | `false` |  |
+| frontend.podDisruptionBudget.minAvailable | int | `1` |  |
 | frontend.podSecurityContext | object | `{}` |  |
 | frontend.replicaCount | int | `1` |  |
 | frontend.resources | object | `{}` |  |
@@ -266,6 +270,8 @@ Keep Helm Chart
 | websocket.imagePullSecrets | list | `[]` |  |
 | websocket.nodeSelector | object | `{}` |  |
 | websocket.podAnnotations | object | `{}` |  |
+| websocket.podDisruptionBudget.enabled | bool | `false` |  |
+| websocket.podDisruptionBudget.minAvailable | int | `1` |  |
 | websocket.podSecurityContext | object | `{}` |  |
 | websocket.replicaCount | int | `1` |  |
 | websocket.resources | object | `{}` |  |
