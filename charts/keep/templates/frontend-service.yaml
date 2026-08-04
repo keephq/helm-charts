@@ -3,6 +3,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ include "keep.fullname" . }}-frontend
+  namespace: {{ include "keep.namespace" . }}
   labels:
     {{- include "keep.labels" . | nindent 4 }}
     app.kubernetes.io/component: frontend

@@ -3,7 +3,7 @@ apiVersion: cloud.google.com/v1
 kind: BackendConfig
 metadata:
   name: {{ include "keep.fullname" . }}-backend-backendconfig
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ include "keep.namespace" . }}
 spec:
   healthCheck:
     checkIntervalSec: {{ .Values.frontend.backendConfig.healthCheck.checkIntervalSec }}

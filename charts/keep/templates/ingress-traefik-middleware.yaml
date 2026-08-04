@@ -3,7 +3,7 @@ apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
   name: strip-prefix
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ include "keep.namespace" . }}
   labels:
     {{- include "keep.labels" . | nindent 4 }}
     app.kubernetes.io/component: networking

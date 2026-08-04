@@ -4,6 +4,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ $fullName }}-ingress
+  namespace: {{ include "keep.namespace" . }}
   labels:
     {{- include "keep.labels" . | nindent 4 }}
     app.kubernetes.io/component: networking

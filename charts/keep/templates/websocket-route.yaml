@@ -4,6 +4,7 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   name: {{ $fullName }}-websocket
+  namespace: {{ include "keep.namespace" . }}
   labels:
     {{- include "keep.labels" . | nindent 4 }}
     app.kubernetes.io/component: websocket

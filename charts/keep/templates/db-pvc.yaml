@@ -6,6 +6,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: {{ $pvcName }}
+  namespace: {{ include "keep.namespace" . }}
   annotations:
     {{- if .Values.database.pvc.retain }}
     helm.sh/resource-policy: keep
