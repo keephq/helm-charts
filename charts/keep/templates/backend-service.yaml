@@ -11,6 +11,9 @@ metadata:
     {{- if .Values.isGKE }}
     cloud.google.com/backend-config: '{"default": "{{ include "keep.fullname" . }}-backend-backendconfig"}'
     {{- end }}
+    {{- with .Values.backend.serviceAnnotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
   type: {{ .Values.backend.service.type }}
   ports:

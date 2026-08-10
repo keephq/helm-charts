@@ -153,6 +153,7 @@ backend:
   extraInitContainers: []
   imagePullSecrets: []
   deploymentAnnotations: {}
+  serviceAnnotations: {}
   podAnnotations:
     "prometheus.io/scrape": "true"
     "prometheus.io/path": "/metrics/processing"
@@ -286,6 +287,7 @@ frontend:
     pullPolicy: Always
   imagePullSecrets: []
   deploymentAnnotations: {}
+  serviceAnnotations: {}
   serviceAccount:
     create: true
     annotations: {}
@@ -365,6 +367,7 @@ websocket:
     tag: "1.4-16-debian"
   imagePullSecrets: []
   deploymentAnnotations: {}
+  serviceAnnotations: {}
   serviceAccount:
     create: true
     annotations: {}
