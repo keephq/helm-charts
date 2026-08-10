@@ -3,6 +3,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "keep.fullname" . }}-backend
+  {{- with .Values.backend.deploymentAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   labels:
     {{- include "keep.labels" . | nindent 4 }}
     app.kubernetes.io/component: backend

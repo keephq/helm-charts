@@ -152,6 +152,8 @@ backend:
     pullPolicy: Always
   extraInitContainers: []
   imagePullSecrets: []
+  deploymentAnnotations: {}
+  serviceAnnotations: {}
   podAnnotations:
     "prometheus.io/scrape": "true"
     "prometheus.io/path": "/metrics/processing"
@@ -284,6 +286,8 @@ frontend:
     repository: us-central1-docker.pkg.dev/keephq/keep/keep-ui
     pullPolicy: Always
   imagePullSecrets: []
+  deploymentAnnotations: {}
+  serviceAnnotations: {}
   serviceAccount:
     create: true
     annotations: {}
@@ -362,6 +366,8 @@ websocket:
     pullPolicy: Always
     tag: "1.4-16-debian"
   imagePullSecrets: []
+  deploymentAnnotations: {}
+  serviceAnnotations: {}
   serviceAccount:
     create: true
     annotations: {}
