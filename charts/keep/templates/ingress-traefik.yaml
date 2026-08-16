@@ -8,12 +8,14 @@ metadata:
     {{- include "keep.labels" . | nindent 4 }}
     app.kubernetes.io/component: networking
   annotations:
-    traefik.ingress.kubernetes.io/router.middlewares: {{ .Release.Namespace }}-strip-prefix@kubernetescrd
-    traefik.ingress.kubernetes.io/router.entrypoints: web
-    traefik.ingress.kubernetes.io/timeouts.idle: "3600s"
-    traefik.ingress.kubernetes.io/timeouts.connect: "3600s"
-    traefik.ingress.kubernetes.io/timeouts.read: "3600s"
-    traefik.ingress.kubernetes.io/timeouts.write: "3600s"
+    traefik.ingress.kubernetes.io/router.middlewares: {{ .Values.global.ingress.traefik.middleware | default (printf "%s-strip-prefix@kubernetescrd" .Release.Namespace) }}
+    traefik.ingress.kubernetes.io/router.entrypoints: {{ .Values.global.ingress.traefik.entrypoints }}
+    {{- with .Values.global.ingress.traefik.timeouts }}
+    traefik.ingress.kubernetes.io/timeouts.idle: "{{ .idle }}"
+    traefik.ingress.kubernetes.io/timeouts.connect: "{{ .connect }}"
+    traefik.ingress.kubernetes.io/timeouts.read: "{{ .read }}"
+    traefik.ingress.kubernetes.io/timeouts.write: "{{ .write }}"
+    {{- end }}
 
     # WebSocket configuration
     traefik.ingress.kubernetes.io/websockets.enabled: "true"

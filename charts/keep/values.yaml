@@ -41,6 +41,14 @@ global:
     #   - hosts:
     #       - keep.example.com
     #    secretName: keep-tls
+    traefik:
+      middleware: ""
+      entrypoints: web
+      timeouts:
+        idle: "3600s" 
+        connect: "3600s" 
+        read: "3600s" 
+        write: "3600s" 
 
 # Additional labels that should be applied to all resources
 additionalLabels:
