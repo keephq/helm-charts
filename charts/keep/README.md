@@ -228,6 +228,12 @@ Keep Helm Chart
 | global.ingress.hosts | list | `[]` |  |
 | global.ingress.tls | list | `[]` |  |
 | global.ingress.websocketPrefix | string | `"/websocket"` |  |
+| global.ingress.traefik.middleware | string | `""` |  |
+| global.ingress.traefik.entrypoint | string | `""` |  |
+| global.ingress.traefik.timeouts.idle | string | `"3600s"` |  |
+| global.ingress.traefik.timeouts.connect | string | `"3600s"` |  |
+| global.ingress.traefik.timeouts.read | string | `"3600s"` |  |
+| global.ingress.traefik.timeouts.write | string | `"3600s"` |  |
 | isGKE | bool | `false` |  |
 | nameOverride | string | `""` |  |
 | namespace | string | `"keep"` |  |
